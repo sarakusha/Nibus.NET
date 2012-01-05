@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 
 namespace NataInfo.Nibus
@@ -74,7 +73,7 @@ namespace NataInfo.Nibus
             switch(buffer[offset])
             {
                 case 0:
-                    var mac = new byte[6];
+                    var mac = new byte[MACLength];
                     Array.Copy(buffer, offset + 1, mac, 0, MACLength);
                     return new Address(mac);
                 case 1:
@@ -252,7 +251,7 @@ namespace NataInfo.Nibus
                 throw new ArgumentException();
             }
 
-            if (mac.Length == 6 && mac.All(b => b == 255))
+            if (mac.Length == MACLength && mac.All(b => b == 255))
             {
                 Type = AddressType.Broadcast;
                 return;
@@ -377,12 +376,14 @@ namespace NataInfo.Nibus
             }
         }
 
+        /// <summary>
+        /// Возвращает размер буфера для хранения адреса.
+        /// </summary>
         public static int Length
         {
             get
             {
-                Debug.Assert(MACLength == 6);
-                return 7;
+                return MACLength + 1;
             }
         }
 
