@@ -17,7 +17,7 @@ namespace NataInfo.Nibus
         private const int DataOfs = 16;
         private const int ServiceInfoLength = DataOfs + sizeof(ushort);
 
-        static readonly ushort[] Crc16Table = new ushort[]
+        private static readonly ushort[] Crc16Table = new ushort[]
         {
 	        0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,
 	        0x8108, 0x9129, 0xA14A, 0xB16B, 0xC18C, 0xD1AD, 0xE1CE, 0xF1EF,
@@ -180,7 +180,7 @@ namespace NataInfo.Nibus
             Array.Copy(bufferedData, SourceOfs, addressData, 1, Address.MACLength);
             var source = Address.ReadFrom(addressData, 0);
 
-            var priority = (bufferedData[ServiceFieldOfs] >> 4) & 3;
+            var priority = (PriorityType) ((bufferedData[ServiceFieldOfs] >> 4) & 3);
 
             var protocol = (ProtocolType) bufferedData[ProtocolOfs];
 
@@ -189,7 +189,7 @@ namespace NataInfo.Nibus
             return new NibusDatagram(destanation, source, priority, protocol, data);
         }
 
-        private static byte[] Encode(INibusDatagram datagram)
+        private static byte[] Encode(NibusDatagram datagram)
         {
             // TODO: Проверить белиберду с длиной данных
             var data = new byte[ServiceInfoLength + datagram.Data.Count];
@@ -218,9 +218,9 @@ namespace NataInfo.Nibus
             return data;
         }
 
-        private static byte GetServiceField(byte destAddressType, byte srcAddressType, int priority)
+        private static byte GetServiceField(byte destAddressType, byte srcAddressType, PriorityType priority)
         {
-            return (byte)(0xC0 | ((priority & 3) << 4) | ((destAddressType & 3) << 2) | (srcAddressType & 3));
+            return (byte)(0xC0 | (((byte)priority & 3) << 4) | ((destAddressType & 3) << 2) | (srcAddressType & 3));
         }
 
         private static ushort GetCrcCiit(byte[] data, int ofs, int count)

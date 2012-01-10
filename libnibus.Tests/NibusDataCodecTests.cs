@@ -13,7 +13,8 @@ namespace NataInfo.Nibus.Tests
         public void EncodeDecode_Equal(
             [ValueSource("Addresses")] Address destanation,
             [ValueSource("Addresses")] Address source,
-            [Values(0, 1, 2, 3)] int priority,
+            [Values(PriorityType.Realtime, PriorityType.AboveNormal, PriorityType.Normal, PriorityType.BelowNormal)]
+            PriorityType priority,
             [Values(ProtocolType.Nms, ProtocolType.Sarp)] ProtocolType protocol)
         {
             var codec = new NibusDataCodec();

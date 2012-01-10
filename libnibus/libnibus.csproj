@@ -53,8 +53,13 @@
   <ItemGroup>
     <Compile Include="Address.cs" />
     <Compile Include="INibusCodec.cs" />
+    <Compile Include="INibusEndpoint.cs" />
+    <Compile Include="INibusProtocol.cs" />
+    <Compile Include="NibusBroadcastCodec.cs" />
     <Compile Include="NibusDataCodec.cs" />
     <Compile Include="NibusDatagram.cs" />
+    <Compile Include="NmsMessage.cs" />
+    <Compile Include="NmsProtocol.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerialTransport.cs" />
   </ItemGroup>

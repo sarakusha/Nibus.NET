@@ -11,11 +11,19 @@ namespace NataInfo.Nibus
         Sarp = 2
     }
 
+    public enum PriorityType
+    {
+		Realtime = 0,
+		AboveNormal = 1,
+		Normal = 2,
+		BelowNormal = 3
+	}
+
     public interface INibusDatagram
     {
         Address Destanation { get; }
         Address Source { get; }
-        int Priority { get; set; }
+        PriorityType Priority { get; }
         ProtocolType Protocol { get; }
         ReadOnlyCollection<byte> Data { get; }
     }
@@ -24,7 +32,7 @@ namespace NataInfo.Nibus
     {
         public const int MaxDataLength = 238;
 
-        public NibusDatagram(Address destanation, Address source, int priority, ProtocolType protocol, IList<byte> data)
+        public NibusDatagram(Address destanation, Address source, PriorityType priority, ProtocolType protocol, IList<byte> data)
         {
             if (data == null || data.Count > MaxDataLength)
             {
@@ -38,14 +46,10 @@ namespace NataInfo.Nibus
             Priority = priority;
         }
 
-        #region Implementation of INibusDatagram
-
         public Address Destanation { get; private set; }
         public Address Source { get; private set; }
-        public int Priority { get; set; }
+        public PriorityType Priority { get; private set; }
         public ProtocolType Protocol { get; private set; }
         public ReadOnlyCollection<byte> Data { get; private set; }
-
-        #endregion
     }
 }

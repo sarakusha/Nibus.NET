@@ -6,7 +6,7 @@ using System.Threading.Tasks.Dataflow;
 
 namespace NataInfo.Nibus
 {
-    public sealed class SerialTransport : IDisposable
+    public sealed class SerialTransport : INibusEndpoint<byte[], byte[]>
     {
         private readonly SerialPort _serial;
         private readonly BufferBlock<byte[]> _incoming;
@@ -23,7 +23,7 @@ namespace NataInfo.Nibus
             _outgoing = new BufferBlock<byte[]>();
         }
 
-        #region Implementation of INibusCodec<in byte[],out byte[]>
+        #region Implementation of INibusEndpoint<in byte[],out byte[]>
 
         public ITargetBlock<byte[]> IncomingMessages
         {
@@ -35,13 +35,13 @@ namespace NataInfo.Nibus
             get { return _outgoing; }
         }
 
+        #endregion
+
         public void RunAsync()
         {
             _serial.Open();
             RunAsyncInternal();
         }
-
-        #endregion
 
         #region Implementation of IDisposable
 
