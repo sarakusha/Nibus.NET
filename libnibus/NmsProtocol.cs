@@ -88,6 +88,7 @@ namespace NataInfo.Nibus
         {
             var reading = nmsMessage.Where(msg => msg.ServiceType == NmsServiceType.Read)
                 .GroupBy(msg => new {msg.Destanation, msg.Source}, msg => msg.Id);
+            //test
 
         }
     }
