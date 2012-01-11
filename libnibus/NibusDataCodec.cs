@@ -186,7 +186,7 @@ namespace NataInfo.Nibus
 
             var data = bufferedData.Skip(DataOfs).Take(bufferedData[LengthOfs]).ToList();
             
-            return new NibusDatagram(destanation, source, priority, protocol, data);
+            return new NibusDatagram(source, destanation, priority, protocol, data);
         }
 
         private static byte[] Encode(NibusDatagram datagram)
