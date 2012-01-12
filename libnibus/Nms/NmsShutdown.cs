@@ -13,7 +13,7 @@ using System.Diagnostics.Contracts;
 
 namespace NataInfo.Nibus.Nms
 {
-    internal sealed class NmsShutdown : NmsMessage
+    public sealed class NmsShutdown : NmsMessage
     {
         #region Constructors
 

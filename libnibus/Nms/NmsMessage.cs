@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace NataInfo.Nibus.Nms
 {
-    internal enum NmsServiceType
+    public enum NmsServiceType
     {
         None = 0,
         Read = 1,
@@ -31,11 +32,11 @@ namespace NataInfo.Nibus.Nms
         Shutdown = 20
     }
 
-    internal abstract class NmsMessage 
+    public abstract class NmsMessage 
     {
         #region NmsValueType enum
 
-        public enum NmsValueType
+        public enum NmsValueType : byte
         {
             Boolean = 11, // 8 бит Значение TRUE = 1/FALSE = 0
             Int8 = 16, // 8 бит Знаковый байт
@@ -49,7 +50,8 @@ namespace NataInfo.Nibus.Nms
             Real32 = 4, // 32 бита Значение с плавающей точкой
             Real64 = 5, // 64 бита Значение с плавающей точкой удвоенной точности
             String = 30, // Строка символов с терминирующим нулем
-            DateTime = 7, // 80 бит Дата/время в формате BCD
+            DateTime = 7,
+            // 80 бит Дата/время в формате BCD
             // DD-MM-YYYY HH:MM:SS.0mmmbW
             // DD – дата
             // MM – месяц
@@ -63,7 +65,18 @@ namespace NataInfo.Nibus.Nms
             // 2 – пн,
             // … 7 – сб)
             // b – зарезервировано
-            Array = 0x80
+            Array = 0x80,
+            BooleanArray = Boolean | Array,
+            Int8Array = Int8 | Array,
+            Int16Array = Int16 | Array,
+            Int32Array = Int32 | Array,
+            Int64Array = Int64 | Array,
+            UInt8Array = UInt8 | Array,
+            UInt16Array = UInt16 | Array,
+            UInt32Array = UInt32 | Array,
+            UInt64Array = UInt64 | Array,
+            Real32Array = Real32 | Array,
+            Real64Array = Real64 | Array
         }
 
         #endregion
@@ -82,7 +95,7 @@ namespace NataInfo.Nibus.Nms
             Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
             Contract.Ensures(Datagram != null);
 
-            if (datagram.Data.Count < Length + NmsHeaderLength)
+            if (datagram.Data.Count < (datagram.Data[2] & 0x3F) + NmsHeaderLength)
             {
                 throw new ArgumentException("Invalid data");
             }
@@ -220,12 +233,53 @@ namespace NataInfo.Nibus.Nms
                         buffer.Skip(offset).Take(NmsMaxDataLength - 1).TakeWhile(b => b != 0).ToArray());
                 case NmsValueType.DateTime:
                     return GetDateTime(buffer, offset);
-                case NmsValueType.Array:
-                    int length = Math.Min((int)buffer[offset], NmsMaxDataLength - 1);
-                    return buffer.Skip(offset + 1).Take(length).ToArray();
-                default:
-                    throw new ArgumentException("Invalid ValueType");
             }
+
+            if (((byte)valueType & (byte)NmsValueType.Array) == 0)
+            {
+                throw new ArgumentException("Invalid ValueType");
+            }
+
+            var arrayType = (NmsValueType)((byte)valueType & ((byte)NmsValueType.Array - 1));
+            var arraySize = buffer.Length - offset - 1;
+            var itemSize = GetSizeOf(arrayType, String.Empty);
+            var arrayLength = arraySize/itemSize;
+            var array = new object[arrayLength];
+            for (var i = 0; i < arrayLength; i++)
+            {
+                array[i] = ReadValue(arrayType, buffer, offset);
+                offset += itemSize;
+            }
+
+            return array;
+
+            //switch (arrayType)
+            //{
+            //    case NmsValueType.Boolean:
+            //        return array.Cast<Boolean>().ToArray();
+            //    case NmsValueType.Int8:
+            //        return array.Cast<sbyte>().ToArray();
+            //    case NmsValueType.Int16:
+            //        return array.Cast<short>().ToArray();
+            //    case NmsValueType.Int32:
+            //        return array.Cast<int>().ToArray();
+            //    case NmsValueType.Int64:
+            //        return array.Cast<long>().ToArray();
+            //    case NmsValueType.UInt8:
+            //        return array.Cast<byte>().ToArray();
+            //    case NmsValueType.UInt16:
+            //        return array.Cast<ushort>().ToArray();
+            //    case NmsValueType.UInt32:
+            //        return array.Cast<uint>().ToArray();
+            //    case NmsValueType.UInt64:
+            //        return array.Cast<ulong>().ToArray();
+            //    case NmsValueType.Real32:
+            //        return array.Cast<float>().ToArray();
+            //    case NmsValueType.Real64:
+            //        return array.Cast<double>().ToArray();
+            //    default:
+            //        throw new ArgumentException("Invalid array type");
+            //}
         }
 
         protected static byte[] WriteValue(NmsValueType valueType, object value)
@@ -292,18 +346,17 @@ namespace NataInfo.Nibus.Nms
                                 (byte)(dt.DayOfWeek + 1)
                             });
                     break;
-                case NmsValueType.Array:
-                    var nmsValue = (byte[])value;
-                    if (nmsValue.Length > NmsMaxDataLength - 1)
-                    {
-                        throw new ArgumentException("Invalid array length");
-                    }
+            }
 
-                    data.Add((byte)nmsValue.Length);
-                    data.AddRange(nmsValue);
-                    break;
-                default:
-                    throw new ArgumentException("Invalid ValueType");
+            if (((byte)valueType & (byte)NmsValueType.Array) == 0)
+            {
+                throw new ArgumentException("Invalid ValueType");
+            }
+
+            var arrayType = (NmsValueType)((byte)valueType & ((byte)NmsValueType.Array - 1));
+            foreach (var item in (IEnumerable)value)
+            {
+                data.AddRange(WriteValue(arrayType, item));
             }
 
             return data.ToArray();
@@ -329,18 +382,18 @@ namespace NataInfo.Nibus.Nms
 
             data[0] = (byte)(((byte)service << 3) | ((id & 1023) >> 8));
             data[1] = (byte)(id & 0xFF);
-            data[2] = (byte)((isResponsible ? 0x80 : 0) | (r1 ? 0x40 : 0) | nmsLength & 0x3F);
+            data[2] = (byte)((isResponsible ? 0 : 0x80) | (r1 ? 0x40 : 0) | nmsLength & 0x3F);
 
             Datagram = new NibusDatagram(source, destanation, priority, ProtocolType.Nms, data);
         }
 
-        private static byte PackByte(int b)
+        internal static byte PackByte(int b)
         {
             b %= 100;
             return (byte)(b/10*16 + b%10);
         }
 
-        private static int UnpackByte(byte b)
+        internal static int UnpackByte(byte b)
         {
             return (b & 0x0f) + (b >> 4)*10;
         }
@@ -380,11 +433,16 @@ namespace NataInfo.Nibus.Nms
                     return 10;
                 case NmsValueType.String:
                     return Math.Min(NmsMaxDataLength - 1, ((string)value).Length + 1);
-                case NmsValueType.Array:
-                    return Math.Min(NmsMaxDataLength - 1, ((byte[])value).Length);
-                default:
-                    throw new ArgumentException("Invalid value type");
             }
+
+            if (((byte)vt & (byte)NmsValueType.Array) == 0)
+            {
+                throw new ArgumentException("Invalid ValueType");
+            }
+
+            var arrayType = (NmsValueType)((byte)vt & ((byte)NmsValueType.Array - 1));
+            var itemSize = GetSizeOf(arrayType, String.Empty);
+            return ((ICollection)value).Count*itemSize;
         }
     }
 }

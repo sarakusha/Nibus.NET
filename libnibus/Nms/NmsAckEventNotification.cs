@@ -13,7 +13,7 @@ using System.Diagnostics.Contracts;
 
 namespace NataInfo.Nibus.Nms
 {
-    internal sealed class NmsAckEventNotification : NmsMessage
+    public sealed class NmsAckEventNotification : NmsMessage
     {
         public NmsAckEventNotification(NibusDatagram datagram) : base(datagram)
         {

@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace NataInfo.Nibus.Nms
 {
-    internal sealed class NmsDownloadSegment : NmsMessage
+    public sealed class NmsDownloadSegment : NmsMessage
     {
         #region Constructors
 

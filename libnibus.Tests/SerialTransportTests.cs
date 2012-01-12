@@ -18,7 +18,7 @@ namespace NataInfo.Nibus.Tests
             using (var serial = new SerialTransport("COM4", 9600))
             {
                 serial.RunAsync();
-                var data = serial.OutgoingMessages.Receive();
+                var data = serial.Decoder.Receive();
                 Assert.That(data, Is.Not.Null);
             }
         }
@@ -29,7 +29,7 @@ namespace NataInfo.Nibus.Tests
             using (var serial = new SerialTransport("COM4", 9600))
             {
                 serial.RunAsync();
-                var b = serial.IncomingMessages.Post(Encoding.Default.GetBytes("Привет! Hello!"));
+                var b = serial.Encoder.Post(Encoding.Default.GetBytes("Привет! Hello!"));
                 Assert.That(b);
             }
         }

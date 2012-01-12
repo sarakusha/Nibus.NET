@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace NataInfo.Nibus.Nms
 {
-    internal sealed class NmsVerifyDomainChecksum : NmsMessage
+    public sealed class NmsVerifyDomainChecksum : NmsMessage
     {
         #region Constructors
 

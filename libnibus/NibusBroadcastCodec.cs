@@ -3,7 +3,7 @@ using System.Threading.Tasks.Dataflow;
 
 namespace NataInfo.Nibus
 {
-    public class NibusBroadcastCodec : INibusCodec<NibusDatagram, NibusDatagram>
+    public class NibusBroadcastCodec : INibusCodec<NibusDatagram, NibusDatagram>, INibusEndpoint<NibusDatagram, NibusDatagram>
     {
         private readonly CancellationTokenSource _cts;
         private readonly BroadcastBlock<NibusDatagram> _decoder;
@@ -38,5 +38,16 @@ namespace NataInfo.Nibus
         }
 
         #endregion
+
+        ISourceBlock<NibusDatagram> INibusEndpoint<NibusDatagram, NibusDatagram>.Decoder
+        {
+            get { return Decoder; }
+        }
+
+        ITargetBlock<NibusDatagram> INibusEndpoint<NibusDatagram, NibusDatagram>.Encoder
+        {
+            get { return Encoder; }
+        }
+
     }
 }

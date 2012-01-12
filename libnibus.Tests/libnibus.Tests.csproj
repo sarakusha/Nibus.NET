@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="AddressTests.cs" />
     <Compile Include="NibusDataCodecTests.cs" />
+    <Compile Include="NibusTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerialTransportTests.cs" />
   </ItemGroup>

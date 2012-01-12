@@ -16,7 +16,7 @@ using System.Text;
 
 namespace NataInfo.Nibus.Nms
 {
-    internal sealed class NmsRequestDomainUpload : NmsMessage
+    public sealed class NmsRequestDomainUpload : NmsMessage
     {
         #region Member Variables
 

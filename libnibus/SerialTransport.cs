@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.IO.Ports;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,12 +26,18 @@ namespace NataInfo.Nibus
 
         #region Implementation of INibusEndpoint<in byte[],out byte[]>
 
-        public ITargetBlock<byte[]> IncomingMessages
+        /// <summary>
+        /// To Serial 
+        /// </summary>
+        public ITargetBlock<byte[]> Encoder
         {
             get { return _incoming; }
         }
 
-        public ISourceBlock<byte[]> OutgoingMessages
+        /// <summary>
+        /// From Serial
+        /// </summary>
+        public ISourceBlock<byte[]> Decoder
         {
             get { return _outgoing; }
         }
@@ -68,6 +75,10 @@ namespace NataInfo.Nibus
 
         private Task WriteAsync(byte[] data)
         {
+            if (Logger.IsDebugEnabled)
+            {
+                Logger.Debug(String.Join(":", data.Select(b => b.ToString("X2")).ToArray()));
+            }
             var stream = _serial.BaseStream;
             return Task.Factory.FromAsync(stream.BeginWrite, stream.EndWrite, data, 0, data.Length, null);
         }
@@ -78,6 +89,10 @@ namespace NataInfo.Nibus
             {
                 var buffer = new byte[_serial.BytesToRead];
                 _serial.Read(buffer, 0, buffer.Length);
+                if (Logger.IsDebugEnabled)
+                {
+                    Logger.Debug(String.Join(":", buffer.Select(b => b.ToString("X2")).ToArray()));
+                }
                 _outgoing.Post(buffer);
             }
             catch (Exception ex)

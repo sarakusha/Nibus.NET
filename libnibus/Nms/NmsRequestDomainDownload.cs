@@ -16,7 +16,7 @@ using System.Text;
 
 namespace NataInfo.Nibus.Nms
 {
-    internal sealed class NmsRequestDomainDownload : NmsMessage
+    public sealed class NmsRequestDomainDownload : NmsMessage
     {
         #region Constructors
 

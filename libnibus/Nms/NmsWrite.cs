@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace NataInfo.Nibus.Nms
 {
-    internal sealed class NmsWrite : NmsMessage
+    public sealed class NmsWrite : NmsMessage
     {
         #region Member Variables
 
@@ -37,14 +37,14 @@ namespace NataInfo.Nibus.Nms
             }
         }
 
-        public NmsWrite(Address source, Address destanation, int id, NmsValueType valueType, object value)
+        public NmsWrite(Address source, Address destanation, int id, NmsValueType valueType, object value, bool isResponsible = true, PriorityType priority = PriorityType.Normal)
         {
             Initialize(
                 source,
                 destanation,
-                PriorityType.Normal,
+                priority,
                 NmsServiceType.Write,
-                true,
+                isResponsible,
                 id,
                 false,
                 WriteValue(valueType, value));

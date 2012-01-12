@@ -143,7 +143,7 @@ namespace NataInfo.Nibus
                         break;
                     case ReceiveState.DataReading:
                         _bufferedData.Add(b);
-                        if (_bufferedData[LengthOfs] + ServiceInfoLength == _bufferedData.Count)
+                        if (_bufferedData[LengthOfs] + ServiceInfoLength - 1 == _bufferedData.Count)
                         {
                             _receiveState = ReceiveState.PreambleWaiting;
                             var datagram = ParseData(_bufferedData.ToArray());
@@ -205,13 +205,13 @@ namespace NataInfo.Nibus
             
             data[ServiceFieldOfs] = GetServiceField(destAddressType, srcAddressType, datagram.Priority);
 
-            data[LengthOfs] = (byte)(datagram.Data.Count);
+            data[LengthOfs] = (byte)(datagram.Data.Count + 1);
 
             data[ProtocolOfs] = (byte)datagram.Protocol;
 
             Array.Copy(datagram.Data.ToArray(), 0, data, DataOfs, datagram.Data.Count);
             
-            var crc = GetCrcCiit(data, 1, datagram.Data.Count + DataOfs - 1);
+            var crc = GetCrcCiit(data, 1, data.Length - 1 - 2 /*datagram.Data.Count + DataOfs - 1*/);
             data[data.Length - 2] = (byte) (crc >> 8);
             data[data.Length - 1] = (byte) (crc & 0xFF);
 

@@ -17,7 +17,7 @@ using System.Linq;
 
 namespace NataInfo.Nibus.Nms
 {
-    internal sealed class NmsStartProgramInvocation : NmsMessage
+    public sealed class NmsStartProgramInvocation : NmsMessage
     {
         #region Member Variables
 

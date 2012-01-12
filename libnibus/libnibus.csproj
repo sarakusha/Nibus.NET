@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Address.cs" />
+    <Compile Include="Nibus.cs" />
     <Compile Include="Nms\NmsAlterEventConditionMonitoring.cs" />
     <Compile Include="INibusCodec.cs" />
     <Compile Include="INibusEndpoint.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Nms\NmsShutdown.cs" />
     <Compile Include="Nms\NmsStartProgramInvocation.cs" />
     <Compile Include="Nms\NmsStop.cs" />
+    <Compile Include="Nms\TimerInfo.cs" />
     <Compile Include="Nms\NmsUploadSegment.cs" />
     <Compile Include="Nms\NmsVerifyDomainChecksum.cs" />
     <Compile Include="Nms\NmsWrite.cs" />

@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace NataInfo.Nibus.Nms
 {
-    internal sealed class NmsRead : NmsMessage
+    public sealed class NmsRead : NmsMessage
     {
         #region Member Variables
 
@@ -48,7 +48,7 @@ namespace NataInfo.Nibus.Nms
 
         public NmsRead(Address source, Address destanation, int id)
         {
-            Initialize(source, destanation, PriorityType.Normal, NmsServiceType.Read, true, id, false, new byte[0]);
+            Initialize(source, destanation, PriorityType.Realtime, NmsServiceType.Read, true, id, false, new byte[0]);
         }
 
         #endregion //Constructors

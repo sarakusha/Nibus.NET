@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NataInfo.Nibus
 {
-    public interface INibusProtocol : INibusEndpoint<NibusDatagram, NibusDatagram>
+    public interface INibusProtocol<TEncoded, TDecoded> : INibusCodec<TEncoded, TDecoded>
     {
         ProtocolType Protocol { get; }
     }
