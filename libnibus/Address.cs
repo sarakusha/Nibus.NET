@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.Linq;
 
 namespace NataInfo.Nibus
@@ -70,6 +71,8 @@ namespace NataInfo.Nibus
         /// <remarks>Размер буфера должен быть не меньше <see cref="Length"/> + <see cref="offset"/>.</remarks>
         public static Address ReadFrom(byte[] buffer, int offset)
         {
+            Contract.Requires(buffer.Length - offset >= MACLength + 1);
+
             switch(buffer[offset])
             {
                 case 0:
@@ -156,7 +159,7 @@ namespace NataInfo.Nibus
                     }
                     else
                     {
-                        if (address.IndexOf("::", sep + 2, StringComparison.Ordinal) != -1)
+                        if (sep + 2 < address.Length && address.IndexOf("::", sep + 2, StringComparison.Ordinal) != -1)
                         {
                             throw new ArgumentException();
                         }
@@ -424,6 +427,7 @@ namespace NataInfo.Nibus
 
         private void WriteData(byte[] buffer, int offset, byte type, byte[] data)
         {
+            Contract.Assume(buffer.Length - offset > data.Length);
             var i = 0;
             buffer[offset + i++] = type;
             Array.Copy(data, 0, buffer, offset + i, data.Length);
@@ -527,6 +531,7 @@ namespace NataInfo.Nibus
                 case AddressType.Net:
                     return String.Format("{0}.{1}.{2}", Domain, Subnet, Device);
                 case AddressType.Hardware:
+                    Contract.Assume(_mac.Any(b => b != 0));
                     var str = String.Join(":", _mac.SkipWhile(b => b == 0).Select(b => b.ToString("X2")));
                     return _mac[0] == 0 ? "::" + str : str;
                 default:

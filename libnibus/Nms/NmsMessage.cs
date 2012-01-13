@@ -92,8 +92,8 @@ namespace NataInfo.Nibus.Nms
         {
             Contract.Requires(datagram != null);
             Contract.Requires(datagram.Protocol == ProtocolType.Nms);
-            Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
             Contract.Ensures(Datagram != null);
+            Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
 
             if (datagram.Data.Count < (datagram.Data[2] & 0x3F) + NmsHeaderLength)
             {
@@ -204,6 +204,7 @@ namespace NataInfo.Nibus.Nms
         protected static object ReadValue(NmsValueType valueType, byte[] buffer, int offset)
         {
             Contract.Requires(buffer != null);
+            Contract.Requires(offset >= 0);
             switch (valueType)
             {
                 case NmsValueType.Boolean:
@@ -395,17 +396,25 @@ namespace NataInfo.Nibus.Nms
 
         internal static int UnpackByte(byte b)
         {
-            return (b & 0x0f) + (b >> 4)*10;
+            Contract.Ensures(0 <= Contract.Result<int>());
+            Contract.Ensures(Contract.Result<int>() < 100);
+            return (b & 0x0f) + (b >> 4) * 10;
         }
 
         private static DateTime GetDateTime(byte[] buffer, int startIndex)
         {
             int day = UnpackByte(buffer[0 + startIndex]);
+            Contract.Assume(day >= 1);
             int month = UnpackByte(buffer[1 + startIndex]);
+            Contract.Assume(1 <= month && month <= 12);
             int year = UnpackByte(buffer[3 + startIndex]) + UnpackByte(buffer[2 + startIndex])*100;
+            Contract.Assume(1 <= year);
             int hour = UnpackByte(buffer[4 + startIndex]);
+            Contract.Assume(hour <= 24);
             int minute = UnpackByte(buffer[5 + startIndex]);
+            Contract.Assume(minute <= 60);
             int second = UnpackByte(buffer[6 + startIndex]);
+            Contract.Assume(second <= 60);
             int ms = UnpackByte(buffer[8 + startIndex]) + (buffer[7 + startIndex] & 0x0f)*100;
             return new DateTime(year, month, day, hour, minute, second, ms);
         }

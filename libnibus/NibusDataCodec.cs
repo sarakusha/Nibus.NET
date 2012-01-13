@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks.Dataflow;
 
 namespace NataInfo.Nibus
 {
-    public class NibusDataCodec : INibusCodec<byte[], NibusDatagram>
+    public class NibusDataCodec : NibusCodec<byte[], NibusDatagram>
     {
         private const byte Preamble = 0x7E;
         private const int DestanationOfs = 1;
         private const int SourceOfs = 7;
         private const int ServiceFieldOfs = 13;
-        private const int LengthOfs = 14;
+        private const int LengthOfs = 14; // Значение поля длины данных увеличено на 1 от длины реальных данных!
         private const int ProtocolOfs = 15;
         private const int DataOfs = 16;
         private const int ServiceInfoLength = DataOfs + sizeof(ushort);
@@ -60,10 +60,6 @@ namespace NataInfo.Nibus
             DataReading
         }
 
-        private readonly CancellationTokenSource _cts;
-        private readonly TransformManyBlock<byte[], NibusDatagram> _decoder;
-        private readonly TransformBlock<NibusDatagram, byte[]> _encoder;
-        
         private readonly List<byte> _bufferedData = new List<byte>(NibusDatagram.MaxDataLength + ServiceInfoLength);
         private ReceiveState _receiveState = ReceiveState.PreambleWaiting;
         private static decimal _overrunErrors;
@@ -71,10 +67,10 @@ namespace NataInfo.Nibus
 
         public NibusDataCodec()
         {
-            _cts = new CancellationTokenSource();
-            var options = new ExecutionDataflowBlockOptions {CancellationToken = _cts.Token};
-            _decoder = new TransformManyBlock<byte[], NibusDatagram>(data => Decode(data), options);
-            _encoder = new TransformBlock<NibusDatagram, byte[]>(datagram => Encode(datagram), options);
+            Contract.Ensures(Decoder != null);
+            Contract.Ensures(Encoder != null);
+            Decoder = new TransformManyBlock<byte[], NibusDatagram>(data => Decode(data));
+            Encoder = new TransformBlock<NibusDatagram, byte[]>(datagram => Encode(datagram));
         }
 
         public static decimal CrcErrors
@@ -86,29 +82,6 @@ namespace NataInfo.Nibus
         {
             get { return _overrunErrors; }
         }
-
-        #region Implementation of IDisposable
-
-        public void Dispose()
-        {
-            _cts.Cancel();
-        }
-
-        #endregion
-
-        #region Implementation of INibusCodec<byte[], NibusDatagram>
-
-        public IPropagatorBlock<NibusDatagram, byte[]> Encoder
-        {
-            get { return _encoder; }
-        }
-
-        public IPropagatorBlock<byte[], NibusDatagram> Decoder
-        {
-            get { return _decoder; }
-        }
-
-        #endregion
 
         private IEnumerable<NibusDatagram> Decode(byte[] rawData)
         {
@@ -143,6 +116,7 @@ namespace NataInfo.Nibus
                         break;
                     case ReceiveState.DataReading:
                         _bufferedData.Add(b);
+                        // Так как длина данных реально меньше на 1, чем заявлено, вычитаем ее!
                         if (_bufferedData[LengthOfs] + ServiceInfoLength - 1 == _bufferedData.Count)
                         {
                             _receiveState = ReceiveState.PreambleWaiting;
@@ -184,14 +158,14 @@ namespace NataInfo.Nibus
 
             var protocol = (ProtocolType) bufferedData[ProtocolOfs];
 
-            var data = bufferedData.Skip(DataOfs).Take(bufferedData[LengthOfs]).ToList();
+            // Так как длина данных реально меньше на 1, чем заявлено, вычитаем ее!
+            var data = bufferedData.Skip(DataOfs).Take(bufferedData[LengthOfs] - 1).ToList();
             
             return new NibusDatagram(source, destanation, priority, protocol, data);
         }
 
         private static byte[] Encode(NibusDatagram datagram)
         {
-            // TODO: Проверить белиберду с длиной данных
             var data = new byte[ServiceInfoLength + datagram.Data.Count];
             data[0] = Preamble;
             
@@ -205,13 +179,13 @@ namespace NataInfo.Nibus
             
             data[ServiceFieldOfs] = GetServiceField(destAddressType, srcAddressType, datagram.Priority);
 
-            data[LengthOfs] = (byte)(datagram.Data.Count + 1);
+            data[LengthOfs] = (byte)(datagram.Data.Count + 1); // Поле длины кадра = длина + 1 ??? WTF!
 
             data[ProtocolOfs] = (byte)datagram.Protocol;
 
             Array.Copy(datagram.Data.ToArray(), 0, data, DataOfs, datagram.Data.Count);
             
-            var crc = GetCrcCiit(data, 1, data.Length - 1 - 2 /*datagram.Data.Count + DataOfs - 1*/);
+            var crc = GetCrcCiit(data, 1, data.Length - 1 - sizeof(ushort));
             data[data.Length - 2] = (byte) (crc >> 8);
             data[data.Length - 1] = (byte) (crc & 0xFF);
 

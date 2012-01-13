@@ -7,12 +7,8 @@
 
 #region Using directives
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks.Dataflow;
-using NataInfo.Nibus.Nms;
+using System.Diagnostics.Contracts;
+using NLog;
 
 #endregion
 
@@ -21,25 +17,27 @@ namespace NataInfo.Nibus
     public static class Nibus
     {
         #region Member Variables
-        
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        
+
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         #endregion
 
         #region Methods
 
-        public static INibusEndpoint<NibusDatagram, NibusDatagram> BuildNibusStack(INibusEndpoint<byte[], byte[]> bottom)
+        public static INibusEndpoint<NibusDatagram> BuildNibusStack(
+            INibusEndpoint<byte[]> transport)
         {
+            Contract.Requires(transport != null);
+            Contract.Requires(transport.Decoder != null);
+            Contract.Requires(transport.Encoder != null);
             Logger.Debug("Build Stack");
             var nibusDataCodec = new NibusDataCodec();
-            bottom.Decoder.LinkTo(nibusDataCodec.Decoder);
-            nibusDataCodec.Encoder.LinkTo(bottom.Encoder);
+            transport.LinkTo(nibusDataCodec);
 
-            var broadcaster = new NibusBroadcastCodec();
-            nibusDataCodec.Decoder.LinkTo(broadcaster.Decoder);
-            broadcaster.Encoder.LinkTo(nibusDataCodec.Encoder);
+            var nibusBroadcaster = new BroadcastCodec<NibusDatagram>();
+            nibusDataCodec.LinkTo(nibusBroadcaster);
 
-            return broadcaster;
+            return nibusBroadcaster;
         }
 
         #endregion //Methods

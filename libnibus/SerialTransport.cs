@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.IO.Ports;
 using System.Threading;
@@ -7,42 +8,25 @@ using System.Threading.Tasks.Dataflow;
 
 namespace NataInfo.Nibus
 {
-    public sealed class SerialTransport : INibusEndpoint<byte[], byte[]>
+    public sealed class SerialTransport : NibusCodec<byte[], byte[]>, INibusEndpoint<byte[]>
     {
         private readonly SerialPort _serial;
-        private readonly BufferBlock<byte[]> _incoming;
-        private readonly BufferBlock<byte[]> _outgoing;
         private readonly CancellationTokenSource _cts;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public SerialTransport(string portName, int baudRate)
         {
-            _serial = new SerialPort(portName, baudRate) {DtrEnable = true};
-            _serial.DataReceived += SerialDataReceived;
+            Contract.Ensures(Decoder != null);
+            Contract.Ensures(Encoder != null);
+            _serial = new SerialPort(portName, baudRate) { DtrEnable = true };
+            
             _cts = new CancellationTokenSource();
-            _incoming = new BufferBlock<byte[]>();
-            _outgoing = new BufferBlock<byte[]>();
+            var options = new DataflowBlockOptions { CancellationToken = _cts.Token };
+            Encoder = new BufferBlock<byte[]>(options);
+            Decoder = new BufferBlock<byte[]>(options);
+
+            _serial.DataReceived += SerialDataReceived;
         }
-
-        #region Implementation of INibusEndpoint<in byte[],out byte[]>
-
-        /// <summary>
-        /// To Serial 
-        /// </summary>
-        public ITargetBlock<byte[]> Encoder
-        {
-            get { return _incoming; }
-        }
-
-        /// <summary>
-        /// From Serial
-        /// </summary>
-        public ISourceBlock<byte[]> Decoder
-        {
-            get { return _outgoing; }
-        }
-
-        #endregion
 
         public void RunAsync()
         {
@@ -50,25 +34,14 @@ namespace NataInfo.Nibus
             RunAsyncInternal();
         }
 
-        #region Implementation of IDisposable
-
-        public void Dispose()
-        {
-            _cts.Cancel();
-            _serial.Dispose();
-            Logger.Debug("Disposed.");
-        }
-
-        #endregion
-
         private async Task Consumer()
         {
             while (_serial.IsOpen && !_cts.IsCancellationRequested)
             {
-                var data = await _incoming.ReceiveAsync(_cts.Token).ConfigureAwait(false);
+                var data = await Encoder.ReceiveAsync(_cts.Token).ConfigureAwait(false);
                 if (data.Length > 0)
                 {
-                    await WriteAsync(data);
+                    await WriteAsync(data).ConfigureAwait(false);
                 }
             }
         }
@@ -93,7 +66,7 @@ namespace NataInfo.Nibus
                 {
                     Logger.Debug(String.Join(":", buffer.Select(b => b.ToString("X2")).ToArray()));
                 }
-                _outgoing.Post(buffer);
+                Decoder.Post(buffer);
             }
             catch (Exception ex)
             {
@@ -103,7 +76,23 @@ namespace NataInfo.Nibus
 
         private async void RunAsyncInternal()
         {
-            await Consumer();
+            try
+            {
+                await Consumer();
+            }
+            catch (TaskCanceledException)
+            {
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+            {
+                _cts.Cancel();
+                _serial.Dispose();
+            }
         }
     }
 }

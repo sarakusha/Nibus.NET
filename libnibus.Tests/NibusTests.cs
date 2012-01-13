@@ -31,8 +31,7 @@ namespace NataInfo.Nibus.Tests
                 serial.RunAsync();
                 var stack = Nibus.BuildNibusStack(serial);
                 var nmsProtocol = new NmsProtocol();
-                stack.Decoder.LinkTo(nmsProtocol.Decoder, datagram => datagram.Protocol == nmsProtocol.Protocol);
-                nmsProtocol.Encoder.LinkTo(stack.Encoder);
+                stack.LinkTo(nmsProtocol, datagram => datagram.Protocol == nmsProtocol.Protocol);
 
                 var readVersion = new NmsRead(Address.Empty, new Address(new byte[] { 0x20, 0x44 }), 2);
                 nmsProtocol.Encoder.Post(readVersion);

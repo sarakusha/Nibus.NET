@@ -80,7 +80,7 @@
     <Compile Include="INibusCodec.cs" />
     <Compile Include="INibusEndpoint.cs" />
     <Compile Include="INibusProtocol.cs" />
-    <Compile Include="NibusBroadcastCodec.cs" />
+    <Compile Include="BroadcastCodec.cs" />
     <Compile Include="NibusDataCodec.cs" />
     <Compile Include="NibusDatagram.cs" />
     <Compile Include="Nms\NmsAckEventNotification.cs" />
@@ -107,6 +107,7 @@
     <Compile Include="Nms\NmsRequestDomainUpload.cs" />
     <Compile Include="SerialTransport.cs" />
     <Compile Include="Nms\NmsTerminateDownloadSequence.cs" />
+    <Compile Include="Unlinker.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="NLog.config">
