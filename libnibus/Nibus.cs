@@ -32,10 +32,10 @@ namespace NataInfo.Nibus
             Contract.Requires(transport.Encoder != null);
             Logger.Debug("Build Stack");
             var nibusDataCodec = new NibusDataCodec();
-            transport.LinkTo(nibusDataCodec);
+            nibusDataCodec.LinkTo(transport);
 
             var nibusBroadcaster = new BroadcastCodec<NibusDatagram>();
-            nibusDataCodec.LinkTo(nibusBroadcaster);
+            nibusBroadcaster.LinkTo(nibusDataCodec);
 
             return nibusBroadcaster;
         }

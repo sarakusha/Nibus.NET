@@ -10,8 +10,8 @@ namespace NataInfo.Nibus
         IPropagatorBlock<TDecoded, TEncoded> Encoder { get; }
         IPropagatorBlock<TEncoded, TDecoded> Decoder { get; }
 
-        IDisposable LinkTo<TNext>(INibusCodec<TDecoded, TNext> topCodec);
-        IDisposable LinkTo<TNext>(INibusCodec<TDecoded, TNext> topCodec, Predicate<TDecoded> filter);
+        IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec);
+        IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec, Predicate<TEncoded> filter);
     }
 
     public abstract class NibusCodec<TEncoded, TDecoded> : INibusCodec<TEncoded, TDecoded>
@@ -30,7 +30,7 @@ namespace NataInfo.Nibus
 
         public IPropagatorBlock<TEncoded, TDecoded> Decoder { get; protected set; }
 
-        public IDisposable LinkTo<TNext>(INibusCodec<TDecoded, TNext> topCodec)
+        public IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec)
         {
             if (_unlinker != null)
             {
@@ -38,14 +38,14 @@ namespace NataInfo.Nibus
                 _unlinker = null;
             }
 
-            var decoderLink = Decoder.LinkTo(topCodec.Decoder);
-            var encoderLink = topCodec.Encoder.LinkTo(Encoder);
+            var decoderLink = bottomCodec.Decoder.LinkTo(Decoder);
+            var encoderLink = Encoder.LinkTo(bottomCodec.Encoder);
             _unlinker = new Unlinker(decoderLink, encoderLink);
             
             return _unlinker;
         }
 
-        public IDisposable LinkTo<TNext>(INibusCodec<TDecoded, TNext> topCodec, Predicate<TDecoded> filter)
+        public IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec, Predicate<TEncoded> filter)
         {
             if (_unlinker != null)
             {
@@ -53,8 +53,8 @@ namespace NataInfo.Nibus
                 _unlinker = null;
             }
 
-            var decoderLink = Decoder.LinkTo(topCodec.Decoder, filter);
-            var encoderLink = topCodec.Encoder.LinkTo(Encoder);
+            var decoderLink = bottomCodec.Decoder.LinkTo(Decoder, filter);
+            var encoderLink = Encoder.LinkTo(bottomCodec.Encoder);
             _unlinker = new Unlinker(decoderLink, encoderLink);
 
             return _unlinker;
@@ -92,22 +92,22 @@ namespace NataInfo.Nibus
             get { return null; }
         }
 
-        public IDisposable LinkTo<TNext>(INibusCodec<TDecoded, TNext> topCodec)
+        public IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec)
         {
-            Contract.Requires(topCodec != null);
-            Contract.Requires(topCodec.Decoder != null);
-            Contract.Requires(topCodec.Encoder != null);
+            Contract.Requires(bottomCodec != null);
+            Contract.Requires(bottomCodec.Decoder != null);
+            Contract.Requires(bottomCodec.Encoder != null);
             Contract.Requires(Decoder != null);
             Contract.Requires(Encoder != null);
 
             return null;
         }
 
-        public IDisposable LinkTo<TNext>(INibusCodec<TDecoded, TNext> topCodec, Predicate<TDecoded> filter)
+        public IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec, Predicate<TEncoded> filter)
         {
-            Contract.Requires(topCodec != null);
-            Contract.Requires(topCodec.Decoder != null);
-            Contract.Requires(topCodec.Encoder != null);
+            Contract.Requires(bottomCodec != null);
+            Contract.Requires(bottomCodec.Decoder != null);
+            Contract.Requires(bottomCodec.Encoder != null);
             Contract.Requires(Decoder != null);
             Contract.Requires(Encoder != null);
             Contract.Requires(filter != null);
