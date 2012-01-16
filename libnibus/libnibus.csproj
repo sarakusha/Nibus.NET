@@ -75,15 +75,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Address.cs" />
+    <Compile Include="BroadcastTransformBlock.cs" />
     <Compile Include="Nibus.cs" />
     <Compile Include="Nms\NmsAlterEventConditionMonitoring.cs" />
     <Compile Include="INibusCodec.cs" />
     <Compile Include="INibusEndpoint.cs" />
     <Compile Include="INibusProtocol.cs" />
-    <Compile Include="BroadcastCodec.cs" />
     <Compile Include="NibusDataCodec.cs" />
     <Compile Include="NibusDatagram.cs" />
     <Compile Include="Nms\NmsAckEventNotification.cs" />
+    <Compile Include="Nms\NmsController.cs" />
     <Compile Include="Nms\NmsDownloadSegment.cs" />
     <Compile Include="Nms\NmsEventNotification.cs" />
     <Compile Include="Nms\NmsExecuteProgramInvocation.cs" />

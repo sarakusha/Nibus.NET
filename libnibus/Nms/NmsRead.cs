@@ -51,6 +51,10 @@ namespace NataInfo.Nibus.Nms
             Initialize(source, destanation, PriorityType.Realtime, NmsServiceType.Read, true, id, false, new byte[0]);
         }
 
+        public NmsRead(Address desatantion, int id) : this(Address.Empty, desatantion, id)
+        {
+        }
+
         #endregion //Constructors
 
         #region Properties

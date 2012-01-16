@@ -9,7 +9,7 @@ namespace NataInfo.Nibus.Nms
         {
             Contract.Ensures(Decoder != null);
             Contract.Ensures(Encoder != null);
-            Decoder = new TransformBlock<NibusDatagram, NmsMessage>(d => NmsMessage.CreateFrom(d));
+            Decoder = new BroadcastTransformBlock<NibusDatagram, NmsMessage>(NmsMessage.CreateFrom);
             Encoder = new TransformBlock<NmsMessage, NibusDatagram>(m => m.Datagram);
         }
 
