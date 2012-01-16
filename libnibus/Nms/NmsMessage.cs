@@ -36,49 +36,6 @@ namespace NataInfo.Nibus.Nms
     {
         #region NmsValueType enum
 
-        public enum NmsValueType : byte
-        {
-            Boolean = 11, // 8 бит Значение TRUE = 1/FALSE = 0
-            Int8 = 16, // 8 бит Знаковый байт
-            Int16 = 2, // 16 бит Знаковое короткое целое
-            Int32 = 3, // 32 бита Знаковое целое
-            Int64 = 20, // 64 бита Знаковое длинное целое
-            UInt8 = 17, // 8 бит Байт
-            UInt16 = 18, // 16 бит Короткое целое
-            UInt32 = 19, // 32 бита Целое
-            UInt64 = 21, // 64 бита Длинное целое
-            Real32 = 4, // 32 бита Значение с плавающей точкой
-            Real64 = 5, // 64 бита Значение с плавающей точкой удвоенной точности
-            String = 30, // Строка символов с терминирующим нулем
-            DateTime = 7,
-            // 80 бит Дата/время в формате BCD
-            // DD-MM-YYYY HH:MM:SS.0mmmbW
-            // DD – дата
-            // MM – месяц
-            // YYYY – год
-            // HH – час (0..23)
-            // MM – минуты
-            // SS – секунды
-            // mmm – миллисекунды
-            // W – день недели (1..7,
-            // 1 – вс,
-            // 2 – пн,
-            // … 7 – сб)
-            // b – зарезервировано
-            Array = 0x80,
-            BooleanArray = Boolean | Array,
-            Int8Array = Int8 | Array,
-            Int16Array = Int16 | Array,
-            Int32Array = Int32 | Array,
-            Int64Array = Int64 | Array,
-            UInt8Array = UInt8 | Array,
-            UInt16Array = UInt16 | Array,
-            UInt32Array = UInt32 | Array,
-            UInt64Array = UInt64 | Array,
-            Real32Array = Real32 | Array,
-            Real64Array = Real64 | Array
-        }
-
         #endregion
 
         public const int NmsHeaderLength = 3;

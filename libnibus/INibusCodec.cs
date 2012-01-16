@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks.Dataflow;
 
@@ -11,7 +12,7 @@ namespace NataInfo.Nibus
         IPropagatorBlock<TEncoded, TDecoded> Decoder { get; }
 
         IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec);
-        IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec, Predicate<TEncoded> filter);
+        IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec, Predicate<TEncoded> filter, bool discardsMessages = false);
     }
 
     public abstract class NibusCodec<TEncoded, TDecoded> : INibusCodec<TEncoded, TDecoded>
@@ -38,6 +39,14 @@ namespace NataInfo.Nibus
                 _unlinker = null;
             }
 
+            // Удаляем старые сообщения
+            var receivable = bottomCodec.Decoder as IReceivableSourceBlock<TEncoded>;
+            if (receivable != null)
+            {
+                IList<TEncoded> oldMessages;
+                receivable.TryReceiveAll(out oldMessages);
+            }
+
             var decoderLink = bottomCodec.Decoder.LinkTo(Decoder);
             var encoderLink = Encoder.LinkTo(bottomCodec.Encoder);
             _unlinker = new Unlinker(decoderLink, encoderLink);
@@ -45,7 +54,7 @@ namespace NataInfo.Nibus
             return _unlinker;
         }
 
-        public IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec, Predicate<TEncoded> filter)
+        public IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec, Predicate<TEncoded> filter, bool discardsMessages = false)
         {
             if (_unlinker != null)
             {
@@ -53,7 +62,15 @@ namespace NataInfo.Nibus
                 _unlinker = null;
             }
 
-            var decoderLink = bottomCodec.Decoder.LinkTo(Decoder, filter);
+            // Удаляем старые сообщения
+            var receivable = bottomCodec.Decoder as IReceivableSourceBlock<TEncoded>;
+            if (receivable != null)
+            {
+                IList<TEncoded> oldMessages;
+                receivable.TryReceiveAll(out oldMessages);
+            }
+
+            var decoderLink = bottomCodec.Decoder.LinkTo(Decoder, filter, discardsMessages);
             var encoderLink = Encoder.LinkTo(bottomCodec.Encoder);
             _unlinker = new Unlinker(decoderLink, encoderLink);
 
@@ -103,7 +120,7 @@ namespace NataInfo.Nibus
             return null;
         }
 
-        public IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec, Predicate<TEncoded> filter)
+        public IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec, Predicate<TEncoded> filter, bool discardsMessages)
         {
             Contract.Requires(bottomCodec != null);
             Contract.Requires(bottomCodec.Decoder != null);

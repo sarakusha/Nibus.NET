@@ -24,21 +24,22 @@ namespace NataInfo.Nibus
 
         #region Methods
 
-        public static INibusEndpoint<NibusDatagram> BuildNibusStack(
-            INibusEndpoint<byte[]> transport)
-        {
-            Contract.Requires(transport != null);
-            Contract.Requires(transport.Decoder != null);
-            Contract.Requires(transport.Encoder != null);
-            Logger.Debug("Build Stack");
-            var nibusDataCodec = new NibusDataCodec();
-            nibusDataCodec.LinkTo(transport);
+        //public static INibusEndpoint<NibusDatagram> BuildNibusStack(
+        //    INibusEndpoint<byte[]> transport)
+        //{
+        //    Contract.Requires(transport != null);
+        //    Contract.Requires(transport.Decoder != null);
+        //    Contract.Requires(transport.Encoder != null);
+        //    Logger.Debug("Build Stack");
+        //    var nibusDataCodec = new NibusDataCodec();
+        //    nibusDataCodec.LinkTo(transport);
+        //    return nibusDataCodec;
 
-            var nibusBroadcaster = new BroadcastCodec<NibusDatagram>();
-            nibusBroadcaster.LinkTo(nibusDataCodec);
+        //    //var nibusBroadcaster = new BroadcastCodec<NibusDatagram>();
+        //    //nibusBroadcaster.LinkTo(nibusDataCodec);
 
-            return nibusBroadcaster;
-        }
+        //    //return nibusBroadcaster;
+        //}
 
         #endregion //Methods
     }

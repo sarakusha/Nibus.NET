@@ -99,6 +99,7 @@
     <Compile Include="Nms\NmsShutdown.cs" />
     <Compile Include="Nms\NmsStartProgramInvocation.cs" />
     <Compile Include="Nms\NmsStop.cs" />
+    <Compile Include="Nms\NmsValueType.cs" />
     <Compile Include="Nms\TimerInfo.cs" />
     <Compile Include="Nms\NmsUploadSegment.cs" />
     <Compile Include="Nms\NmsVerifyDomainChecksum.cs" />

@@ -43,7 +43,7 @@ namespace NataInfo.Nibus.Nms
         public TimerInfo(int timerId)
         {
             _data = new byte[6];
-            _data[0] = (byte)NmsMessage.NmsValueType.UInt8Array;
+            _data[0] = (byte)NmsValueType.UInt8Array;
             _data[IdOfs] = (byte)timerId;
         }
 
@@ -201,7 +201,7 @@ namespace NataInfo.Nibus.Nms
             return new NmsInformationReport(
                 source,
                 (int)NmsInformationReport.SportReports.Timer,
-                NmsMessage.NmsValueType.UInt8Array,
+                NmsValueType.UInt8Array,
                 timerInfo.GetData(),
                 PriorityType.Realtime);
         }
