@@ -8,22 +8,26 @@ using System.Threading.Tasks.Dataflow;
 
 namespace NataInfo.Nibus
 {
-    public sealed class SerialTransport : NibusCodec<byte[], byte[]>, INibusEndpoint<byte[]>
+    public sealed class SerialTransport : INibusEndpoint<byte[]>, IDisposable
     {
         private readonly SerialPort _serial;
         private readonly CancellationTokenSource _cts;
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
+        private readonly BufferBlock<byte[]> _incomingMessages;
+
+        private readonly BufferBlock<byte[]> _outgoingMessages;
+
         public SerialTransport(string portName, int baudRate)
         {
-            Contract.Ensures(Decoder != null);
-            Contract.Ensures(Encoder != null);
+            Contract.Ensures(OutgoingMessages != null);
+            Contract.Ensures(IncomingMessages != null);
             _serial = new SerialPort(portName, baudRate) { DtrEnable = true };
             
             _cts = new CancellationTokenSource();
             var options = new DataflowBlockOptions { CancellationToken = _cts.Token };
-            Encoder = new BufferBlock<byte[]>(options);
-            Decoder = new BufferBlock<byte[]>(options);
+            _incomingMessages = new BufferBlock<byte[]>(options);
+            _outgoingMessages = new BufferBlock<byte[]>(options);
 
             _serial.DataReceived += SerialDataReceived;
         }
@@ -38,7 +42,7 @@ namespace NataInfo.Nibus
         {
             while (_serial.IsOpen && !_cts.IsCancellationRequested)
             {
-                var data = await Encoder.ReceiveAsync(_cts.Token).ConfigureAwait(false);
+                var data = await _outgoingMessages.ReceiveAsync(_cts.Token).ConfigureAwait(false);
                 if (data.Length > 0)
                 {
                     await WriteAsync(data).ConfigureAwait(false);
@@ -66,7 +70,8 @@ namespace NataInfo.Nibus
                 {
                     Logger.Debug(String.Join(":", buffer.Select(b => b.ToString("X2")).ToArray()));
                 }
-                Decoder.Post(buffer);
+
+                _incomingMessages.Post(buffer);
             }
             catch (Exception ex)
             {
@@ -85,14 +90,41 @@ namespace NataInfo.Nibus
             }
         }
 
-        protected override void Dispose(bool disposing)
+        #region Implementation of IDisposable
+
+        public void Dispose()
         {
-            base.Dispose(disposing);
-            if (disposing)
+            if (_cts != null)
             {
                 _cts.Cancel();
+            }
+
+            if (_serial != null)
+            {
                 _serial.Dispose();
             }
         }
+
+        #endregion
+
+        #region Implementation of INibusEndpoint<byte[]>
+
+        /// <summary>
+        /// Из COM-порта
+        /// </summary>
+        public IReceivableSourceBlock<byte[]> IncomingMessages
+        {
+            get { return _incomingMessages; }
+        }
+
+        /// <summary>
+        /// В COM-порт
+        /// </summary>
+        public ITargetBlock<byte[]> OutgoingMessages
+        {
+            get { return _outgoingMessages; }
+        }
+
+        #endregion
     }
 }

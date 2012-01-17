@@ -5,11 +5,14 @@ namespace NataInfo.Nibus.Nms
 {
     public class NmsProtocol : NibusCodec<NibusDatagram, NmsMessage>, INibusProtocol<NibusDatagram, NmsMessage>
     {
+        private readonly BroadcastTransformBlock<NibusDatagram, NmsMessage> _decoder;
+        private NmsController _controller;
         public NmsProtocol()
         {
             Contract.Ensures(Decoder != null);
             Contract.Ensures(Encoder != null);
-            Decoder = new BroadcastTransformBlock<NibusDatagram, NmsMessage>(NmsMessage.CreateFrom);
+            _decoder = new BroadcastTransformBlock<NibusDatagram, NmsMessage>(NmsMessage.CreateFrom);
+            Decoder = _decoder;
             Encoder = new TransformBlock<NmsMessage, NibusDatagram>(m => m.Datagram);
         }
 
@@ -21,5 +24,15 @@ namespace NataInfo.Nibus.Nms
         }
 
         #endregion
+
+        public NmsController Controller
+        {
+            get
+            {
+                return _controller ??
+                       (_controller =
+                        new NmsController { IncomingMessages = _decoder.Source, OutgoingMessages = Encoder });
+            }
+        }
     }
 }

@@ -217,5 +217,10 @@ namespace NataInfo.Nibus.Nms
             Contract.Requires(informationReport.Id == (byte)NmsInformationReport.SportReports.Timer);
             return informationReport.Datagram.Data[NmsMessage.NmsHeaderLength + TimerInfo.IdOfs];
         }
+
+        public static bool IsTimerReport(this NmsInformationReport informationReport)
+        {
+            return informationReport.Id == (byte)NmsInformationReport.SportReports.Timer;
+        }
     }
 }

@@ -8,9 +8,6 @@
 #region Using directives
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 #endregion
 
@@ -20,8 +17,8 @@ namespace NataInfo.Nibus
     {
         #region Member Variables
 
-        private IDisposable _decoderLink;
-        private IDisposable _encoderLink;
+        private IDisposable _firstCodecLink;
+        private IDisposable _secondCodecLink;
 
         #endregion
 
@@ -30,10 +27,10 @@ namespace NataInfo.Nibus
         /// <summary>
         /// The default Constructor.
         /// </summary>
-        public Unlinker(IDisposable decoderLink, IDisposable encoderLink)
+        public Unlinker(IDisposable firstCodecLink, IDisposable secondCodecLink)
         {
-            _decoderLink = decoderLink;
-            _encoderLink = encoderLink;
+            _firstCodecLink = firstCodecLink;
+            _secondCodecLink = secondCodecLink;
         }
 
         #endregion //Constructors
@@ -42,23 +39,23 @@ namespace NataInfo.Nibus
 
         public bool Disposed
         {
-            get { return _decoderLink == null && _encoderLink == null; }
+            get { return _firstCodecLink == null && _secondCodecLink == null; }
         }
 
         #endregion //Properties
 
         public void Dispose()
         {
-            if (_decoderLink != null)
+            if (_firstCodecLink != null)
             {
-                _decoderLink.Dispose();
-                _decoderLink = null;
+                _firstCodecLink.Dispose();
+                _firstCodecLink = null;
             }
 
-            if (_encoderLink != null)
+            if (_secondCodecLink != null)
             {
-                _encoderLink.Dispose();
-                _encoderLink = null;
+                _secondCodecLink.Dispose();
+                _secondCodecLink = null;
             }
         }
     }

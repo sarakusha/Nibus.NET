@@ -46,4 +46,14 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		Reflector0DestinationAssemblyName = 
+		Reflector0DestinationVersion = 0.0.4098.29463
+		Reflector0DestinationName = System.Threading.Tasks.Dataflow
+		Reflector0DestinationLocation = C:\SCOREBOARDS\2012\nibus.net\System.Threading.Tasks.Dataflow.dll
+		Reflector0SourceAssemblyName = 
+		Reflector0SourceVersion = 0.0.4098.29463
+		Reflector0SourceName = System.Threading.Tasks.Dataflow
+		Reflector0SourceLocation = C:\Temp\System.Threading.Tasks.Dataflow.dll
+	EndGlobalSection
 EndGlobal

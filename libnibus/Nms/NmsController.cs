@@ -8,9 +8,6 @@
 #region Using directives
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -18,7 +15,8 @@ using System.Threading.Tasks.Dataflow;
 
 namespace NataInfo.Nibus.Nms
 {
-    public class NmsController
+    // TODO: INibusEndpoint
+    public class NmsController : INibusEndpoint<NmsMessage>
     {
         #region Member Variables
 
@@ -29,30 +27,33 @@ namespace NataInfo.Nibus.Nms
         /// <summary>
         /// The default Constructor.
         /// </summary>
-        public NmsController()
+        internal NmsController()
         {
+            Timeout = TimeSpan.FromSeconds(1);
         }
 
         #endregion //Constructors
 
         #region Properties
 
-        public ISourceBlock<NmsMessage> IncomingMessages { get; set; }
-        public ITargetBlock<NmsMessage> OutgoingMessages { get; set; }
-
         public TimeSpan Timeout { get; set; }
+        public IReceivableSourceBlock<NmsMessage> IncomingMessages { get; set; }
+        public ITargetBlock<NmsMessage> OutgoingMessages { get; set; }
 
         #endregion //Properties
 
         #region Methods
 
-        public async Task<object> ReadValue(Address destanation, int id)
+        public async Task<object> ReadValueAsync(Address destanation, int id)
         {
             var query = new NmsRead(destanation, id);
-            OutgoingMessages.Post(query);
             var wob = new WriteOnceBlock<NmsMessage>(m => m);
-            //IncomingMessages.LinkTo()
-            return null;
+            using (IncomingMessages.LinkTo(wob, m => m.IsResponce && m.ServiceType == NmsServiceType.Read && m.Id == id))
+            {
+                OutgoingMessages.Post(query);
+                var responce = (NmsRead)await wob.ReceiveAsync(Timeout);
+                return responce.Value;
+            }
         }
 
         #endregion //Methods

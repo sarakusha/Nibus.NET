@@ -93,6 +93,11 @@ namespace NataInfo.Nibus
             }
         }
 
+        public static Address CreateMac(params byte[] mac)
+        {
+            return new Address(mac);
+        }
+
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="Address"/> содержащий пустой адрес.
         /// </summary>
