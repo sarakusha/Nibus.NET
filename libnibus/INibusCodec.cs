@@ -5,7 +5,12 @@ using System.Threading.Tasks.Dataflow;
 
 namespace NataInfo.Nibus
 {
-    public interface INibusCodec<TEncoded, TDecoded> : IDisposable
+    public interface ICodecInfo
+    {
+        string Description { get; }
+    }
+
+    public interface INibusCodec<TEncoded, TDecoded> : ICodecInfo, IDisposable
     {
         IPropagatorBlock<TDecoded, TEncoded> Encoder { get; }
         IPropagatorBlock<TEncoded, TDecoded> Decoder { get; }
@@ -27,7 +32,17 @@ namespace NataInfo.Nibus
 
         public IPropagatorBlock<TEncoded, TDecoded> Decoder { get; protected set; }
 
-        public IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec)
+        public virtual IDisposable ConnectTo<T>(INibusCodec<T, TEncoded> bottomCodec)
+        {
+            return LinkTo(bottomCodec);
+        }
+
+        public virtual IDisposable ConnectTo(INibusEndpoint<TEncoded> transport)
+        {
+            return LinkTo(transport);
+        }
+
+        protected IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec)
         {
             Contract.Requires(bottomCodec != null);
             Contract.Requires(bottomCodec.Decoder != null);
@@ -56,7 +71,7 @@ namespace NataInfo.Nibus
             return _unlinker;
         }
 
-        public IDisposable LinkTo(INibusEndpoint<TEncoded> transport)
+        protected IDisposable LinkTo(INibusEndpoint<TEncoded> transport)
         {
             Contract.Requires(transport != null);
             Contract.Requires(transport.IncomingMessages != null);
@@ -81,7 +96,7 @@ namespace NataInfo.Nibus
             return _unlinker;
         }
 
-        public IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec, Predicate<TEncoded> filter, bool discardsMessages = false)
+        protected IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec, Predicate<TEncoded> filter, bool discardsMessages = false)
         {
             Contract.Requires(bottomCodec != null);
             Contract.Requires(bottomCodec.Decoder != null);
@@ -133,5 +148,11 @@ namespace NataInfo.Nibus
                 }
             }
         }
+
+        #region Implementation of ICodecInfo
+
+        public string Description { get; protected set; }
+
+        #endregion
     }
 }

@@ -22,29 +22,6 @@ namespace NataInfo.Nibus.Nms
 
         #endregion
 
-        public enum SportReports : byte
-        {
-            Timer = 5,
-            HomeTeamScore = 6,
-            VisitingTeamScore = 7,
-            Period = 8,
-            HomeTeamFoul = 9,
-            VisitingTeamFoul = 10,
-            HomeTeamTimebreaks = 14,
-            VisitingTeamTimebreaks = 15,
-            PlayerCount = 16,
-            PlayerInfo = 17,
-            PlayerStat = 18,
-            HomeTeamName = 19,
-            VisitingTeamName = 20,
-            HomeTeamCountry = 21,
-            VisitingTeamCountry = 22,
-            TournamentName = 23,
-            BallOwner = 24,
-            ShowMessage = 25,
-            ChangeSport = 27
-        }
-
         #region Constructors
 
         /// <summary>

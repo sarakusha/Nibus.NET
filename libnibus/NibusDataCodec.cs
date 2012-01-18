@@ -65,12 +65,13 @@ namespace NataInfo.Nibus
         private static decimal _overrunErrors;
         private static decimal _crcErrors;
 
-        public NibusDataCodec()
+        public NibusDataCodec(string description = null)
         {
             Contract.Ensures(Decoder != null);
             Contract.Ensures(Encoder != null);
             Decoder = new TransformManyBlock<byte[], NibusDatagram>(data => Decode(data));
             Encoder = new TransformBlock<NibusDatagram, byte[]>(datagram => Encode(datagram));
+            Description = description;
         }
 
         public static decimal CrcErrors
@@ -133,7 +134,7 @@ namespace NataInfo.Nibus
             return datagrams;
         }
 
-        private static NibusDatagram ParseData(byte[] bufferedData)
+        private NibusDatagram ParseData(byte[] bufferedData)
         {
             var crc = GetCrcCiit(bufferedData, 1, bufferedData.Length - 1);
             if (crc != 0)
@@ -161,7 +162,7 @@ namespace NataInfo.Nibus
             // Так как длина данных реально меньше на 1, чем заявлено, вычитаем ее!
             var data = bufferedData.Skip(DataOfs).Take(bufferedData[LengthOfs] - 1).ToList();
             
-            return new NibusDatagram(source, destanation, priority, protocol, data);
+            return new NibusDatagram(this, source, destanation, priority, protocol, data);
         }
 
         private static byte[] Encode(NibusDatagram datagram)

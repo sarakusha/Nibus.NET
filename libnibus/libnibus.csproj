@@ -67,7 +67,6 @@
     <Reference Include="System.Threading.Tasks.Dataflow">
       <HintPath>..\System.Threading.Tasks.Dataflow.dll</HintPath>
     </Reference>
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
@@ -86,6 +85,7 @@
     <Compile Include="Nms\NmsAckEventNotification.cs" />
     <Compile Include="Nms\NmsController.cs" />
     <Compile Include="Nms\NmsDownloadSegment.cs" />
+    <Compile Include="Nms\NmsEmptyMessage.cs" />
     <Compile Include="Nms\NmsEventNotification.cs" />
     <Compile Include="Nms\NmsExecuteProgramInvocation.cs" />
     <Compile Include="Nms\NmsInformationReport.cs" />
@@ -101,7 +101,11 @@
     <Compile Include="Nms\NmsStartProgramInvocation.cs" />
     <Compile Include="Nms\NmsStop.cs" />
     <Compile Include="Nms\NmsValueType.cs" />
-    <Compile Include="Nms\TimerInfo.cs" />
+    <Compile Include="Sport\GameEventArgs.cs" />
+    <Compile Include="Sport\GameReports.cs" />
+    <Compile Include="Sport\PlayerInfo.cs" />
+    <Compile Include="Sport\PlayerStat.cs" />
+    <Compile Include="Sport\TimerInfo.cs" />
     <Compile Include="Nms\NmsUploadSegment.cs" />
     <Compile Include="Nms\NmsVerifyDomainChecksum.cs" />
     <Compile Include="Nms\NmsWrite.cs" />
@@ -109,6 +113,7 @@
     <Compile Include="Nms\NmsRequestDomainUpload.cs" />
     <Compile Include="SerialTransport.cs" />
     <Compile Include="Nms\NmsTerminateDownloadSequence.cs" />
+    <Compile Include="Sport\GameLogic.cs" />
     <Compile Include="Unlinker.cs" />
   </ItemGroup>
   <ItemGroup>

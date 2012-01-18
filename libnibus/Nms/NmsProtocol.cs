@@ -31,7 +31,25 @@ namespace NataInfo.Nibus.Nms
             {
                 return _controller ??
                        (_controller =
-                        new NmsController { IncomingMessages = _decoder.Source, OutgoingMessages = Encoder });
+                        new NmsController(_decoder.Source, Encoder)
+                            {
+                                ResetIncoming = () => _decoder.ResetSource(NmsEmptyMessage.Instance)
+                            });
+            }
+        }
+
+        public override System.IDisposable ConnectTo<T>(INibusCodec<T, NibusDatagram> bottomCodec)
+        {
+            return LinkTo(bottomCodec, datagram => datagram.Protocol == Protocol);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (_controller != null)
+            {
+                _controller.Dispose();
+                _controller = null;
             }
         }
     }

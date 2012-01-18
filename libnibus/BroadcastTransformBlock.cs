@@ -38,6 +38,7 @@ namespace NataInfo.Nibus
             target.Completion.ContinueWith(delegate { source.Complete(); });
             _target = target;
             _source = source;
+            ResetSource = item => source.Post(item);
         }
 
         #endregion //Constructors
@@ -110,5 +111,7 @@ namespace NataInfo.Nibus
         {
             get { return _source; }
         }
+
+        public Action<TOutput> ResetSource { get; private set; }
     }
 }

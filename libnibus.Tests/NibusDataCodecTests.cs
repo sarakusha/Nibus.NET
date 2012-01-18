@@ -18,7 +18,7 @@ namespace NataInfo.Nibus.Tests
             [Values(ProtocolType.Nms, ProtocolType.Sarp)] ProtocolType protocol)
         {
             var codec = new NibusDataCodec();
-            var datagramOrig = new NibusDatagram(source, destanation, priority,
+            var datagramOrig = new NibusDatagram(codec, source, destanation, priority,
                                                  protocol, new byte[] {1, 2, 3, 4, 6, 7, 8, 9});
             codec.Encoder.Post(datagramOrig);
             var data = codec.Encoder.Receive();

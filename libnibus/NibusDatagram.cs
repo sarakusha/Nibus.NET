@@ -20,6 +20,7 @@ namespace NataInfo.Nibus
 		BelowNormal = 3
 	}
 
+    // ReSharper disable ReturnTypeCanBeEnumerable.Global
     public interface INibusDatagram
     {
         Address Destanation { get; }
@@ -28,13 +29,13 @@ namespace NataInfo.Nibus
         ProtocolType Protocol { get; }
         ReadOnlyCollection<byte> Data { get; }
     }
+    // ReSharper restore ReturnTypeCanBeEnumerable.Global
 
-    [Pure]
     public class NibusDatagram : INibusDatagram
     {
         public const int MaxDataLength = 238;
 
-        public NibusDatagram(Address source, Address destanation, PriorityType priority, ProtocolType protocol, IList<byte> data)
+        public NibusDatagram(ICodecInfo sender, Address source, Address destanation, PriorityType priority, ProtocolType protocol, IList<byte> data)
         {
             Contract.Requires(destanation != null);
             Contract.Requires(source != null);
@@ -47,6 +48,7 @@ namespace NataInfo.Nibus
                 throw new ArgumentException("Invalid data");
             }
 
+            Sender = sender;
             Destanation = destanation;
             Source = source;
             Protocol = protocol;
@@ -54,15 +56,12 @@ namespace NataInfo.Nibus
             Priority = priority;
         }
 
-        [Pure]
+        public ICodecInfo Sender { get; private set; }
         public Address Destanation { get; private set; }
-        [Pure]
         public Address Source { get; private set; }
-        [Pure]
         public PriorityType Priority { get; private set; }
-        [Pure]
         public ProtocolType Protocol { get; private set; }
-        [Pure]
         public ReadOnlyCollection<byte> Data { get; private set; }
+
     }
 }

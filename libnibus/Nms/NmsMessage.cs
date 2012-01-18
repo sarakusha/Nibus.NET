@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
@@ -109,6 +110,9 @@ namespace NataInfo.Nibus.Nms
 
         public static NmsMessage CreateFrom(NibusDatagram datagram)
         {
+            Contract.Requires(datagram != null);
+            Contract.Ensures(Contract.Result<NmsMessage>() != null);
+            
             if (datagram.Protocol != ProtocolType.Nms)
             {
                 throw new InvalidOperationException("nms protocol required");
@@ -154,7 +158,8 @@ namespace NataInfo.Nibus.Nms
                 case NmsServiceType.Shutdown:
                     return new NmsShutdown(datagram);
                 default:
-                    throw new ArgumentException("Unknown NMS service");
+                    Debug.Fail("Unknown NMS service");
+                    return NmsEmptyMessage.Instance;
             }
         }
 
@@ -210,34 +215,6 @@ namespace NataInfo.Nibus.Nms
             }
 
             return array;
-
-            //switch (arrayType)
-            //{
-            //    case NmsValueType.Boolean:
-            //        return array.Cast<Boolean>().ToArray();
-            //    case NmsValueType.Int8:
-            //        return array.Cast<sbyte>().ToArray();
-            //    case NmsValueType.Int16:
-            //        return array.Cast<short>().ToArray();
-            //    case NmsValueType.Int32:
-            //        return array.Cast<int>().ToArray();
-            //    case NmsValueType.Int64:
-            //        return array.Cast<long>().ToArray();
-            //    case NmsValueType.UInt8:
-            //        return array.Cast<byte>().ToArray();
-            //    case NmsValueType.UInt16:
-            //        return array.Cast<ushort>().ToArray();
-            //    case NmsValueType.UInt32:
-            //        return array.Cast<uint>().ToArray();
-            //    case NmsValueType.UInt64:
-            //        return array.Cast<ulong>().ToArray();
-            //    case NmsValueType.Real32:
-            //        return array.Cast<float>().ToArray();
-            //    case NmsValueType.Real64:
-            //        return array.Cast<double>().ToArray();
-            //    default:
-            //        throw new ArgumentException("Invalid array type");
-            //}
         }
 
         protected static byte[] WriteValue(NmsValueType valueType, object value)
@@ -342,7 +319,7 @@ namespace NataInfo.Nibus.Nms
             data[1] = (byte)(id & 0xFF);
             data[2] = (byte)((isResponsible ? 0 : 0x80) | (r1 ? 0x40 : 0) | nmsLength & 0x3F);
 
-            Datagram = new NibusDatagram(source, destanation, priority, ProtocolType.Nms, data);
+            Datagram = new NibusDatagram(null, source, destanation, priority, ProtocolType.Nms, data);
         }
 
         internal static byte PackByte(int b)

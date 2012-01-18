@@ -9,15 +9,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using NataInfo.Nibus.Nms;
 
 #endregion
 
-namespace NataInfo.Nibus.Nms
+namespace NataInfo.Nibus.Sport
 {
-    public class TimerInfo
+    public sealed class TimerInfo
     {
         private const int AttrOfs = 1;
         internal const int IdOfs = 2;
@@ -200,7 +200,7 @@ namespace NataInfo.Nibus.Nms
         {
             return new NmsInformationReport(
                 source,
-                (int)NmsInformationReport.SportReports.Timer,
+                (int)GameReports.Timer,
                 NmsValueType.UInt8Array,
                 timerInfo.GetData(),
                 PriorityType.Realtime);
@@ -208,19 +208,19 @@ namespace NataInfo.Nibus.Nms
 
         public static TimerInfo GetTimerInfo(this NmsInformationReport informationReport)
         {
-            Contract.Requires(informationReport.Id == (byte)NmsInformationReport.SportReports.Timer);
+            Contract.Requires(informationReport.Id == (byte)GameReports.Timer);
             return new TimerInfo(informationReport.Datagram.Data.Skip(NmsMessage.NmsHeaderLength));
         }
 
         public static int GetTimerId(this NmsInformationReport informationReport)
         {
-            Contract.Requires(informationReport.Id == (byte)NmsInformationReport.SportReports.Timer);
+            Contract.Requires(informationReport.Id == (byte)GameReports.Timer);
             return informationReport.Datagram.Data[NmsMessage.NmsHeaderLength + TimerInfo.IdOfs];
         }
 
         public static bool IsTimerReport(this NmsInformationReport informationReport)
         {
-            return informationReport.Id == (byte)NmsInformationReport.SportReports.Timer;
+            return informationReport.Id == (byte)GameReports.Timer;
         }
     }
 }
