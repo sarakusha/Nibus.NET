@@ -170,7 +170,7 @@ namespace NataInfo.Nibus.Nms
             switch (valueType)
             {
                 case NmsValueType.Boolean:
-                    return buffer[0] != 0;
+                    return buffer[offset] != 0;
                 case NmsValueType.Int8:
                     return (sbyte)buffer[offset];
                 case NmsValueType.Int16:
@@ -180,7 +180,7 @@ namespace NataInfo.Nibus.Nms
                 case NmsValueType.Int64:
                     return BitConverter.ToInt64(buffer, offset);
                 case NmsValueType.UInt8:
-                    return buffer[0];
+                    return buffer[offset];
                 case NmsValueType.UInt16:
                     return BitConverter.ToUInt16(buffer, offset);
                 case NmsValueType.UInt32:
@@ -204,7 +204,7 @@ namespace NataInfo.Nibus.Nms
             }
 
             var arrayType = (NmsValueType)((byte)valueType & ((byte)NmsValueType.Array - 1));
-            var arraySize = buffer.Length - offset - 1;
+            var arraySize = buffer.Length - offset/* - 1*/;
             var itemSize = GetSizeOf(arrayType, String.Empty);
             var arrayLength = arraySize/itemSize;
             var array = new object[arrayLength];
@@ -214,6 +214,35 @@ namespace NataInfo.Nibus.Nms
                 offset += itemSize;
             }
 
+            switch (arrayType)
+            {
+                case NmsValueType.Boolean:
+                    return array.Cast<bool>().ToArray();
+                case NmsValueType.Int8:
+                    return array.Cast<sbyte>().ToArray();
+                case NmsValueType.Int16:
+                    return array.Cast<short>().ToArray();
+                case NmsValueType.Int32:
+                    return array.Cast<int>().ToArray();
+                case NmsValueType.Int64:
+                    return array.Cast<long>().ToArray();
+                case NmsValueType.UInt8:
+                    return array.Cast<byte>().ToArray();
+                case NmsValueType.UInt16:
+                    return array.Cast<ushort>().ToArray();
+                case NmsValueType.UInt32:
+                    return array.Cast<uint>().ToArray();
+                case NmsValueType.UInt64:
+                    return array.Cast<ulong>().ToArray();
+                case NmsValueType.Real32:
+                    return array.Cast<float>().ToArray();
+                case NmsValueType.Real64:
+                    return array.Cast<double>().ToArray();
+                case NmsValueType.String:
+                    return array.Cast<string>().ToArray();
+                case NmsValueType.DateTime:
+                    return array.Cast<DateTime>().ToArray();
+            }
             return array;
         }
 

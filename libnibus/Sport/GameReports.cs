@@ -37,4 +37,11 @@ namespace NataInfo.Nibus.Sport
         Captain = 2,
         Coach = 3
     }
+
+    public enum BallOwner : byte
+    {
+        Hidden = 0,
+        Home = 1,
+        Visiting = 2
+    }
 }

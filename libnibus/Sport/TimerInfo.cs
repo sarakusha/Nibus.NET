@@ -24,6 +24,7 @@ namespace NataInfo.Nibus.Sport
         private const int MinOfs = 3;
         private const int SecOfs = 4;
         private const int HundredthOfs = 5;
+        private const int Length = 6;
 
         private readonly byte[] _data;
         private Attributes _attrs;
@@ -34,22 +35,22 @@ namespace NataInfo.Nibus.Sport
             Active = 1,
             Dots = 2,
             Rest = 4,
-            Hundredth = 8,
-            Tenth = 16,
+            Fraction = 8,
+            TenthOnly = 16,
             Hidden = 32,
             Secondary = 64
         }
 
         public TimerInfo(int timerId)
         {
-            _data = new byte[6];
+            _data = new byte[Length];
             _data[0] = (byte)NmsValueType.UInt8Array;
             _data[IdOfs] = (byte)timerId;
         }
 
         internal TimerInfo(IEnumerable<byte> data)
         {
-            _data = data.Take(6).ToArray();
+            _data = data.Take(Length).ToArray();
         }
 
         public int TimerId
@@ -105,34 +106,34 @@ namespace NataInfo.Nibus.Sport
             }
         }
 
-        public bool HasHundredth
+        public bool HasFraction
         {
-            get { return (_attrs & Attributes.Hundredth) != 0; }
+            get { return (_attrs & Attributes.Fraction) != 0; }
             set
             {
                 if (value)
                 {
-                    _attrs |= Attributes.Hundredth;
+                    _attrs |= Attributes.Fraction;
                 }
                 else
                 {
-                    _attrs &= ~Attributes.Hundredth;
+                    _attrs &= ~Attributes.Fraction;
                 }
             }
         }
 
-        public bool IsOnlyTenth
+        public bool IsTenthOnly
         {
-            get { return (_attrs & Attributes.Tenth) != 0; }
+            get { return (_attrs & Attributes.TenthOnly) != 0; }
             set
             {
                 if (value)
                 {
-                    _attrs |= Attributes.Tenth;
+                    _attrs |= Attributes.TenthOnly;
                 }
                 else
                 {
-                    _attrs &= ~Attributes.Tenth;
+                    _attrs &= ~Attributes.TenthOnly;
                 }
             }
         }
@@ -209,7 +210,7 @@ namespace NataInfo.Nibus.Sport
         public static TimerInfo GetTimerInfo(this NmsInformationReport informationReport)
         {
             Contract.Requires(informationReport.Id == (byte)GameReports.Timer);
-            return new TimerInfo(informationReport.Datagram.Data.Skip(NmsMessage.NmsHeaderLength));
+            return new TimerInfo((byte)informationReport.Value);
         }
 
         public static int GetTimerId(this NmsInformationReport informationReport)

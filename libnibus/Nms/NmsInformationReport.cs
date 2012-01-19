@@ -54,12 +54,12 @@ namespace NataInfo.Nibus.Nms
 
         public NmsValueType ValueType
         {
-            get { return (NmsValueType)Datagram.Data[0]; }
+            get { return (NmsValueType)Datagram.Data[NmsHeaderLength + 0]; }
         }
 
         public object Value
         {
-            get { return _value ?? (_value = ReadValue(ValueType, Datagram.Data.ToArray(), 1)); }
+            get { return _value ?? (_value = ReadValue(ValueType, Datagram.Data.ToArray(), NmsHeaderLength + 1)); }
         }
 
         #endregion //Properties

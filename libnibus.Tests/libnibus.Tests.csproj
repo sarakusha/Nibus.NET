@@ -66,6 +66,7 @@
     <Compile Include="NmsProtocolTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerialTransportTests.cs" />
+    <Compile Include="TennisReceiverTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libnibus\libnibus.csproj">

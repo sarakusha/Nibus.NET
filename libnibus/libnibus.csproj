@@ -89,6 +89,7 @@
     <Compile Include="Nms\NmsEventNotification.cs" />
     <Compile Include="Nms\NmsExecuteProgramInvocation.cs" />
     <Compile Include="Nms\NmsInformationReport.cs" />
+    <Compile Include="Nms\NmsInformationReportEventArgs.cs" />
     <Compile Include="Nms\NmsInitiateDownloadSequence.cs" />
     <Compile Include="Nms\NmsInitiateUploadSequence.cs" />
     <Compile Include="Nms\NmsMessage.cs" />
@@ -103,8 +104,12 @@
     <Compile Include="Nms\NmsValueType.cs" />
     <Compile Include="Sport\GameEventArgs.cs" />
     <Compile Include="Sport\GameReports.cs" />
+    <Compile Include="Sport\InfoMessage.cs" />
     <Compile Include="Sport\PlayerInfo.cs" />
     <Compile Include="Sport\PlayerStat.cs" />
+    <Compile Include="Sport\ProviderInfo.cs" />
+    <Compile Include="Sport\TennisReceiver.cs" />
+    <Compile Include="Sport\TennisStat.cs" />
     <Compile Include="Sport\TimerInfo.cs" />
     <Compile Include="Nms\NmsUploadSegment.cs" />
     <Compile Include="Nms\NmsVerifyDomainChecksum.cs" />
@@ -113,7 +118,7 @@
     <Compile Include="Nms\NmsRequestDomainUpload.cs" />
     <Compile Include="SerialTransport.cs" />
     <Compile Include="Nms\NmsTerminateDownloadSequence.cs" />
-    <Compile Include="Sport\GameLogic.cs" />
+    <Compile Include="Sport\GameReceiver.cs" />
     <Compile Include="Unlinker.cs" />
   </ItemGroup>
   <ItemGroup>

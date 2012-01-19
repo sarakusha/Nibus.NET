@@ -2,19 +2,21 @@ using System;
 
 namespace NataInfo.Nibus.Sport
 {
-    public abstract class InformationReportEventArgs : EventArgs
+    // ReSharper disable MemberCanBePrivate.Global
+    // ReSharper disable UnusedAutoPropertyAccessor.Global
+    public abstract class BaseInformationReportEventArgs : EventArgs
     {
         public Address Source { get; private set; }
 
-        public InformationReportEventArgs(Address source)
+        protected BaseInformationReportEventArgs(Address source)
         {
             Source = source;
         }
     }
 
-    public sealed class TimerEventArgs : InformationReportEventArgs
+    public sealed class TimerChangedEventArgs : BaseInformationReportEventArgs
     {
-        public TimerEventArgs(Address source, TimerInfo timer) : base(source)
+        public TimerChangedEventArgs(Address source, TimerInfo timer) : base(source)
         {
             Timer = timer;
         }
@@ -22,9 +24,9 @@ namespace NataInfo.Nibus.Sport
         public TimerInfo Timer { get; private set; }
     }
 
-    public sealed class ScoreChangedArgs : InformationReportEventArgs
+    public sealed class ScoreChangedEventArgs : BaseInformationReportEventArgs
     {
-        public ScoreChangedArgs(Address source, ushort score)
+        public ScoreChangedEventArgs(Address source, ushort score)
             : base(source)
         {
             Score = score;
@@ -33,9 +35,9 @@ namespace NataInfo.Nibus.Sport
         public ushort Score { get; private set; }
     }
 
-    public sealed class PeriodChangedArgs : InformationReportEventArgs
+    public sealed class PeriodChangedEventArgs : BaseInformationReportEventArgs
     {
-        public PeriodChangedArgs(Address source, byte period)
+        public PeriodChangedEventArgs(Address source, byte period)
             : base(source)
         {
             Period = period;
@@ -44,9 +46,9 @@ namespace NataInfo.Nibus.Sport
         public byte Period { get; private set; }
     }
 
-    public sealed class FoulsChangedArgs : InformationReportEventArgs
+    public sealed class FoulsChangedEventArgs : BaseInformationReportEventArgs
     {
-        public FoulsChangedArgs(Address source, byte fouls)
+        public FoulsChangedEventArgs(Address source, byte fouls)
             : base(source)
         {
             Fouls = fouls;
@@ -55,9 +57,9 @@ namespace NataInfo.Nibus.Sport
         public byte Fouls { get; private set; }
     }
 
-    public sealed class TimebreaksChangedArgs : InformationReportEventArgs
+    public sealed class TimebreaksChangedEventArgs : BaseInformationReportEventArgs
     {
-        public TimebreaksChangedArgs(Address source, byte timebreaks)
+        public TimebreaksChangedEventArgs(Address source, byte timebreaks)
             : base(source)
         {
             Timebreaks = timebreaks;
@@ -66,16 +68,16 @@ namespace NataInfo.Nibus.Sport
         public byte Timebreaks { get; private set; }
     }
 
-    public sealed class TeamCountChangedArgs : InformationReportEventArgs
+    public sealed class TeamCountChangedEventArgs : BaseInformationReportEventArgs
     {
-        public TeamCountChangedArgs(Address source, TeamRole role, ushort count)
+        public TeamCountChangedEventArgs(Address source, TeamRole role, ushort count)
             : base(source)
         {
             Role = role;
             Count = count;
         }
 
-        public TeamCountChangedArgs(Address source, object nmsData)
+        public TeamCountChangedEventArgs(Address source, object nmsData)
             : base(source)
         {
             var data = (byte[])nmsData;
@@ -87,13 +89,85 @@ namespace NataInfo.Nibus.Sport
         public ushort Count { get; private set; }
     }
 
-    public sealed class PlayerInfoChangedEventArgs : InformationReportEventArgs
+    public sealed class PlayerInfoChangedEventArgs : BaseInformationReportEventArgs
     {
         public PlayerInfo Info { get; private set; }
 
         public PlayerInfoChangedEventArgs(Address source, PlayerInfo info) : base(source)
         {
             Info = info;
+        }
+    }
+
+    public sealed class PlayerStatChangedEventArgs : BaseInformationReportEventArgs
+    {
+        public PlayerStat Stat { get; private set; }
+
+        public PlayerStatChangedEventArgs(Address source, PlayerStat stat) : base(source)
+        {
+            Stat = stat;
+        }
+    }
+
+    public sealed class TeamNameChangedEventArgs : BaseInformationReportEventArgs
+    {
+        public string TeamName { get; private set; }
+
+        public TeamNameChangedEventArgs(Address source, string teamName) : base(source)
+        {
+            TeamName = teamName;
+        }
+    }
+
+    public sealed class CountryChangedEventArgs : BaseInformationReportEventArgs
+    {
+        public string Country { get; private set; }
+
+        public CountryChangedEventArgs(Address source, string country)
+            : base(source)
+        {
+            Country = country;
+        }
+    }
+
+    public sealed class TournamentChangedEventArgs : BaseInformationReportEventArgs
+    {
+        public string Tournament { get; private set; }
+
+        public TournamentChangedEventArgs(Address source, string tournament)
+            : base(source)
+        {
+            Tournament = tournament;
+        }
+    }
+
+    public sealed class BallOwnerChangedEventArgs : BaseInformationReportEventArgs
+    {
+        public BallOwner BallOwner { get; private set; }
+
+        public BallOwnerChangedEventArgs(Address source, BallOwner ballOwner) : base(source)
+        {
+            BallOwner = ballOwner;
+        }
+    }
+
+    public sealed class ShowInfoMessageEventArgs : BaseInformationReportEventArgs
+    {
+        public InfoMessage InfoMessage { get; private set; }
+
+        public ShowInfoMessageEventArgs(Address source, InfoMessage infoMessage) : base(source)
+        {
+            InfoMessage = infoMessage;
+        }
+    }
+
+    public sealed class SportChangedEventArgs : BaseInformationReportEventArgs
+    {
+        public ProviderInfo ProviderInfo { get; private set; }
+
+        public SportChangedEventArgs(Address source, ProviderInfo providerInfo) : base(source)
+        {
+            ProviderInfo = providerInfo;
         }
     }
 }

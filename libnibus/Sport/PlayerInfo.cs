@@ -90,14 +90,14 @@ namespace NataInfo.Nibus.Sport
             return new NmsInformationReport(
                 source,
                 (int)GameReports.PlayerInfo,
-                NmsValueType.UInt8, 
+                NmsValueType.UInt8Array, 
                 info.GetData());
         }
 
         public static PlayerInfo GetPlayerInfo(this NmsInformationReport report)
         {
             Contract.Requires(report.Id == (byte)GameReports.PlayerInfo);
-            return new PlayerInfo(report.Datagram.Data.Skip(NmsMessage.NmsHeaderLength).ToList());
+            return new PlayerInfo((byte[])report.Value);
         }
     }
 }

@@ -8,6 +8,7 @@
 #region Using directives
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -16,20 +17,11 @@ using System.Threading.Tasks.Dataflow;
 
 namespace NataInfo.Nibus.Nms
 {
-    public class NmsInformationReportEventArgs : EventArgs
-    {
-        public NmsInformationReportEventArgs(NmsInformationReport report)
-        {
-            InformationReport = report;
-        }
-
-        public NmsInformationReport InformationReport { get; private set; }
-    }
-
     public sealed class NmsController : INibusEndpoint<NmsMessage>
     {
         #region Member Variables
 
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly CancellationTokenSource _cts;
 
         #endregion
@@ -47,6 +39,11 @@ namespace NataInfo.Nibus.Nms
             IncomingMessages = incoming;
             OutgoingMessages = outgoing;
             
+            if (SynchronizationContext.Current == null)
+            {
+                SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
+            }
+
             var ui = TaskScheduler.FromCurrentSynchronizationContext();
             var infoHandlers = new ActionBlock<NmsMessage>(
                 message => OnInformationReport((NmsInformationReport)message),
@@ -98,7 +95,20 @@ namespace NataInfo.Nibus.Nms
             var handler = InformationReportReceived;
             if (handler != null)
             {
-                handler(this, new NmsInformationReportEventArgs(report));
+                var e = new NmsInformationReportEventArgs(report);
+                try
+                {
+                    handler(this, e);
+                    if (!e.Identified)
+                    {
+                        Logger.Debug("Unhandled NMS Information Report: id={0}", report.Id);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Logger.ErrorException("NMS Information Report error", exception);
+                    Debug.Fail("NMS Information Report error");
+                }
             }
         }
 
