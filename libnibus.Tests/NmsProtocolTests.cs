@@ -23,7 +23,7 @@ namespace NataInfo.Nibus.Tests
     {
         private SerialTransport _serial;
         private NibusDataCodec _nibusDataCodec;
-        private NmsProtocol _nmsProtocol;
+        private NmsCodec _nmsCodec;
         private List<IDisposable> _releaser;
 
         [TestFixtureSetUp]
@@ -31,12 +31,12 @@ namespace NataInfo.Nibus.Tests
         {
             _serial = new SerialTransport("COM7", 115200);
             _nibusDataCodec = new NibusDataCodec();
-            _nmsProtocol = new NmsProtocol();
-            _releaser = new List<IDisposable> { _nmsProtocol, _nibusDataCodec, _serial };
+            _nmsCodec = new NmsCodec();
+            _releaser = new List<IDisposable> { _nmsCodec, _nibusDataCodec, _serial };
 
-            _nmsProtocol.ConnectTo(_nibusDataCodec);
+            _nmsCodec.ConnectTo(_nibusDataCodec);
             _nibusDataCodec.ConnectTo(_serial);
-            _serial.RunAsync();
+            _serial.Run();
         }
 
         [TestFixtureTearDown]
@@ -50,7 +50,7 @@ namespace NataInfo.Nibus.Tests
 
         private void ReadValueAsync_ThrowTimeout()
         {
-            var nmsController = _nmsProtocol.Controller;
+            var nmsController = _nmsCodec.Protocol;
             try
             {
                 var version = nmsController.ReadValueAsync(Address.CreateMac(0x1), 2).Result;
@@ -70,7 +70,7 @@ namespace NataInfo.Nibus.Tests
         [Test]
         public void NmsController_ReadValueAsync_Version()
         {
-            var nmsController = _nmsProtocol.Controller;
+            var nmsController = _nmsCodec.Protocol;
             var version = nmsController.ReadValueAsync(Address.CreateMac(0x20, 0x44), 2).Result;
             Assert.That(version, Is.EqualTo(0x00070200));
         }
@@ -79,8 +79,8 @@ namespace NataInfo.Nibus.Tests
         public void RawRead()
         {
             var readVersion = new NmsRead(Address.CreateMac(0x20, 0x44), 2);
-            _nmsProtocol.Encoder.Post(readVersion);
-            var responce = _nmsProtocol.Decoder.Receive(TimeSpan.FromSeconds(1));
+            _nmsCodec.Encoder.Post(readVersion);
+            var responce = _nmsCodec.Decoder.Receive(TimeSpan.FromSeconds(1));
             Assert.That(responce.Id == 2);
             Assert.That(responce.IsResponce);
             Assert.That(responce.ServiceType == NmsServiceType.Read);

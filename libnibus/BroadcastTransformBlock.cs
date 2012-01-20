@@ -16,6 +16,13 @@ using System.Threading.Tasks.Dataflow;
 
 namespace NataInfo.Nibus
 {
+    /// <summary>
+    /// Переобразующий широковещательный блок.
+    /// </summary>
+    /// <typeparam name="TInput">The type of the input.</typeparam>
+    /// <typeparam name="TOutput">The type of the output.</typeparam>
+    /// <seealso cref="TransformBlock{TInput,TOutput}"/>
+    /// <seealso cref="BroadcastBlock{T}"/>
     public class BroadcastTransformBlock<TInput, TOutput> : IPropagatorBlock<TInput, TOutput>,
                                                             IReceivableSourceBlock<TOutput>
     {
@@ -31,6 +38,7 @@ namespace NataInfo.Nibus
         /// <summary>
         /// The default Constructor.
         /// </summary>
+        /// <param name="transform">Функция трансформации.</param>
         public BroadcastTransformBlock(Func<TInput, TOutput> transform)
         {
             var source = new BroadcastBlock<TOutput>(m => m);
@@ -107,11 +115,17 @@ namespace NataInfo.Nibus
             return _target.OfferMessage(messageHeader, messageValue, source, consumeToAccept);
         }
 
+        /// <summary>
+        /// Возвращает источник, необходимый при испольовании фильтра.
+        /// </summary>
         public IReceivableSourceBlock<TOutput> Source
         {
             get { return _source; }
         }
 
+        /// <summary>
+        /// Возвращает действие для сброса выходного источника заданным значением.
+        /// </summary>
         public Action<TOutput> ResetSource { get; private set; }
     }
 }

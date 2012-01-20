@@ -7,8 +7,16 @@
 
 namespace NataInfo.Nibus.Nms
 {
-    public sealed class NmsEmptyMessage : NmsMessage
+    /// <summary>
+    /// "Пустое" NMS-сообщение для сброса последнего сохраненного сообщения.
+    /// </summary>
+    /// <seealso cref="NmsProtocol.ResetIncoming"/>
+    internal sealed class NmsEmptyMessage : NmsMessage
     {
+        /// <summary>
+        /// Экземпляр <see cref="NmsEmptyMessage"/>.
+        /// </summary>
+        /// <remarks>Не используйте для отправки.</remarks>
         public static readonly NmsEmptyMessage Instance = new NmsEmptyMessage();
 
         private NmsEmptyMessage()

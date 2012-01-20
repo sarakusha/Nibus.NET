@@ -26,7 +26,7 @@ namespace NataInfo.Nibus.Tests
     {
         private SerialTransport _serial;
         private NibusDataCodec _nibusDataCodec;
-        private NmsProtocol _nmsProtocol;
+        private NmsCodec _nmsCodec;
         private List<IDisposable> _releaser;
 
         [TestFixtureSetUp]
@@ -34,12 +34,12 @@ namespace NataInfo.Nibus.Tests
         {
             _serial = new SerialTransport("COM7", 115200);
             _nibusDataCodec = new NibusDataCodec();
-            _nmsProtocol = new NmsProtocol();
-            _releaser = new List<IDisposable> { _nmsProtocol, _nibusDataCodec, _serial };
+            _nmsCodec = new NmsCodec();
+            _releaser = new List<IDisposable> { _nmsCodec, _nibusDataCodec, _serial };
 
-            _nmsProtocol.ConnectTo(_nibusDataCodec);
+            _nmsCodec.ConnectTo(_nibusDataCodec);
             _nibusDataCodec.ConnectTo(_serial);
-            _serial.RunAsync();
+            _serial.Run();
         }
 
         [TestFixtureTearDown]
@@ -54,7 +54,7 @@ namespace NataInfo.Nibus.Tests
         [Test]
         public void TenisStat()
         {
-            var tennis = new TennisReceiver(_nmsProtocol.Controller);
+            var tennis = new TennisReceiver(_nmsCodec.Protocol);
             bool s = false;
             var h = new AutoResetEvent(false);
             tennis.TennisStatChanged += (o, e) =>

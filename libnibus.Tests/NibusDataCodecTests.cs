@@ -27,7 +27,7 @@ namespace NataInfo.Nibus.Tests
             Assert.That(datagramOrig.Destanation == datagramCopy.Destanation);
             Assert.That(datagramOrig.Source == datagramCopy.Source);
             Assert.That(datagramOrig.Priority == datagramCopy.Priority);
-            Assert.That(datagramOrig.Protocol == datagramCopy.Protocol);
+            Assert.That(datagramOrig.ProtocolType == datagramCopy.ProtocolType);
             Assert.That(datagramOrig.Data.SequenceEqual(datagramCopy.Data));
         }
 

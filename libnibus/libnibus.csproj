@@ -75,7 +75,7 @@
   <ItemGroup>
     <Compile Include="Address.cs" />
     <Compile Include="BroadcastTransformBlock.cs" />
-    <Compile Include="Nibus.cs" />
+    <Compile Include="NibusException.cs" />
     <Compile Include="Nms\NmsAlterEventConditionMonitoring.cs" />
     <Compile Include="INibusCodec.cs" />
     <Compile Include="INibusEndpoint.cs" />
@@ -83,7 +83,7 @@
     <Compile Include="NibusDataCodec.cs" />
     <Compile Include="NibusDatagram.cs" />
     <Compile Include="Nms\NmsAckEventNotification.cs" />
-    <Compile Include="Nms\NmsController.cs" />
+    <Compile Include="Nms\NmsProtocol.cs" />
     <Compile Include="Nms\NmsDownloadSegment.cs" />
     <Compile Include="Nms\NmsEmptyMessage.cs" />
     <Compile Include="Nms\NmsEventNotification.cs" />
@@ -93,11 +93,12 @@
     <Compile Include="Nms\NmsInitiateDownloadSequence.cs" />
     <Compile Include="Nms\NmsInitiateUploadSequence.cs" />
     <Compile Include="Nms\NmsMessage.cs" />
-    <Compile Include="Nms\NmsProtocol.cs" />
+    <Compile Include="Nms\NmsCodec.cs" />
     <Compile Include="Nms\NmsRead.cs" />
     <Compile Include="Nms\NmsRequestDomainDownload.cs" />
     <Compile Include="Nms\NmsReset.cs" />
     <Compile Include="Nms\NmsResume.cs" />
+    <Compile Include="Nms\NmsServiceType.cs" />
     <Compile Include="Nms\NmsShutdown.cs" />
     <Compile Include="Nms\NmsStartProgramInvocation.cs" />
     <Compile Include="Nms\NmsStop.cs" />

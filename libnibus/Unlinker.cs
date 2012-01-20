@@ -13,6 +13,10 @@ using System;
 
 namespace NataInfo.Nibus
 {
+    /// <summary>
+    /// Класс для разрыва связи между кодеками <see cref="INibusCodec{TEncoded,TDecoded}"/>,
+    /// созданной с помощью <see cref="NibusCodec{TEncoded,TDecoded}.ConnectTo{T}"/>
+    /// </summary>
     internal class Unlinker : IDisposable
     {
         #region Member Variables
@@ -27,6 +31,8 @@ namespace NataInfo.Nibus
         /// <summary>
         /// The default Constructor.
         /// </summary>
+        /// <param name="firstCodecLink">Связь от первого кодека.</param>
+        /// <param name="secondCodecLink">Связь от второго кодека.</param>
         public Unlinker(IDisposable firstCodecLink, IDisposable secondCodecLink)
         {
             _firstCodecLink = firstCodecLink;
@@ -37,6 +43,12 @@ namespace NataInfo.Nibus
 
         #region Properties
 
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="Unlinker"/> is disposed.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if disposed; otherwise, <c>false</c>.
+        /// </value>
         public bool Disposed
         {
             get { return _firstCodecLink == null && _secondCodecLink == null; }

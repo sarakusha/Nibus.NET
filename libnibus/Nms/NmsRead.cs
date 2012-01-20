@@ -15,6 +15,9 @@ using System.Linq;
 
 namespace NataInfo.Nibus.Nms
 {
+    /// <summary>
+    /// Сообщение сервиса <see cref="NmsServiceType.Read"/>.
+    /// </summary>
     public sealed class NmsRead : NmsMessage
     {
         #region Member Variables
@@ -29,9 +32,11 @@ namespace NataInfo.Nibus.Nms
         #region Constructors
 
         /// <summary>
-        /// The default Constructor.
+        /// Конструктор создания NMS-сообщения из низлежащего сообщения <see cref="NibusDatagram"/>.
         /// </summary>
-        public NmsRead(NibusDatagram datagram) : base(datagram)
+        /// <param name="datagram">Датаграмма.</param>
+        internal NmsRead(NibusDatagram datagram)
+            : base(datagram)
         {
             Contract.Assume(ServiceType == NmsServiceType.Read);
             if (!IsResponce) return;
@@ -46,12 +51,24 @@ namespace NataInfo.Nibus.Nms
             _value = ReadValue(_valueType, datagram.Data.ToArray(), NmsHeaderLength + 2);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NmsRead"/> class.
+        /// </summary>
+        /// <param name="source">Адрес источника сообщения.</param>
+        /// <param name="destanation">Адрес получателя сообщения.</param>
+        /// <param name="id">Идентификатор переменной.</param>
         public NmsRead(Address source, Address destanation, int id)
         {
             Initialize(source, destanation, PriorityType.Realtime, NmsServiceType.Read, true, id, false, new byte[0]);
         }
 
-        public NmsRead(Address desatantion, int id) : this(Address.Empty, desatantion, id)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NmsRead"/> class.
+        /// </summary>
+        /// <param name="destanation">Адрес получателя сообщения.</param>
+        /// <param name="id">Идентификатор переменной.</param>
+        public NmsRead(Address destanation, int id)
+            : this(Address.Empty, destanation, id)
         {
         }
 
@@ -59,6 +76,9 @@ namespace NataInfo.Nibus.Nms
 
         #region Properties
 
+        /// <summary>
+        /// Возвращает код завершения в ответном сообщении.
+        /// </summary>
         public int ErrorCode
         {
             get
@@ -73,6 +93,9 @@ namespace NataInfo.Nibus.Nms
             }
         }
 
+        /// <summary>
+        /// Возвращает тип значения в ответном сообщении.
+        /// </summary>
         public NmsValueType ValueType
         {
             get
@@ -87,6 +110,9 @@ namespace NataInfo.Nibus.Nms
             }
         }
 
+        /// <summary>
+        /// Возвращенное на запрос значение переменной.
+        /// </summary>
         public object Value
         {
             get

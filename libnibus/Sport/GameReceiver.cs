@@ -26,11 +26,11 @@ namespace NataInfo.Nibus.Sport
         /// <summary>
         /// The default Constructor.
         /// </summary>
-        public GameReceiver(NmsController nmsController)
+        public GameReceiver(NmsProtocol nmsProtocol)
         {
-            Contract.Requires(nmsController != null);
-            NmsController = nmsController;
-            NmsController.InformationReportReceived += OnInformationReportReceived;
+            Contract.Requires(nmsProtocol != null);
+            NmsProtocol = nmsProtocol;
+            NmsProtocol.InformationReportReceived += OnInformationReportReceived;
         }
 
         #endregion //Constructors
@@ -61,7 +61,7 @@ namespace NataInfo.Nibus.Sport
 
         #region Properties
 
-        public NmsController NmsController { get; private set; }
+        public NmsProtocol NmsProtocol { get; private set; }
 
         #endregion //Properties
 

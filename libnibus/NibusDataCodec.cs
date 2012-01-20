@@ -6,6 +6,9 @@ using System.Threading.Tasks.Dataflow;
 
 namespace NataInfo.Nibus
 {
+    /// <summary>
+    /// Кодек нижнего уровня, преобразующий массивы байт в NiBUS датаграммы и обратно.
+    /// </summary>
     public class NibusDataCodec : NibusCodec<byte[], NibusDatagram>
     {
         private const byte Preamble = 0x7E;
@@ -65,6 +68,10 @@ namespace NataInfo.Nibus
         private static decimal _overrunErrors;
         private static decimal _crcErrors;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NibusDataCodec"/> class.
+        /// </summary>
+        /// <param name="description">Описание кодека.</param>
         public NibusDataCodec(string description = null)
         {
             Contract.Ensures(Decoder != null);
@@ -74,11 +81,17 @@ namespace NataInfo.Nibus
             Description = description;
         }
 
+        /// <summary>
+        /// Возвращает общее количество ошибок CRC.
+        /// </summary>
         public static decimal CrcErrors
         {
             get { return _crcErrors; }
         }
 
+        /// <summary>
+        /// Возвращает общее количество ошибок переполнения.
+        /// </summary>
         public static decimal OverrunErrors
         {
             get { return _overrunErrors; }
@@ -182,7 +195,7 @@ namespace NataInfo.Nibus
 
             data[LengthOfs] = (byte)(datagram.Data.Count + 1); // Поле длины кадра = длина + 1 ??? WTF!
 
-            data[ProtocolOfs] = (byte)datagram.Protocol;
+            data[ProtocolOfs] = (byte)datagram.ProtocolType;
 
             Array.Copy(datagram.Data.ToArray(), 0, data, DataOfs, datagram.Data.Count);
             

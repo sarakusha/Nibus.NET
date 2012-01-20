@@ -1,57 +1,46 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 
 namespace NataInfo.Nibus.Nms
 {
-    public enum NmsServiceType
-    {
-        None = 0,
-        Read = 1,
-        Write = 2,
-        InformationReport = 3,
-        EventNotification = 4,
-        AckEventNotification = 5,
-        AlterEventConditionMonitoring = 6,
-        RequestDomainUpload = 7,
-        InitiateUploadSequence = 8,
-        UploadSegment = 9,
-        RequestDomainDownload = 10,
-        InitiateDownloadSequence = 11,
-        DownloadSegment = 12,
-        TerminateDownloadSequence = 13,
-        VerifyDomainChecksum = 14,
-        ExecuteProgramInvocation = 15,
-        StartProgramInvocation = 16,
-        Stop = 17,
-        Resume = 18,
-        Reset = 19,
-        Shutdown = 20
-    }
-
+    /// <summary>
+    /// Абстрактный базовый класс для всех NMS-сообщений.
+    /// </summary>
     public abstract class NmsMessage 
     {
-        #region NmsValueType enum
-
-        #endregion
-
-        public const int NmsHeaderLength = 3;
-        public const int NmsMaxDataLength = 63;
+        /// <summary>
+        /// Длина заголовка NMS-сообщения.
+        /// </summary>
+        internal const int NmsHeaderLength = 3;
+        
+        /// <summary>
+        /// Максимальный размер данных в NMS-сообщении. Размер 6 бит.
+        /// </summary>
+        internal const int NmsMaxDataLength = 63;
 
         protected NmsMessage()
         {
         }
 
+        /// <summary>
+        /// Конструктор создания NMS-сообщения из низлежащего сообщения <see cref="NibusDatagram"/>.
+        /// </summary>
+        /// <param name="datagram">Датаграмма.</param>
+        /// <remarks>
+        /// Минимальный размер длины данных <paramref name="datagram"/> должен быть не меньше размера
+        /// заголовка <see cref="NmsHeaderLength"/> плюс размер NMS-данных.
+        /// </remarks>
+        /// <seealso cref="CreateFrom"/>
         protected NmsMessage(NibusDatagram datagram)
         {
             Contract.Requires(datagram != null);
-            Contract.Requires(datagram.Protocol == ProtocolType.Nms);
-            Contract.Ensures(Datagram != null);
+            Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
             Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
+            Contract.Ensures(Datagram != null);
 
             if (datagram.Data.Count < (datagram.Data[2] & 0x3F) + NmsHeaderLength)
             {
@@ -61,8 +50,14 @@ namespace NataInfo.Nibus.Nms
             Datagram = datagram;
         }
 
+        /// <summary>
+        /// Возвращает датаграмму низлежащего уровня.
+        /// </summary>
         public NibusDatagram Datagram { get; private set; }
 
+        /// <summary>
+        /// Возвращает тип сервиса NMS.
+        /// </summary>
         public NmsServiceType ServiceType
         {
             get
@@ -72,6 +67,9 @@ namespace NataInfo.Nibus.Nms
             }
         }
 
+        /// <summary>
+        /// Возвращает индикатор, что сообщение является ответом на запрос.
+        /// </summary>
         public bool IsResponce
         {
             get
@@ -81,6 +79,9 @@ namespace NataInfo.Nibus.Nms
             }
         }
 
+        /// <summary>
+        /// Возвращает идентификатор NMS-сообщения. Размер 10 бит.
+        /// </summary>
         public int Id
         {
             get
@@ -90,6 +91,9 @@ namespace NataInfo.Nibus.Nms
             }
         }
 
+        /// <summary>
+        /// Возвращает индикатор, что сообщение требует ответа/подтверждения.
+        /// </summary>
         public bool IsResponsible
         {
             get
@@ -99,6 +103,9 @@ namespace NataInfo.Nibus.Nms
             }
         }
 
+        /// <summary>
+        /// Возвращает размер данных NMS-сообщения (6 бит).
+        /// </summary>
         public int Length
         {
             get
@@ -108,16 +115,18 @@ namespace NataInfo.Nibus.Nms
             }
         }
 
+        /// <summary>
+        /// Фабричный метод создания NMS-сообщений на основе датаграммы.
+        /// </summary>
+        /// <param name="datagram">Датаграмма.</param>
+        /// <returns>Экземпляр NMS-сообщения одного из производных типов от <see cref="NmsMessage"/></returns>
+        /// <exception cref="ArgumentException">Неизвестный тип сервиса NMS.</exception>
         public static NmsMessage CreateFrom(NibusDatagram datagram)
         {
             Contract.Requires(datagram != null);
+            Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
             Contract.Ensures(Contract.Result<NmsMessage>() != null);
             
-            if (datagram.Protocol != ProtocolType.Nms)
-            {
-                throw new InvalidOperationException("nms protocol required");
-            }
-
             var serviceType = (NmsServiceType)(datagram.Data[0] >> 3);
             switch (serviceType)
             {
@@ -158,44 +167,91 @@ namespace NataInfo.Nibus.Nms
                 case NmsServiceType.Shutdown:
                     return new NmsShutdown(datagram);
                 default:
-                    Debug.Fail("Unknown NMS service");
-                    return NmsEmptyMessage.Instance;
+                    throw new ArgumentException("Unknown NMS service");
             }
         }
 
-        protected static object ReadValue(NmsValueType valueType, byte[] buffer, int offset)
+        /// <summary>
+        /// Возвращает размер данных указанного типа и возможно значения для массива или строки.
+        /// </summary>
+        /// <param name="vt">Тип данных.</param>
+        /// <param name="value">Значение данных в случае массива или строки.</param>
+        /// <returns>Занимаемый размер.</returns>
+        public static int GetSizeOf(NmsValueType vt, object value)
+        {
+            switch (vt)
+            {
+                case NmsValueType.Boolean:
+                case NmsValueType.Int8:
+                case NmsValueType.UInt8:
+                    return 1;
+                case NmsValueType.Int16:
+                case NmsValueType.UInt16:
+                    return 2;
+                case NmsValueType.Int32:
+                case NmsValueType.UInt32:
+                case NmsValueType.Real32:
+                    return 4;
+                case NmsValueType.Int64:
+                case NmsValueType.UInt64:
+                case NmsValueType.Real64:
+                    return 8;
+                case NmsValueType.DateTime:
+                    return 10;
+                case NmsValueType.String:
+                    return Math.Min(NmsMaxDataLength - 1, ((string)value).Length + 1);
+            }
+
+            if (((byte)vt & (byte)NmsValueType.Array) == 0)
+            {
+                throw new ArgumentException("Invalid ValueType");
+            }
+
+            var arrayType = (NmsValueType)((byte)vt & ((byte)NmsValueType.Array - 1));
+            var itemSize = GetSizeOf(arrayType, String.Empty);
+            return ((ICollection)value).Count*itemSize;
+        }
+
+        /// <summary>
+        /// Чтение значения NMS из буфера.
+        /// </summary>
+        /// <param name="valueType">Тип значения.</param>
+        /// <param name="buffer">Буфер.</param>
+        /// <param name="startIndex">Начальный индекс в буфере, с которого хранится непосредственно значение.</param>
+        /// <returns>Значение NMS.</returns>
+        protected static object ReadValue(NmsValueType valueType, byte[] buffer, int startIndex)
         {
             Contract.Requires(buffer != null);
-            Contract.Requires(offset >= 0);
+            Contract.Requires(startIndex >= 0);
             switch (valueType)
             {
                 case NmsValueType.Boolean:
-                    return buffer[offset] != 0;
+                    return buffer[startIndex] != 0;
                 case NmsValueType.Int8:
-                    return (sbyte)buffer[offset];
+                    return (sbyte)buffer[startIndex];
                 case NmsValueType.Int16:
-                    return BitConverter.ToInt16(buffer, offset);
+                    return BitConverter.ToInt16(buffer, startIndex);
                 case NmsValueType.Int32:
-                    return BitConverter.ToInt32(buffer, offset);
+                    return BitConverter.ToInt32(buffer, startIndex);
                 case NmsValueType.Int64:
-                    return BitConverter.ToInt64(buffer, offset);
+                    return BitConverter.ToInt64(buffer, startIndex);
                 case NmsValueType.UInt8:
-                    return buffer[offset];
+                    return buffer[startIndex];
                 case NmsValueType.UInt16:
-                    return BitConverter.ToUInt16(buffer, offset);
+                    return BitConverter.ToUInt16(buffer, startIndex);
                 case NmsValueType.UInt32:
-                    return BitConverter.ToInt32(buffer, offset);
+                    return BitConverter.ToInt32(buffer, startIndex);
                 case NmsValueType.UInt64:
-                    return BitConverter.ToUInt64(buffer, offset);
+                    return BitConverter.ToUInt64(buffer, startIndex);
                 case NmsValueType.Real32:
-                    return BitConverter.ToSingle(buffer, offset);
+                    return BitConverter.ToSingle(buffer, startIndex);
                 case NmsValueType.Real64:
-                    return BitConverter.ToDouble(buffer, offset);
+                    return BitConverter.ToDouble(buffer, startIndex);
                 case NmsValueType.String:
                     return Encoding.Default.GetString(
-                        buffer.Skip(offset).Take(NmsMaxDataLength - 1).TakeWhile(b => b != 0).ToArray());
+                        buffer.Skip(startIndex).Take(NmsMaxDataLength - 1).TakeWhile(b => b != 0).ToArray());
                 case NmsValueType.DateTime:
-                    return GetDateTime(buffer, offset);
+                    return GetDateTime(buffer, startIndex);
             }
 
             if (((byte)valueType & (byte)NmsValueType.Array) == 0)
@@ -204,14 +260,14 @@ namespace NataInfo.Nibus.Nms
             }
 
             var arrayType = (NmsValueType)((byte)valueType & ((byte)NmsValueType.Array - 1));
-            var arraySize = buffer.Length - offset/* - 1*/;
+            var arraySize = buffer.Length - startIndex/* - 1*/;
             var itemSize = GetSizeOf(arrayType, String.Empty);
             var arrayLength = arraySize/itemSize;
             var array = new object[arrayLength];
             for (var i = 0; i < arrayLength; i++)
             {
-                array[i] = ReadValue(arrayType, buffer, offset);
-                offset += itemSize;
+                array[i] = ReadValue(arrayType, buffer, startIndex);
+                startIndex += itemSize;
             }
 
             switch (arrayType)
@@ -246,9 +302,17 @@ namespace NataInfo.Nibus.Nms
             return array;
         }
 
+        /// <summary>
+        /// Записывает тип значения и само значение в буфер.
+        /// </summary>
+        /// <param name="valueType">Тип значения.</param>
+        /// <param name="value">Значение.</param>
+        /// <returns>Массив байт максимальной длины <see cref="NmsMaxDataLength"/> с данными.</returns>
         protected static byte[] WriteValue(NmsValueType valueType, object value)
         {
             Contract.Requires(value != null);
+            Contract.Ensures(Contract.Result<byte[]>().Length <= NmsMaxDataLength);
+
             var data = new List<byte>(NmsMaxDataLength) { (byte)valueType };
             switch (valueType)
             {
@@ -322,10 +386,22 @@ namespace NataInfo.Nibus.Nms
             {
                 data.AddRange(WriteValue(arrayType, item));
             }
-
-            return data.ToArray();
+            
+            Contract.Assert(data.Count <= NmsMaxDataLength);
+            return data.Take(NmsMaxDataLength).ToArray();
         }
 
+        /// <summary>
+        /// Инициализация NMS-сообщения.
+        /// </summary>
+        /// <param name="source">Адрес источника сообщения.</param>
+        /// <param name="destanation">Адрес получателя сообщения.</param>
+        /// <param name="priority">Приоритет.</param>
+        /// <param name="service">Тип сервиса.</param>
+        /// <param name="isResponsible">Требуется ли ответ/подтверждение на запрос.</param>
+        /// <param name="id">Идентификатор NMS-сообщения.</param>
+        /// <param name="r1">Разрешено ли событие для <see cref="NmsServiceType.AlterEventConditionMonitoring"/>.</param>
+        /// <param name="nmsData">NMS-данные.</param>
         protected void Initialize(
             Address source,
             Address destanation,
@@ -380,41 +456,6 @@ namespace NataInfo.Nibus.Nms
             Contract.Assume(second <= 60);
             int ms = UnpackByte(buffer[8 + startIndex]) + (buffer[7 + startIndex] & 0x0f)*100;
             return new DateTime(year, month, day, hour, minute, second, ms);
-        }
-
-        public static int GetSizeOf(NmsValueType vt, object value)
-        {
-            switch (vt)
-            {
-                case NmsValueType.Boolean:
-                case NmsValueType.Int8:
-                case NmsValueType.UInt8:
-                    return 1;
-                case NmsValueType.Int16:
-                case NmsValueType.UInt16:
-                    return 2;
-                case NmsValueType.Int32:
-                case NmsValueType.UInt32:
-                case NmsValueType.Real32:
-                    return 4;
-                case NmsValueType.Int64:
-                case NmsValueType.UInt64:
-                case NmsValueType.Real64:
-                    return 8;
-                case NmsValueType.DateTime:
-                    return 10;
-                case NmsValueType.String:
-                    return Math.Min(NmsMaxDataLength - 1, ((string)value).Length + 1);
-            }
-
-            if (((byte)vt & (byte)NmsValueType.Array) == 0)
-            {
-                throw new ArgumentException("Invalid ValueType");
-            }
-
-            var arrayType = (NmsValueType)((byte)vt & ((byte)NmsValueType.Array - 1));
-            var itemSize = GetSizeOf(arrayType, String.Empty);
-            return ((ICollection)value).Count*itemSize;
         }
     }
 }

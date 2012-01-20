@@ -5,17 +5,40 @@ using System.Threading.Tasks.Dataflow;
 
 namespace NataInfo.Nibus
 {
+    /// <summary>
+    /// Информация о кодеке.
+    /// </summary>
     public interface ICodecInfo
     {
+        /// <summary>
+        /// Возвращает описание кодека.
+        /// </summary>
         string Description { get; }
     }
 
+    /// <summary>
+    /// Интерфейс для NiBUS-кодеков.
+    /// </summary>
+    /// <typeparam name="TEncoded">Тип сообщений нижележащего уровня.</typeparam>
+    /// <typeparam name="TDecoded">Тип преобразованных сообщений.</typeparam>
     public interface INibusCodec<TEncoded, TDecoded> : ICodecInfo, IDisposable
     {
+        /// <summary>
+        /// Возвращает кодировщик в нижележащий уровень.
+        /// </summary>
         IPropagatorBlock<TDecoded, TEncoded> Encoder { get; }
+
+        /// <summary>
+        /// Возвращает декодер с нижележащего уровня.
+        /// </summary>
         IPropagatorBlock<TEncoded, TDecoded> Decoder { get; }
     }
 
+    /// <summary>
+    /// Абстрактный базовый класс для NiBUS-кодеков.
+    /// </summary>
+    /// <typeparam name="TEncoded">Тип сообщений нижележащего уровня.</typeparam>
+    /// <typeparam name="TDecoded">Тип преобразованных сообщений.</typeparam>
     public abstract class NibusCodec<TEncoded, TDecoded> : INibusCodec<TEncoded, TDecoded>
     {
         private Unlinker _unlinker;
@@ -28,15 +51,35 @@ namespace NataInfo.Nibus
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Возвращает кодировщик в нижележащий уровень.
+        /// </summary>
         public IPropagatorBlock<TDecoded, TEncoded> Encoder { get; protected set; }
 
+        /// <summary>
+        /// Возвращает декодер с нижележащего уровня.
+        /// </summary>
         public IPropagatorBlock<TEncoded, TDecoded> Decoder { get; protected set; }
 
+        /// <summary>
+        /// Подключает к кодеку нижележащего уровня.
+        /// </summary>
+        /// <param name="bottomCodec">Низлежащий кодек в стеке протоколов.</param>
+        /// <returns>
+        /// Объект, вызвав у которого <see cref="IDisposable.Dispose"/>, можно прервать связь.
+        /// </returns>
         public virtual IDisposable ConnectTo<T>(INibusCodec<T, TEncoded> bottomCodec)
         {
             return LinkTo(bottomCodec);
         }
 
+        /// <summary>
+        /// Подключает к транспорту.
+        /// </summary>
+        /// <param name="transport">Транспорт.</param>
+        /// <returns>
+        /// Объект, вызвав у которого <see cref="IDisposable.Dispose"/>, можно прервать связь.
+        /// </returns>
         public virtual IDisposable ConnectTo(INibusEndpoint<TEncoded> transport)
         {
             return LinkTo(transport);
@@ -67,7 +110,7 @@ namespace NataInfo.Nibus
             var decoderLink = bottomCodec.Decoder.LinkTo(Decoder);
             var encoderLink = Encoder.LinkTo(bottomCodec.Encoder);
             _unlinker = new Unlinker(decoderLink, encoderLink);
-            
+
             return _unlinker;
         }
 
@@ -92,11 +135,12 @@ namespace NataInfo.Nibus
             var decoderLink = transport.IncomingMessages.LinkTo(Decoder);
             var encoderLink = Encoder.LinkTo(transport.OutgoingMessages);
             _unlinker = new Unlinker(decoderLink, encoderLink);
-            
+
             return _unlinker;
         }
 
-        protected IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec, Predicate<TEncoded> filter, bool discardsMessages = false)
+        protected IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec, Predicate<TEncoded> filter,
+                                        bool discardsMessages = false)
         {
             Contract.Requires(bottomCodec != null);
             Contract.Requires(bottomCodec.Decoder != null);
@@ -135,6 +179,7 @@ namespace NataInfo.Nibus
 
             return _unlinker;
         }
+
         #endregion
 
         protected virtual void Dispose(bool disposing)
@@ -151,6 +196,9 @@ namespace NataInfo.Nibus
 
         #region Implementation of ICodecInfo
 
+        /// <summary>
+        /// Возвращает описание кодека.
+        /// </summary>
         public string Description { get; protected set; }
 
         #endregion

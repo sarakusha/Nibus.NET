@@ -30,7 +30,7 @@ namespace NataInfo.Nibus.Sport
         /// <summary>
         /// The default Constructor.
         /// </summary>
-        public TennisReceiver(NmsController nmsController) : base(nmsController)
+        public TennisReceiver(NmsProtocol nmsProtocol) : base(nmsProtocol)
         {
         }
 

@@ -5,6 +5,9 @@ using System.Diagnostics.Contracts;
 
 namespace NataInfo.Nibus
 {
+    /// <summary>
+    /// Тип протокола вышестоящего уровня.
+    /// </summary>
     public enum ProtocolType
     {
         None = 0,
@@ -12,30 +15,73 @@ namespace NataInfo.Nibus
         Sarp = 2
     }
 
+    /// <summary>
+    /// Приоритет сообщения. Применяется при коллизиях.
+    /// </summary>
     public enum PriorityType
     {
-		Realtime = 0,
-		AboveNormal = 1,
-		Normal = 2,
-		BelowNormal = 3
-	}
+        Realtime = 0,
+        AboveNormal = 1,
+        Normal = 2,
+        BelowNormal = 3
+    }
 
     // ReSharper disable ReturnTypeCanBeEnumerable.Global
+    /// <summary>
+    /// Интерфейс датаграммы протокола NiBUS.
+    /// </summary>
     public interface INibusDatagram
     {
+        /// <summary>
+        /// Возвращает адрес устройства назначения.
+        /// </summary>
         Address Destanation { get; }
+
+        /// <summary>
+        /// Возвращает адрес устройства отправителя.
+        /// </summary>
         Address Source { get; }
+
+        /// <summary>
+        /// Возвращает приоритет сообщения.
+        /// </summary>
         PriorityType Priority { get; }
-        ProtocolType Protocol { get; }
+
+        /// <summary>
+        /// Возвращает тип протокола вышестоящего уровня.
+        /// </summary>
+        ProtocolType ProtocolType { get; }
+
+        /// <summary>
+        /// Возвращает массив данных.
+        /// </summary>
         ReadOnlyCollection<byte> Data { get; }
     }
+
     // ReSharper restore ReturnTypeCanBeEnumerable.Global
 
+    /// <summary>
+    /// Класс-обертка для датаграмм NiBUS.
+    /// </summary>
+    /// <remarks>Неизменяемый объект (англ. Immutable object)</remarks>
     public class NibusDatagram : INibusDatagram
     {
+        /// <summary>
+        /// Максимальный размер данных в датаграмме.
+        /// </summary>
         public const int MaxDataLength = 238;
 
-        public NibusDatagram(ICodecInfo sender, Address source, Address destanation, PriorityType priority, ProtocolType protocol, IList<byte> data)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NibusDatagram"/> class.
+        /// </summary>
+        /// <param name="provider">Поставщик датаграммы.</param>
+        /// <param name="source">Адрес отправителя.</param>
+        /// <param name="destanation">Адрес получателя.</param>
+        /// <param name="priority">Приоритет.</param>
+        /// <param name="protocol">Тип протокола.</param>
+        /// <param name="data">Данные.</param>
+        public NibusDatagram(ICodecInfo provider, Address source, Address destanation, PriorityType priority,
+                             ProtocolType protocol, IList<byte> data)
         {
             Contract.Requires(destanation != null);
             Contract.Requires(source != null);
@@ -48,20 +94,46 @@ namespace NataInfo.Nibus
                 throw new ArgumentException("Invalid data");
             }
 
-            Sender = sender;
+            Provider = provider;
             Destanation = destanation;
             Source = source;
-            Protocol = protocol;
+            ProtocolType = protocol;
             Data = new ReadOnlyCollection<byte>(data);
             Priority = priority;
         }
 
-        public ICodecInfo Sender { get; private set; }
-        public Address Destanation { get; private set; }
-        public Address Source { get; private set; }
-        public PriorityType Priority { get; private set; }
-        public ProtocolType Protocol { get; private set; }
-        public ReadOnlyCollection<byte> Data { get; private set; }
+        /// <summary>
+        /// Возвращает поставщика датаграммы.
+        /// </summary>
+        /// <value>
+        /// Если датаграмма получена извне, то здесь будет сохранен <see cref="NibusDataCodec"/> получивший кадр.
+        /// Если датаграмма предназначена для передачи, то значение может быть <c>null</c>.
+        /// </value>
+        public ICodecInfo Provider { get; private set; }
 
+        /// <summary>
+        /// Возвращает адрес устройства назначения.
+        /// </summary>
+        public Address Destanation { get; private set; }
+
+        /// <summary>
+        /// Возвращает адрес устройства отправителя.
+        /// </summary>
+        public Address Source { get; private set; }
+
+        /// <summary>
+        /// Возвращает приоритет сообщения.
+        /// </summary>
+        public PriorityType Priority { get; private set; }
+
+        /// <summary>
+        /// Возвращает тип протокола вышестоящего уровня.
+        /// </summary>
+        public ProtocolType ProtocolType { get; private set; }
+
+        /// <summary>
+        /// Возвращает массив данных.
+        /// </summary>
+        public ReadOnlyCollection<byte> Data { get; private set; }
     }
 }
