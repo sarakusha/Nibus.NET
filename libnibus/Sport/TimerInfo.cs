@@ -50,6 +50,7 @@ namespace NataInfo.Nibus.Sport
 
         internal TimerInfo(IEnumerable<byte> data)
         {
+            Contract.Requires(data != null);
             _data = data.Take(Length).ToArray();
         }
 

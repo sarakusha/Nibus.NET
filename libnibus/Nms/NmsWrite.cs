@@ -15,6 +15,9 @@ using System.Linq;
 
 namespace NataInfo.Nibus.Nms
 {
+    /// <summary>
+    /// Сообщение сервиса <see cref="NmsServiceType.Write"/> - "Изменить значение переменной".
+    /// </summary>
     public sealed class NmsWrite : NmsMessage
     {
         #region Member Variables
@@ -26,25 +29,52 @@ namespace NataInfo.Nibus.Nms
         #region Constructors
 
         /// <summary>
-        /// The default Constructor.
+        /// Конструктор создания NMS-сообщения сервиса <see cref="NmsServiceType.Write"/>
+        /// из низлежащего сообщения <see cref="NibusDatagram"/>.
         /// </summary>
-        public NmsWrite(NibusDatagram datagram) : base(datagram)
+        /// <param name="datagram">Датаграмма.</param>
+        /// <remarks>
+        /// Минимальный размер длины данных <paramref name="datagram"/> должен быть не меньше размера
+        /// заголовка <see cref="NmsMessage.NmsHeaderLength"/> плюс размер NMS-данных.
+        /// </remarks>
+        /// <seealso cref="NmsMessage.CreateFrom"/>
+        /// <exception cref="InvalidNibusDatagram"></exception>
+        internal NmsWrite(NibusDatagram datagram)
+            : base(datagram)
         {
-            Contract.Assume(ServiceType == NmsServiceType.Write);
+            Contract.Requires(datagram != null);
+            Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
+            Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
             if (datagram.Data.Count < NmsHeaderLength + 1)
             {
-                throw new ArgumentException();
+                throw new InvalidNibusDatagram("Invalid NMS message length");
             }
+            Contract.Ensures(ServiceType == NmsServiceType.Write);
+            Contract.Assume(ServiceType == NmsServiceType.Write);
         }
 
-        public NmsWrite(Address source, Address destanation, int id, NmsValueType valueType, object value, bool isResponsible = true, PriorityType priority = PriorityType.Normal)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NmsWrite"/> class.
+        /// </summary>
+        /// <param name="source">Адрес источника сообщения.</param>
+        /// <param name="destanation">Адрес получателя сообщения.</param>
+        /// <param name="id">Идентификатор переменной.</param>
+        /// <param name="valueType">Тип значения.</param>
+        /// <param name="value">Записываемое значение.</param>
+        /// <param name="waitResponse"><c>true</c> - если требуется подтверждение записи.</param>
+        /// <param name="priority">Приоритет.</param>
+        public NmsWrite(Address source, Address destanation, int id, NmsValueType valueType, object value,
+                        bool waitResponse = true, PriorityType priority = PriorityType.Normal)
         {
+            Contract.Requires(source != null);
+            Contract.Requires(destanation != null);
+            Contract.Requires(value != null);
             Initialize(
                 source,
                 destanation,
                 priority,
                 NmsServiceType.Write,
-                isResponsible,
+                waitResponse,
                 id,
                 false,
                 WriteValue(valueType, value));
@@ -54,29 +84,38 @@ namespace NataInfo.Nibus.Nms
 
         #region Properties
 
+        /// <summary>
+        /// Возвращает код завершения в ответном сообщении.
+        /// </summary>
         public int ErrorCode
         {
             get
             {
-                Contract.Requires(IsResponce);
+                Contract.Requires(IsResponse);
                 return Datagram.Data[NmsHeaderLength + 0];
             }
         }
 
+        /// <summary>
+        /// Возвращает тип значения для записи.
+        /// </summary>
         public NmsValueType ValueType
         {
             get
             {
-                Contract.Requires(!IsResponce);
-                return (NmsValueType)Datagram.Data[NmsHeaderLength + 0];
+                Contract.Requires(!IsResponse);
+                return (NmsValueType) Datagram.Data[NmsHeaderLength + 0];
             }
         }
 
+        /// <summary>
+        /// Возвращает значение для записи.
+        /// </summary>
         public object Value
         {
             get
             {
-                Contract.Requires(!IsResponce);
+                Contract.Requires(!IsResponse);
                 return _value ?? (_value = ReadValue(ValueType, Datagram.Data.ToArray(), NmsHeaderLength + 1));
             }
         }

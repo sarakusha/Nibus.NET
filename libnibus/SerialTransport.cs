@@ -30,13 +30,13 @@ namespace NataInfo.Nibus
         {
             Contract.Ensures(OutgoingMessages != null);
             Contract.Ensures(IncomingMessages != null);
-            _serial = new SerialPort(portName, baudRate) {DtrEnable = true};
 
             _cts = new CancellationTokenSource();
             var options = new DataflowBlockOptions {CancellationToken = _cts.Token};
             _incomingMessages = new BufferBlock<byte[]>(options);
             _outgoingMessages = new BufferBlock<byte[]>(options);
 
+            _serial = new SerialPort(portName, baudRate) { DtrEnable = true };
             _serial.DataReceived += SerialDataReceived;
         }
 
@@ -76,6 +76,7 @@ namespace NataInfo.Nibus
             if (_cts != null)
             {
                 _cts.Cancel();
+                _cts.Dispose();
             }
 
             if (_serial != null)

@@ -38,7 +38,10 @@ namespace NataInfo.Nibus.Nms
         /// </remarks>
         internal NmsInformationReport(NibusDatagram datagram) : base(datagram)
         {
-            Contract.Ensures(!IsResponce);
+            Contract.Requires(datagram != null);
+            Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
+            Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
+            Contract.Ensures(!IsResponse);
             Contract.Assume(ServiceType == NmsServiceType.InformationReport);
         }
 
@@ -52,7 +55,7 @@ namespace NataInfo.Nibus.Nms
         /// <param name="priority">Приоритет.</param>
         public NmsInformationReport(Address source, int id, NmsValueType valueType, object value, PriorityType priority = PriorityType.Normal)
         {
-            Contract.Ensures(!IsResponce);
+            Contract.Ensures(!IsResponse);
             Contract.Ensures(ServiceType == NmsServiceType.InformationReport);
             Initialize(
                 source,

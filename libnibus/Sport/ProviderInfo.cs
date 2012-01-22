@@ -47,6 +47,8 @@ namespace NataInfo.Nibus.Sport
 
         public TimerAttributes(byte[] data, int startIndex)
         {
+            Contract.Requires(data != null);
+            Contract.Requires(data.Length == Length);
             _data = new byte[Length];
             Array.Copy(data, startIndex, _data, 0, Length);
             _attrs = (Attributes)_data[AttrsOfs];
@@ -144,6 +146,8 @@ namespace NataInfo.Nibus.Sport
 
         internal ProviderInfo(byte[] data)
         {
+            Contract.Requires(data != null);
+            Contract.Requires(data.Length >= TimersOfs);
             Id = BitConverter.ToUInt16(data, IdOfs);
             var timerCount = data[TimerCountOfs];
             var timers = new List<TimerAttributes>(timerCount);

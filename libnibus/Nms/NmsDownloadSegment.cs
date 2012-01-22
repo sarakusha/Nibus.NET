@@ -22,19 +22,37 @@ namespace NataInfo.Nibus.Nms
         /// <summary>
         /// The default Constructor.
         /// </summary>
-        public NmsDownloadSegment(NibusDatagram datagram) : base(datagram)
+        internal NmsDownloadSegment(NibusDatagram datagram)
+            : base(datagram)
         {
+            Contract.Requires(datagram != null);
+            Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
+            Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
+            if (IsResponse && datagram.Data.Count < NmsHeaderLength + 1)
+            {
+                throw new ArgumentException();
+            }
+            
+            if (!IsResponse && datagram.Data.Count < NmsHeaderLength + sizeof(uint))
+            {
+                throw new ArgumentException();
+            }
+            Contract.Ensures(ServiceType == NmsServiceType.DownloadSegment);
             Contract.Assume(ServiceType == NmsServiceType.DownloadSegment);
         }
 
         public NmsDownloadSegment(Address source, Address destanation, int id, uint offset, byte[] segment)
         {
-            Contract.Requires(segment.Length < NmsMaxDataLength - 4);
+            Contract.Requires(source != null);
+            Contract.Requires(destanation != null);
+            Contract.Requires(segment != null);
+            Contract.Requires(segment.Length <= NmsMaxDataLength - sizeof(uint));
             Contract.Ensures(ServiceType == NmsServiceType.DownloadSegment);
-            int segmentLength = Math.Min(segment.Length, NmsMaxDataLength - 4);
-            var nmsData = new byte[4 + segmentLength];
+
+            var segmentLength = Math.Min(segment.Length, NmsMaxDataLength - sizeof(uint));
+            var nmsData = new byte[sizeof(uint) + segmentLength];
             BitConverter.GetBytes(offset).CopyTo(nmsData, 0);
-            Array.Copy(segment, 0, nmsData, 4, segmentLength);
+            Array.Copy(segment, 0, nmsData, sizeof(uint), segmentLength);
 
             Initialize(
                 source,
@@ -58,7 +76,7 @@ namespace NataInfo.Nibus.Nms
         {
             get
             {
-                Contract.Requires(!IsResponce);
+                Contract.Requires(!IsResponse);
                 return BitConverter.ToUInt32(Datagram.Data.ToArray(), NmsHeaderLength + 0);
             }
         }
@@ -67,7 +85,7 @@ namespace NataInfo.Nibus.Nms
         {
             get
             {
-                Contract.Requires(IsResponce);
+                Contract.Requires(IsResponse);
                 return Datagram.Data[NmsHeaderLength + 0];
             }
         }
@@ -76,8 +94,8 @@ namespace NataInfo.Nibus.Nms
         {
             get
             {
-                Contract.Requires(!IsResponce);
-                return Datagram.Data.Skip(NmsHeaderLength + 4).Take(Length - 4).ToArray();
+                Contract.Requires(!IsResponse);
+                return Datagram.Data.Skip(NmsHeaderLength + sizeof(uint)).Take(Length - sizeof(uint)).ToArray();
             }
         }
 

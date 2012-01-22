@@ -22,8 +22,12 @@ namespace NataInfo.Nibus.Nms
         /// <summary>
         /// The default Constructor.
         /// </summary>
-        public NmsVerifyDomainChecksum(NibusDatagram datagram) : base(datagram)
+        internal NmsVerifyDomainChecksum(NibusDatagram datagram)
+            : base(datagram)
         {
+            Contract.Requires(datagram != null);
+            Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
+            Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
             Contract.Assume(ServiceType == NmsServiceType.VerifyDomainChecksum);
         }
 
@@ -54,7 +58,7 @@ namespace NataInfo.Nibus.Nms
         {
             get
             {
-                Contract.Requires(!IsResponce);
+                Contract.Requires(!IsResponse);
                 return BitConverter.ToUInt32(Datagram.Data.ToArray(), NmsHeaderLength + 0);
             }
         }
@@ -63,7 +67,7 @@ namespace NataInfo.Nibus.Nms
         {
             get
             {
-                Contract.Requires(!IsResponce);
+                Contract.Requires(!IsResponse);
                 return BitConverter.ToUInt32(Datagram.Data.ToArray(), NmsHeaderLength + 4);
             }
         }
@@ -72,7 +76,7 @@ namespace NataInfo.Nibus.Nms
         {
             get
             {
-                Contract.Requires(!IsResponce);
+                Contract.Requires(!IsResponse);
                 return BitConverter.ToUInt16(Datagram.Data.ToArray(), 8);
             }
         }
@@ -81,7 +85,7 @@ namespace NataInfo.Nibus.Nms
         {
             get
             {
-                Contract.Requires(IsResponce);
+                Contract.Requires(IsResponse);
                 return Datagram.Data[NmsHeaderLength + 0];
             }
         }

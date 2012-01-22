@@ -54,7 +54,7 @@ namespace NataInfo.Nibus.Tests
         [Test]
         public void TenisStat()
         {
-            var tennis = new TennisReceiver(_nmsCodec.Protocol);
+            var tennis = new TennisProtocol(_nmsCodec.Protocol);
             bool s = false;
             var h = new AutoResetEvent(false);
             tennis.TennisStatChanged += (o, e) =>

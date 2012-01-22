@@ -24,7 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeContractsEnableRuntimeChecking>False</CodeContractsEnableRuntimeChecking>
+    <CodeContractsEnableRuntimeChecking>True</CodeContractsEnableRuntimeChecking>
     <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
     <CodeContractsRuntimeThrowOnFailure>True</CodeContractsRuntimeThrowOnFailure>
     <CodeContractsRuntimeCallSiteRequires>False</CodeContractsRuntimeCallSiteRequires>
@@ -36,7 +36,7 @@
     <CodeContractsRunInBackground>True</CodeContractsRunInBackground>
     <CodeContractsShowSquigglies>False</CodeContractsShowSquigglies>
     <CodeContractsUseBaseLine>False</CodeContractsUseBaseLine>
-    <CodeContractsEmitXMLDocs>False</CodeContractsEmitXMLDocs>
+    <CodeContractsEmitXMLDocs>True</CodeContractsEmitXMLDocs>
     <CodeContractsCustomRewriterAssembly />
     <CodeContractsCustomRewriterClass />
     <CodeContractsLibPaths />
@@ -45,7 +45,18 @@
     <CodeContractsBaseLineFile />
     <CodeContractsCacheAnalysisResults>False</CodeContractsCacheAnalysisResults>
     <CodeContractsRuntimeCheckingLevel>Full</CodeContractsRuntimeCheckingLevel>
-    <CodeContractsReferenceAssembly>%28none%29</CodeContractsReferenceAssembly>
+    <CodeContractsReferenceAssembly>Build</CodeContractsReferenceAssembly>
+    <CodeContractsRuntimeSkipQuantifiers>False</CodeContractsRuntimeSkipQuantifiers>
+    <CodeContractsEnumObligations>False</CodeContractsEnumObligations>
+    <CodeContractsInferRequires>False</CodeContractsInferRequires>
+    <CodeContractsInferEnsures>False</CodeContractsInferEnsures>
+    <CodeContractsInferObjectInvariants>False</CodeContractsInferObjectInvariants>
+    <CodeContractsSuggestAssumptions>False</CodeContractsSuggestAssumptions>
+    <CodeContractsSuggestRequires>True</CodeContractsSuggestRequires>
+    <CodeContractsSuggestEnsures>False</CodeContractsSuggestEnsures>
+    <CodeContractsSuggestObjectInvariants>False</CodeContractsSuggestObjectInvariants>
+    <CodeContractsDisjunctiveRequires>False</CodeContractsDisjunctiveRequires>
+    <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -75,7 +86,8 @@
   <ItemGroup>
     <Compile Include="Address.cs" />
     <Compile Include="BroadcastTransformBlock.cs" />
-    <Compile Include="NibusException.cs" />
+    <Compile Include="InvalidNibusDatagram.cs" />
+    <Compile Include="NibusResponseException.cs" />
     <Compile Include="Nms\NmsAlterEventConditionMonitoring.cs" />
     <Compile Include="INibusCodec.cs" />
     <Compile Include="INibusEndpoint.cs" />
@@ -109,7 +121,7 @@
     <Compile Include="Sport\PlayerInfo.cs" />
     <Compile Include="Sport\PlayerStat.cs" />
     <Compile Include="Sport\ProviderInfo.cs" />
-    <Compile Include="Sport\TennisReceiver.cs" />
+    <Compile Include="Sport\TennisProtocol.cs" />
     <Compile Include="Sport\TennisStat.cs" />
     <Compile Include="Sport\TimerInfo.cs" />
     <Compile Include="Nms\NmsUploadSegment.cs" />
@@ -119,7 +131,7 @@
     <Compile Include="Nms\NmsRequestDomainUpload.cs" />
     <Compile Include="SerialTransport.cs" />
     <Compile Include="Nms\NmsTerminateDownloadSequence.cs" />
-    <Compile Include="Sport\GameReceiver.cs" />
+    <Compile Include="Sport\GameProtocol.cs" />
     <Compile Include="Unlinker.cs" />
   </ItemGroup>
   <ItemGroup>

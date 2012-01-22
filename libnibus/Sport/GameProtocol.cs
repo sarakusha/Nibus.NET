@@ -1,7 +1,7 @@
 ﻿//-------------------------------------------------------------------
 // Copyright (c) 2012 Nata-Info Ltd.
 // Andrei Sarakeev
-// GameReceiver.cs
+// GameProtocol.cs
 // 
 //-------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ using NataInfo.Nibus.Nms;
 
 namespace NataInfo.Nibus.Sport
 {
-    public class GameReceiver
+    public class GameProtocol
     {
         #region Member Variables
 
@@ -26,7 +26,7 @@ namespace NataInfo.Nibus.Sport
         /// <summary>
         /// The default Constructor.
         /// </summary>
-        public GameReceiver(NmsProtocol nmsProtocol)
+        public GameProtocol(NmsProtocol nmsProtocol)
         {
             Contract.Requires(nmsProtocol != null);
             NmsProtocol = nmsProtocol;

@@ -17,8 +17,12 @@ namespace NataInfo.Nibus.Nms
     {
         #region Constructors
 
-        public NmsTerminateDownloadSequence(NibusDatagram datagram) : base(datagram)
+        internal NmsTerminateDownloadSequence(NibusDatagram datagram)
+            : base(datagram)
         {
+            Contract.Requires(datagram != null);
+            Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
+            Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
             Contract.Assume(ServiceType == NmsServiceType.TerminateDownloadSequence);
         }
 

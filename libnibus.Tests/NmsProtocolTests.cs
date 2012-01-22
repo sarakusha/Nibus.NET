@@ -80,10 +80,10 @@ namespace NataInfo.Nibus.Tests
         {
             var readVersion = new NmsRead(Address.CreateMac(0x20, 0x44), 2);
             _nmsCodec.Encoder.Post(readVersion);
-            var responce = _nmsCodec.Decoder.Receive(TimeSpan.FromSeconds(1));
-            Assert.That(responce.Id == 2);
-            Assert.That(responce.IsResponce);
-            Assert.That(responce.ServiceType == NmsServiceType.Read);
+            var response = _nmsCodec.Decoder.Receive(TimeSpan.FromSeconds(1));
+            Assert.That(response.Id == 2);
+            Assert.That(response.IsResponse);
+            Assert.That(response.ServiceType == NmsServiceType.Read);
         }
     }
 }

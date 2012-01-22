@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
 
@@ -456,7 +457,8 @@ namespace NataInfo.Nibus
                 case AddressType.Broadcast:
                     return -1;
                 default:
-                    throw new InvalidOperationException();
+                    Debug.Fail("Invalid Address Type");
+                    return 0;
             }
         }
 
@@ -540,7 +542,8 @@ namespace NataInfo.Nibus
                     var str = String.Join(":", _mac.SkipWhile(b => b == 0).Select(b => b.ToString("X2")));
                     return _mac[0] == 0 ? "::" + str : str;
                 default:
-                    throw new InvalidOperationException();
+                    Debug.Fail("Invalid Address Type");
+                    return "?";
             }
         }
 

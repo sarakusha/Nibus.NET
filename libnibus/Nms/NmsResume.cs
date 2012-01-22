@@ -20,8 +20,12 @@ namespace NataInfo.Nibus.Nms
         /// <summary>
         /// The default Constructor.
         /// </summary>
-        public NmsResume(NibusDatagram datagram) : base(datagram)
+        internal NmsResume(NibusDatagram datagram)
+            : base(datagram)
         {
+            Contract.Requires(datagram != null);
+            Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
+            Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
             Contract.Assume(ServiceType == NmsServiceType.Resume);
         }
 
@@ -39,7 +43,7 @@ namespace NataInfo.Nibus.Nms
         {
             get
             {
-                Contract.Requires(IsResponce);
+                Contract.Requires(IsResponse);
                 return Datagram.Data[NmsHeaderLength + 0];
             }
         }

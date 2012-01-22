@@ -16,7 +16,7 @@ using System.Linq;
 namespace NataInfo.Nibus.Nms
 {
     /// <summary>
-    /// Сообщение сервиса <see cref="NmsServiceType.Read"/>.
+    /// Сообщение сервиса <see cref="NmsServiceType.Read"/> - "прочитать значение переменной".
     /// </summary>
     public sealed class NmsRead : NmsMessage
     {
@@ -32,18 +32,29 @@ namespace NataInfo.Nibus.Nms
         #region Constructors
 
         /// <summary>
-        /// Конструктор создания NMS-сообщения из низлежащего сообщения <see cref="NibusDatagram"/>.
+        /// Конструктор создания NMS-сообщения сервиса <see cref="NmsServiceType.Read"/>
+        /// из низлежащего сообщения <see cref="NibusDatagram"/>.
         /// </summary>
         /// <param name="datagram">Датаграмма.</param>
+        /// <remarks>
+        /// Минимальный размер длины данных <paramref name="datagram"/> должен быть не меньше размера
+        /// заголовка <see cref="NmsMessage.NmsHeaderLength"/> плюс размер NMS-данных.
+        /// </remarks>
+        /// <seealso cref="NmsMessage.CreateFrom"/>
+        /// <exception cref="InvalidNibusDatagram"></exception>
         internal NmsRead(NibusDatagram datagram)
             : base(datagram)
         {
+            Contract.Requires(datagram != null);
+            Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
+            Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
+            Contract.Ensures(ServiceType == NmsServiceType.Read);
             Contract.Assume(ServiceType == NmsServiceType.Read);
-            if (!IsResponce) return;
+            if (!IsResponse) return;
 
             if (datagram.Data.Count < NmsHeaderLength + 3)
             {
-                throw new ArgumentException("Invalid NMS Read Responce");
+                throw new InvalidNibusDatagram("Invalid NMS message length");
             }
 
             _errorCode = datagram.Data[NmsHeaderLength + 0];
@@ -83,12 +94,7 @@ namespace NataInfo.Nibus.Nms
         {
             get
             {
-                Contract.Requires(IsResponce);
-                if (!IsResponce)
-                {
-                    throw new InvalidOperationException();
-                }
-
+                Contract.Requires(IsResponse);
                 return _errorCode;
             }
         }
@@ -100,12 +106,7 @@ namespace NataInfo.Nibus.Nms
         {
             get
             {
-                Contract.Requires(IsResponce);
-                if (!IsResponce)
-                {
-                    throw new InvalidOperationException();
-                }
-
+                Contract.Requires(IsResponse);
                 return _valueType;
             }
         }
@@ -117,12 +118,7 @@ namespace NataInfo.Nibus.Nms
         {
             get
             {
-                Contract.Requires(IsResponce);
-                if (!IsResponce)
-                {
-                    throw new InvalidOperationException();
-                }
-
+                Contract.Requires(IsResponse);
                 return _value;
             }
         }

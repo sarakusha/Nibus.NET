@@ -111,22 +111,22 @@ namespace NataInfo.Nibus.Nms
         /// <exception cref="AggregateException">Призошла ошибка в асинхронном коде. См. <see cref="Exception.InnerException"/></exception>
         /// <exception cref="TimeoutException">Ошибка по таймауту.</exception>
         /// <exception cref="TaskCanceledException">Операция прервана пользователем.</exception>
-        /// <exception cref="NibusException">Ошибка NiBUS.</exception>
+        /// <exception cref="NibusResponseException">Ошибка NiBUS.</exception>
         public async Task<object> ReadValueAsync(Address destanation, int id)
         {
             var query = new NmsRead(destanation, id);
             var wob = new WriteOnceBlock<NmsMessage>(m => m);
             ResetIncoming();
-            using (IncomingMessages.LinkTo(wob, m => m.IsResponce && m.ServiceType == NmsServiceType.Read && m.Id == id))
+            using (IncomingMessages.LinkTo(wob, m => m.IsResponse && m.ServiceType == NmsServiceType.Read && m.Id == id))
             {
                 OutgoingMessages.Post(query);
-                var responce = (NmsRead)await wob.ReceiveAsync(Timeout, _cts.Token);
-                if (responce.ErrorCode != 0)
+                var response = (NmsRead)await wob.ReceiveAsync(Timeout, _cts.Token);
+                if (response.ErrorCode != 0)
                 {
-                    throw new NibusException(responce.ErrorCode);
+                    throw new NibusResponseException(response.ErrorCode);
                 }
 
-                return responce.Value;
+                return response.Value;
             }
         }
 
@@ -165,6 +165,7 @@ namespace NataInfo.Nibus.Nms
             if (_cts != null)
             {
                 _cts.Cancel();
+                _cts.Dispose();
             }
         }
 

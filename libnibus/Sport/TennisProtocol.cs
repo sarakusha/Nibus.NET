@@ -1,7 +1,7 @@
 ﻿//-------------------------------------------------------------------
 // Copyright (c) 2012 Nata-Info Ltd.
 // Andrei Sarakeev
-// TennisReceiver.cs
+// TennisProtocol.cs
 // 
 //-------------------------------------------------------------------
 
@@ -17,7 +17,7 @@ using NataInfo.Nibus.Nms;
 
 namespace NataInfo.Nibus.Sport
 {
-    public class TennisReceiver : GameReceiver
+    public class TennisProtocol : GameProtocol
     {
         #region Member Variables
 
@@ -30,7 +30,7 @@ namespace NataInfo.Nibus.Sport
         /// <summary>
         /// The default Constructor.
         /// </summary>
-        public TennisReceiver(NmsProtocol nmsProtocol) : base(nmsProtocol)
+        public TennisProtocol(NmsProtocol nmsProtocol) : base(nmsProtocol)
         {
         }
 

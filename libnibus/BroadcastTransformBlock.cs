@@ -23,7 +23,7 @@ namespace NataInfo.Nibus
     /// <typeparam name="TOutput">The type of the output.</typeparam>
     /// <seealso cref="TransformBlock{TInput,TOutput}"/>
     /// <seealso cref="BroadcastBlock{T}"/>
-    public class BroadcastTransformBlock<TInput, TOutput> : IPropagatorBlock<TInput, TOutput>,
+    public sealed class BroadcastTransformBlock<TInput, TOutput> : IPropagatorBlock<TInput, TOutput>,
                                                             IReceivableSourceBlock<TOutput>
     {
         #region Member Variables
@@ -77,18 +77,18 @@ namespace NataInfo.Nibus
             return _source.LinkTo(target, unlinkAfterOne);
         }
 
-        TOutput ISourceBlock<TOutput>.ConsumeMessage(
+        public TOutput ConsumeMessage(
             DataflowMessageHeader messageHeader, ITargetBlock<TOutput> target, out bool messageConsumed)
         {
             return _source.ConsumeMessage(messageHeader, target, out messageConsumed);
         }
 
-        bool ISourceBlock<TOutput>.ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<TOutput> target)
+        public bool ReserveMessage(DataflowMessageHeader messageHeader, ITargetBlock<TOutput> target)
         {
             return _source.ReserveMessage(messageHeader, target);
         }
 
-        void ISourceBlock<TOutput>.ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<TOutput> target)
+        public void ReleaseReservation(DataflowMessageHeader messageHeader, ITargetBlock<TOutput> target)
         {
             _source.ReleaseReservation(messageHeader, target);
         }
@@ -109,7 +109,7 @@ namespace NataInfo.Nibus
 
         #endregion
 
-        DataflowMessageStatus ITargetBlock<TInput>.OfferMessage(
+        public DataflowMessageStatus OfferMessage(
             DataflowMessageHeader messageHeader, TInput messageValue, ISourceBlock<TInput> source, bool consumeToAccept)
         {
             return _target.OfferMessage(messageHeader, messageValue, source, consumeToAccept);

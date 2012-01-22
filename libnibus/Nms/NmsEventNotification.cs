@@ -13,20 +13,40 @@ using System.Diagnostics.Contracts;
 
 namespace NataInfo.Nibus.Nms
 {
+    /// <summary>
+    /// Сигнализация событий.
+    /// </summary>
     public sealed class NmsEventNotification : NmsMessage
     {
         #region Constructors
 
         /// <summary>
-        /// The default Constructor.
+        /// Конструктор создания NMS-сообщения из низлежащего сообщения <see cref="NibusDatagram"/>.
         /// </summary>
-        public NmsEventNotification(NibusDatagram datagram) : base(datagram)
+        /// <param name="datagram">Датаграмма.</param>
+        /// <remarks>
+        /// Минимальный размер длины данных <paramref name="datagram"/> должен быть не меньше размера
+        /// заголовка <see cref="NmsMessage.NmsHeaderLength"/> плюс размер NMS-данных.
+        /// </remarks>
+        /// <seealso cref="NmsMessage.CreateFrom"/>
+        internal NmsEventNotification(NibusDatagram datagram)
+            : base(datagram)
         {
+            Contract.Requires(datagram != null);
+            Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
+            Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
+            Contract.Ensures(ServiceType == NmsServiceType.EventNotification);
             Contract.Assume(ServiceType == NmsServiceType.EventNotification);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NmsEventNotification"/> class.
+        /// </summary>
+        /// <param name="source">Адрес источника сообщения.</param>
+        /// <param name="id">The id.</param>
         public NmsEventNotification(Address source, int id)
         {
+            Contract.Requires(source != null);
             Contract.Ensures(ServiceType == NmsServiceType.EventNotification);
             Initialize(
                 source,

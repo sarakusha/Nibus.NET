@@ -52,6 +52,8 @@ namespace NataInfo.Nibus.Sport
 
         internal TennisStat(byte[] data)
         {
+            Contract.Requires(data != null);
+            Contract.Requires(data.Length == Length);
             _data = new byte[Length];
             Array.Copy(data, _data, Length);
 
@@ -129,14 +131,14 @@ namespace NataInfo.Nibus.Sport
         {
             return new NmsInformationReport(
                 source,
-                TennisReceiver.TennisStats,
+                TennisProtocol.TennisStats,
                 NmsValueType.UInt8Array,
                 tennisStat.GetData());
         }
 
         public static TennisStat GetTennisStat(this NmsInformationReport report)
         {
-            Contract.Requires(report.Id == TennisReceiver.TennisStats);
+            Contract.Requires(report.Id == TennisProtocol.TennisStats);
             return new TennisStat((byte[])report.Value);
         }
     }

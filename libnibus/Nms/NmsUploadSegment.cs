@@ -22,8 +22,12 @@ namespace NataInfo.Nibus.Nms
         /// <summary>
         /// The default Constructor.
         /// </summary>
-        public NmsUploadSegment(NibusDatagram datagram) : base(datagram)
+        internal NmsUploadSegment(NibusDatagram datagram)
+            : base(datagram)
         {
+            Contract.Requires(datagram != null);
+            Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
+            Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
             Contract.Assume(ServiceType == NmsServiceType.UploadSegment);
         }
 
@@ -55,7 +59,7 @@ namespace NataInfo.Nibus.Nms
         /// </summary>
         public uint Offset
         {
-            get { return BitConverter.ToUInt32(Datagram.Data.ToArray(), NmsHeaderLength + (IsResponce ? 1 : 0)); }
+            get { return BitConverter.ToUInt32(Datagram.Data.ToArray(), NmsHeaderLength + (IsResponse ? 1 : 0)); }
         }
 
         /// <summary>
@@ -65,7 +69,7 @@ namespace NataInfo.Nibus.Nms
         {
             get
             {
-                Contract.Requires(!IsResponce);
+                Contract.Requires(!IsResponse);
                 return Datagram.Data[NmsHeaderLength + 4];
             }
         }
@@ -74,7 +78,7 @@ namespace NataInfo.Nibus.Nms
         {
             get
             {
-                Contract.Requires(IsResponce);
+                Contract.Requires(IsResponse);
                 return Datagram.Data[NmsHeaderLength + 0];
             }
         }
@@ -83,7 +87,7 @@ namespace NataInfo.Nibus.Nms
         {
             get
             {
-                Contract.Requires(IsResponce);
+                Contract.Requires(IsResponse);
                 return Datagram.Data.Skip(NmsHeaderLength).Take(Length - 5).ToArray();
             }
         }

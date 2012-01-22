@@ -70,6 +70,11 @@ namespace NataInfo.Nibus
         /// </returns>
         public virtual IDisposable ConnectTo<T>(INibusCodec<T, TEncoded> bottomCodec)
         {
+            Contract.Requires(bottomCodec != null);
+            Contract.Requires(bottomCodec.Decoder != null);
+            Contract.Requires(bottomCodec.Encoder != null);
+            Contract.Requires(Decoder != null);
+            Contract.Requires(Encoder != null);
             return LinkTo(bottomCodec);
         }
 
@@ -82,17 +87,17 @@ namespace NataInfo.Nibus
         /// </returns>
         public virtual IDisposable ConnectTo(INibusEndpoint<TEncoded> transport)
         {
+            Contract.Requires(transport != null);
+            Contract.Requires(transport.IncomingMessages != null);
+            Contract.Requires(transport.OutgoingMessages != null);
+            Contract.Requires(Decoder != null);
+            Contract.Requires(Encoder != null);
+
             return LinkTo(transport);
         }
 
         protected IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec)
         {
-            Contract.Requires(bottomCodec != null);
-            Contract.Requires(bottomCodec.Decoder != null);
-            Contract.Requires(bottomCodec.Encoder != null);
-            Contract.Requires(Decoder != null);
-            Contract.Requires(Encoder != null);
-
             if (_unlinker != null)
             {
                 _unlinker.Dispose();
@@ -116,12 +121,6 @@ namespace NataInfo.Nibus
 
         protected IDisposable LinkTo(INibusEndpoint<TEncoded> transport)
         {
-            Contract.Requires(transport != null);
-            Contract.Requires(transport.IncomingMessages != null);
-            Contract.Requires(transport.OutgoingMessages != null);
-            Contract.Requires(Decoder != null);
-            Contract.Requires(Encoder != null);
-
             if (_unlinker != null)
             {
                 _unlinker.Dispose();
