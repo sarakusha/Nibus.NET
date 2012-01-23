@@ -95,6 +95,7 @@
     <Compile Include="NibusDataCodec.cs" />
     <Compile Include="NibusDatagram.cs" />
     <Compile Include="Nms\NmsAckEventNotification.cs" />
+    <Compile Include="Nms\NmsInvalidMessage.cs" />
     <Compile Include="Nms\NmsProtocol.cs" />
     <Compile Include="Nms\NmsDownloadSegment.cs" />
     <Compile Include="Nms\NmsEmptyMessage.cs" />

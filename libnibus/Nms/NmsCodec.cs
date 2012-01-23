@@ -11,6 +11,7 @@ namespace NataInfo.Nibus.Nms
     {
         private readonly BroadcastTransformBlock<NibusDatagram, NmsMessage> _decoder;
         private NmsProtocol _protocol;
+        private static decimal _nmsErrors;
         
         /// <summary>
         /// Initializes a new instance of the <see cref="NmsCodec"/> class.
@@ -19,9 +20,17 @@ namespace NataInfo.Nibus.Nms
         {
             Contract.Ensures(Decoder != null);
             Contract.Ensures(Encoder != null);
-            _decoder = new BroadcastTransformBlock<NibusDatagram, NmsMessage>(NmsMessage.CreateFrom);
+            _decoder = new BroadcastTransformBlock<NibusDatagram, NmsMessage>(SafeDecode);
             Decoder = _decoder;
             Encoder = new TransformBlock<NmsMessage, NibusDatagram>(m => m.Datagram);
+        }
+
+        /// <summary>
+        /// Возвращает общее количество NMS-пакетов с ошибками.
+        /// </summary>
+        public static decimal NmsErrors
+        {
+            get { return _nmsErrors; }
         }
 
         #region Implementation of INibusProtocol
@@ -75,6 +84,19 @@ namespace NataInfo.Nibus.Nms
             {
                 _protocol.Dispose();
                 _protocol = null;
+            }
+        }
+
+        private static NmsMessage SafeDecode(NibusDatagram datagram)
+        {
+            try
+            {
+                return NmsMessage.CreateFrom(datagram);
+            }
+            catch (Exception e)
+            {
+                _nmsErrors++;
+                return new NmsInvalidMessage(datagram, e);
             }
         }
     }

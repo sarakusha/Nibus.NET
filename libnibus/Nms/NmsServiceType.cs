@@ -5,6 +5,15 @@ namespace NataInfo.Nibus.Nms
     /// </summary>
     public enum NmsServiceType
     {
+        /// <summary>
+        /// Неверно сформированное NMS-сообщение.
+        /// Только для внутреннего использования.
+        /// </summary>
+        Invalid = -1,
+        /// <summary>
+        /// Используется в пустых сообщениях. <see cref="NmsEmptyMessage"/>
+        /// Только длля внутреннего использования.
+        /// </summary>
         None = 0,
         /// <summary>
         /// Прочитать значение переменной.

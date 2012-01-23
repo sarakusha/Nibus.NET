@@ -5,7 +5,7 @@
     /// </summary>
     /// <typeparam name="TEncoded">Тип данных нижележащего уровня.</typeparam>
     /// <typeparam name="TDecoded">Тип преобразованных сообщений.</typeparam>
-    public interface INibusProtocol<TEncoded, TDecoded> : INibusCodec<TEncoded, TDecoded>
+    public interface INibusProtocol<TEncoded, TDecoded> : INibusCodec<TEncoded, TDecoded> 
     {
         /// <summary>
         /// Возвращает тип протокола, для которого используется кодек.
