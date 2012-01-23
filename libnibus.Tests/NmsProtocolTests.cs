@@ -9,6 +9,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using NUnit.Framework;
 using NataInfo.Nibus.Nms;
@@ -84,6 +86,31 @@ namespace NataInfo.Nibus.Tests
             Assert.That(response.Id == 2);
             Assert.That(response.IsResponse);
             Assert.That(response.ServiceType == NmsServiceType.Read);
+        }
+
+        [Test]
+        public void ExcTest()
+        {
+            IList<int> list;
+            var tb = new TransformBlock<int, int>(i => 1000 / (i-5));
+            var bb = new BufferBlock<int>();
+            tb.LinkTo(bb);
+            try
+            {
+                for (int i = 10; i > 0; i--)
+                {
+                    tb.Post(i);
+                }
+                if (bb.OutputAvailableAsync().Result)
+                {
+                    bb.TryReceiveAll(out list);
+                    var c = list.Count;
+                }
+            }
+            catch (Exception e)
+            {
+
+            }
         }
     }
 }

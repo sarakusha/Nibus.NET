@@ -28,16 +28,16 @@ namespace NataInfo.Nibus.Nms
             Contract.Requires(datagram != null);
             Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
             Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
+            Contract.Ensures(ServiceType == NmsServiceType.DownloadSegment);
             if (IsResponse && datagram.Data.Count < NmsHeaderLength + 1)
             {
                 throw new ArgumentException();
             }
-            
+
             if (!IsResponse && datagram.Data.Count < NmsHeaderLength + sizeof(uint))
             {
                 throw new ArgumentException();
             }
-            Contract.Ensures(ServiceType == NmsServiceType.DownloadSegment);
             Contract.Assume(ServiceType == NmsServiceType.DownloadSegment);
         }
 

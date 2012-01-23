@@ -30,11 +30,11 @@ namespace NataInfo.Nibus.Nms
             Contract.Requires(datagram != null);
             Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
             Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
+            Contract.Ensures(ServiceType == NmsServiceType.AlterEventConditionMonitoring);
             if (IsResponse && datagram.Data.Count < NmsMaxDataLength + 1)
             {
                 throw new ArgumentException();
             }
-            Contract.Ensures(ServiceType == NmsServiceType.AlterEventConditionMonitoring);
             Contract.Assume(ServiceType == NmsServiceType.AlterEventConditionMonitoring);
         }
 
