@@ -58,19 +58,21 @@ namespace NataInfo.Nibus.Nms
         {
             get
             {
-                return _protocol ??
-                       (_protocol =
-                        new NmsProtocol(_decoder.Source, Encoder)
-                            {
-                                ResetIncoming = () => _decoder.ResetSource(NmsEmptyMessage.Instance)
-                            });
+                if (_protocol == null)
+                {
+                    _protocol = new NmsProtocol(_decoder.Source, Encoder)
+                                    {
+                                        ResetIncoming = () => _decoder.ResetSource(NmsEmptyMessage.Instance)
+                                    };
+                }
+                return _protocol;
             }
         }
 
         /// <summary>
         /// Подключает к кодеку нижележащего уровня.
         /// </summary>
-        /// <param name="bottomCodec">Низлежащий кодек в стеке протоколов.</param>
+        /// <param name="bottomCodec">Нижележащий кодек в стеке протоколов.</param>
         /// <returns>Объект, вызвав у которого <see cref="IDisposable.Dispose"/>, можно прервать связь.</returns>
         public override IDisposable ConnectTo<T>(INibusCodec<T, NibusDatagram> bottomCodec)
         {
@@ -87,6 +89,18 @@ namespace NataInfo.Nibus.Nms
             }
         }
 
+        /// <summary>
+        /// Безопасное декодирование нижележащего протокола.
+        /// </summary>
+        /// <param name="datagram">Датаграмма.</param>
+        /// <returns>
+        /// Декодированное NMS-сообщение, потомок от <see cref="NmsMessage"/>,
+        /// если ошибка, то <see cref="NmsInvalidMessage"/>
+        /// </returns>
+        /// <remarks>
+        /// Функция декодирования !должна! проверить на валидность датаграмму
+        /// и в случае ошибки сгенерировать исключение <see cref="InvalidNibusDatagram"/>
+        /// </remarks>
         private static NmsMessage SafeDecode(NibusDatagram datagram)
         {
             try

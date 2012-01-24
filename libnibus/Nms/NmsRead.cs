@@ -16,7 +16,7 @@ using System.Linq;
 namespace NataInfo.Nibus.Nms
 {
     /// <summary>
-    /// Сообщение сервиса <see cref="NmsServiceType.Read"/> - "прочитать значение переменной".
+    /// Класс-обертка для сообщений сервиса <see cref="NmsServiceType.Read"/> - "прочитать значение переменной".
     /// </summary>
     public sealed class NmsRead : NmsMessage
     {
@@ -86,18 +86,6 @@ namespace NataInfo.Nibus.Nms
         #endregion //Constructors
 
         #region Properties
-
-        /// <summary>
-        /// Возвращает код завершения в ответном сообщении.
-        /// </summary>
-        public int ErrorCode
-        {
-            get
-            {
-                Contract.Requires(IsResponse);
-                return _errorCode;
-            }
-        }
 
         /// <summary>
         /// Возвращает тип значения в ответном сообщении.

@@ -13,9 +13,23 @@ using System.Diagnostics.Contracts;
 
 namespace NataInfo.Nibus.Nms
 {
+    /// <summary>
+    /// Класс-обертка для сообщений сервиса <see cref="NmsServiceType.AckEventNotification"/>
+    /// "Подтверждение события".
+    /// </summary>
     public sealed class NmsAckEventNotification : NmsMessage
     {
-        internal NmsAckEventNotification(NibusDatagram datagram) : base(datagram)
+        /// <summary>
+        /// Конструктор создания NMS-сообщения из низлежащего сообщения <see cref="NibusDatagram"/>.
+        /// </summary>
+        /// <param name="datagram">Датаграмма.</param>
+        /// <remarks>
+        /// Минимальный размер длины данных <paramref name="datagram"/> должен быть не меньше размера
+        /// заголовка <see cref="NmsMessage.NmsHeaderLength"/>.
+        /// </remarks>
+        /// <seealso cref="NmsMessage.CreateFrom"/>
+        internal NmsAckEventNotification(NibusDatagram datagram)
+            : base(datagram)
         {
             Contract.Requires(datagram != null);
             Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
@@ -24,6 +38,11 @@ namespace NataInfo.Nibus.Nms
             Contract.Assume(ServiceType == NmsServiceType.AckEventNotification);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NmsAckEventNotification"/> class.
+        /// </summary>
+        /// <param name="source">Адрес источника сообщения.</param>
+        /// <param name="id">Идентификатор события.</param>
         public NmsAckEventNotification(Address source, int id)
         {
             Contract.Requires(source != null);

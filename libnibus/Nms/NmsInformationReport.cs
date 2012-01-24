@@ -16,7 +16,8 @@ using NataInfo.Nibus.Sport;
 namespace NataInfo.Nibus.Nms
 {
     /// <summary>
-    /// Класс-обертка для информационных NMS-сообщений.
+    /// Класс-обертка для сообщений сервиса <see cref="NmsServiceType.InformationReport"/>
+    /// "Распространение значения переменной".
     /// </summary>
     public sealed class NmsInformationReport : NmsMessage
     {
@@ -33,16 +34,26 @@ namespace NataInfo.Nibus.Nms
         /// </summary>
         /// <param name="datagram">Датаграмма.</param>
         /// <remarks>
-        /// Требуется, чтобы <see cref="NmsMessage.ServiceType"/> созданного из датаграммы NMS-сообщения
-        /// был равен <see cref="NmsServiceType.InformationReport"/>
+        /// Минимальный размер длины данных <paramref name="datagram"/> должен быть не меньше размера
+        /// заголовка <see cref="NmsMessage.NmsHeaderLength"/> + (размер значения + 1).
         /// </remarks>
-        internal NmsInformationReport(NibusDatagram datagram) : base(datagram)
+        /// <seealso cref="NmsMessage.CreateFrom"/>
+        /// <exception cref="InvalidNibusDatagram"></exception>
+        internal NmsInformationReport(NibusDatagram datagram)
+            : base(datagram)
         {
             Contract.Requires(datagram != null);
             Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
             Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
             Contract.Ensures(!IsResponse);
+            Contract.Ensures(ServiceType == NmsServiceType.InformationReport);
             Contract.Assume(ServiceType == NmsServiceType.InformationReport);
+            
+            if (datagram.Data.Count < NmsHeaderLength + 1 
+                || datagram.Data.Count < NmsHeaderLength + 1 + GetSizeOf(ValueType))
+            {
+                throw new InvalidNibusDatagram("Invalid NMS message length");
+            }
         }
 
         /// <summary>
@@ -53,7 +64,8 @@ namespace NataInfo.Nibus.Nms
         /// <param name="valueType">Тип значения информационного сообщения.</param>
         /// <param name="value">Значение информационного сообщения.</param>
         /// <param name="priority">Приоритет.</param>
-        public NmsInformationReport(Address source, int id, NmsValueType valueType, object value, PriorityType priority = PriorityType.Normal)
+        public NmsInformationReport(
+            Address source, int id, NmsValueType valueType, object value, PriorityType priority = PriorityType.Normal)
         {
             Contract.Ensures(!IsResponse);
             Contract.Ensures(ServiceType == NmsServiceType.InformationReport);

@@ -16,7 +16,8 @@ using System.Linq;
 namespace NataInfo.Nibus.Nms
 {
     /// <summary>
-    /// Сообщение сервиса <see cref="NmsServiceType.Write"/> - "Изменить значение переменной".
+    /// Класс-обертка для сообщений сервиса <see cref="NmsServiceType.Write"/>
+    /// "Изменить значение переменной".
     /// </summary>
     public sealed class NmsWrite : NmsMessage
     {
@@ -45,7 +46,8 @@ namespace NataInfo.Nibus.Nms
             Contract.Requires(datagram != null);
             Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
             Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
-            if (datagram.Data.Count < NmsHeaderLength + 1)
+            if (datagram.Data.Count < NmsHeaderLength + 1
+                || !IsResponse && datagram.Data.Count < NmsHeaderLength + 1 + GetSizeOf(ValueType))
             {
                 throw new InvalidNibusDatagram("Invalid NMS message length");
             }
@@ -83,18 +85,6 @@ namespace NataInfo.Nibus.Nms
         #endregion //Constructors
 
         #region Properties
-
-        /// <summary>
-        /// Возвращает код завершения в ответном сообщении.
-        /// </summary>
-        public int ErrorCode
-        {
-            get
-            {
-                Contract.Requires(IsResponse);
-                return Datagram.Data[NmsHeaderLength + 0];
-            }
-        }
 
         /// <summary>
         /// Возвращает тип значения для записи.

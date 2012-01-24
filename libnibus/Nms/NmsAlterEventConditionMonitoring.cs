@@ -15,7 +15,8 @@ using System.Diagnostics.Contracts;
 namespace NataInfo.Nibus.Nms
 {
     /// <summary>
-    /// Запрет/разрешение сигнализации события.
+    /// Класс-обертка для сообщений сервиса <see cref="NmsServiceType.AckEventNotification"/>
+    /// "Запрет/разрешение сигнализации события".
     /// </summary>
     public sealed class NmsAlterEventConditionMonitoring : NmsMessage
     {
@@ -33,18 +34,34 @@ namespace NataInfo.Nibus.Nms
             Contract.Ensures(ServiceType == NmsServiceType.AlterEventConditionMonitoring);
             if (IsResponse && datagram.Data.Count < NmsMaxDataLength + 1)
             {
-                throw new ArgumentException();
+                throw new InvalidNibusDatagram("Invalid NMS message length");
             }
+
             Contract.Assume(ServiceType == NmsServiceType.AlterEventConditionMonitoring);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NmsAlterEventConditionMonitoring"/> class.
+        /// </summary>
+        /// <param name="source">Адрес источника сообщения.</param>
+        /// <param name="destanation">Адрес получателя сообщения.</param>
+        /// <param name="id">Идентификатор события.</param>
+        /// <param name="isEventEnabled">Если <c>true</c> событие разрешено.</param>
         public NmsAlterEventConditionMonitoring(Address source, Address destanation, int id, bool isEventEnabled)
         {
             Contract.Requires(source != null);
             Contract.Requires(destanation != null);
+            Contract.Ensures(!IsResponse);
             Contract.Ensures(ServiceType == NmsServiceType.AlterEventConditionMonitoring);
-            Initialize(source, destanation, PriorityType.Normal, NmsServiceType.AlterEventConditionMonitoring, true, id,
-                       isEventEnabled, new byte[0]);
+            Initialize(
+                source,
+                destanation,
+                PriorityType.Normal,
+                NmsServiceType.AlterEventConditionMonitoring,
+                true,
+                id,
+                isEventEnabled,
+                new byte[0]);
         }
 
         #endregion //Constructors
@@ -59,16 +76,6 @@ namespace NataInfo.Nibus.Nms
                 return (Datagram.Data[2] & 0x40) != 0;
             }
         }
-
-        public int ErrorCode
-        {
-            get
-            {
-                Contract.Requires(IsResponse);
-                return Datagram.Data[NmsHeaderLength + 0];
-            }
-        }
-
         #endregion //Properties
     }
 }

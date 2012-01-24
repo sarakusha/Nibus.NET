@@ -63,15 +63,6 @@ namespace NataInfo.Nibus.Nms
             }
         }
 
-        public int ErrorCode
-        {
-            get
-            {
-                Contract.Requires(IsResponse);
-                return Datagram.Data[NmsHeaderLength + 0];
-            }
-        }
-
         public uint DomainSize
         {
             get

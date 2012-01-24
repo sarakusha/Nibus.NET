@@ -37,17 +37,20 @@ namespace NataInfo.Nibus.Nms
         /// <remarks>
         /// Минимальный размер длины данных <paramref name="datagram"/> должен быть не меньше размера
         /// заголовка <see cref="NmsHeaderLength"/> плюс размер NMS-данных.
+        /// Конструктор потомка !должен! проверить на валидность датаграмму
+        /// и в случае ошибки сгенерировать исключение <see cref="InvalidNibusDatagram"/>
         /// </remarks>
         /// <seealso cref="CreateFrom"/>
-        /// <exception cref="InvalidNibusDatagram"></exception>
+        /// <exception cref="InvalidNibusDatagram">Ошибка при декодировании датаграммы.</exception>
         protected NmsMessage(NibusDatagram datagram)
         {
             Contract.Requires(datagram != null);
             Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
             Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
-            if (datagram.Data.Count < (datagram.Data[2] & 0x3F) + NmsHeaderLength)
+            if (datagram.Data.Count < NmsHeaderLength
+                || datagram.Data.Count < (datagram.Data[2] & 0x3F) + NmsHeaderLength)
             {
-                throw new InvalidNibusDatagram();
+                throw new InvalidNibusDatagram("Invalid NMS message length");
             }
 
             Contract.Ensures(Datagram != null);
@@ -102,6 +105,18 @@ namespace NataInfo.Nibus.Nms
             {
                 Contract.Ensures(Contract.Result<int>() <= NmsMaxDataLength);
                 return Datagram.Data[2] & 0x3F;
+            }
+        }
+
+        /// <summary>
+        /// Возвращает код завершения в ответном сообщении.
+        /// </summary>
+        public int ErrorCode
+        {
+            get
+            {
+                Contract.Requires(IsResponse);
+                return Datagram.Data[NmsHeaderLength + 0];
             }
         }
 
@@ -164,6 +179,10 @@ namespace NataInfo.Nibus.Nms
             }
         }
 
+        public static int GetSizeOf(NmsValueType vt)
+        {
+            return GetSizeOf(vt, string.Empty);
+        }
         /// <summary>
         /// Возвращает размер данных указанного типа и возможно значения для массива или строки.
         /// </summary>
@@ -201,7 +220,7 @@ namespace NataInfo.Nibus.Nms
             }
 
             var arrayType = (NmsValueType) ((byte) vt & ((byte) NmsValueType.Array - 1));
-            var itemSize = GetSizeOf(arrayType, String.Empty);
+            var itemSize = GetSizeOf(arrayType);
             return ((ICollection) value).Count*itemSize;
         }
 
@@ -254,7 +273,7 @@ namespace NataInfo.Nibus.Nms
 
             var arrayType = (NmsValueType) ((byte) valueType & ((byte) NmsValueType.Array - 1));
             var arraySize = buffer.Length - startIndex /* - 1*/;
-            var itemSize = GetSizeOf(arrayType, String.Empty);
+            var itemSize = GetSizeOf(arrayType);
             var arrayLength = arraySize/itemSize;
             var array = new object[arrayLength];
             for (var i = 0; i < arrayLength; i++)

@@ -9,6 +9,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -98,6 +99,8 @@ namespace NataInfo.Nibus.Nms
         /// </summary>
         public Action ResetIncoming;
 
+        public bool IsDisposed { get; private set; }
+
         #endregion //Properties
 
         #region Methods
@@ -107,27 +110,66 @@ namespace NataInfo.Nibus.Nms
         /// </summary>
         /// <param name="destanation">Адрес устройства, с которого необходимо получить значение переменной.</param>
         /// <param name="id">Идентификатор переменной.</param>
+        /// <param name="attempts">Количество попыток.</param>
         /// <returns><see cref="Task{TResult}"/> представляющий асинхронную операцию чтения.</returns>
+        /// <seealso cref="WaitForNmsResponseAsync{TMessage}"/>
+        public async Task<object> ReadValueAsync(Address destanation, int id, int attempts = 1)
+        {
+            Contract.Requires(!IsDisposed);
+            Contract.Requires(attempts > 0);
+            var query = new NmsRead(destanation, id);
+            return (await WaitForNmsResponseAsync(query, attempts)).Value;
+        }
+
+        /// <summary>
+        /// Отправляет NMS-сообщение <paramref name="query"/>
+        /// и ожидает ответа в течении интервала <see cref="Timeout"/>.
+        /// В случае отсутствия ответа повторяет попытки <paramref name="attempts"/> раз.
+        /// Асинхронная операция.
+        /// </summary>
+        /// <typeparam name="TMessage">Тип сообщения, потомка NmsMessage.</typeparam>
+        /// <param name="query">Сообщение-запрос.</param>
+        /// <param name="attempts">Количество попыток.</param>
+        /// <returns>
+        ///  <see cref="Task{TResult}"/> асинхронная операция - ответное сообщение.
+        /// </returns>
         /// <exception cref="AggregateException">Призошла ошибка в асинхронном коде. См. <see cref="Exception.InnerException"/></exception>
         /// <exception cref="TimeoutException">Ошибка по таймауту.</exception>
         /// <exception cref="TaskCanceledException">Операция прервана пользователем.</exception>
         /// <exception cref="NibusResponseException">Ошибка NiBUS.</exception>
-        public async Task<object> ReadValueAsync(Address destanation, int id)
+        public async Task<TMessage> WaitForNmsResponseAsync<TMessage>(TMessage query, int attempts) where TMessage : NmsMessage
         {
-            var query = new NmsRead(destanation, id);
-            var wob = new WriteOnceBlock<NmsMessage>(m => m);
+            Contract.Requires(!IsDisposed);
+            Contract.Requires(attempts > 0);
             ResetIncoming();
-            using (IncomingMessages.LinkTo(wob, m => m.IsResponse && m.ServiceType == NmsServiceType.Read && m.Id == id))
-            {
-                OutgoingMessages.Post(query);
-                var response = (NmsRead)await wob.ReceiveAsync(Timeout, _cts.Token);
-                if (response.ErrorCode != 0)
-                {
-                    throw new NibusResponseException(response.ErrorCode);
-                }
 
-                return response.Value;
+            for (var i = 0; i < attempts; i++)
+            {
+                var wob = new WriteOnceBlock<NmsMessage>(m => m);
+                using (IncomingMessages.LinkTo(
+                    wob, m => m.IsResponse && m.ServiceType == query.ServiceType && m.Id == query.Id))
+                {
+                    OutgoingMessages.Post(query);
+                    try
+                    {
+                        var response = (TMessage)await wob.ReceiveAsync(Timeout, _cts.Token).ConfigureAwait(false);
+                        if (response.ErrorCode != 0)
+                        {
+                            throw new NibusResponseException(response.ErrorCode);
+                        }
+
+                        return response;
+                    }
+                    catch (TimeoutException)
+                    {
+                        if (i < attempts) continue;
+                        throw;
+                    }
+                }
             }
+
+            // Эта точка недостижима при attempts > 0!
+            throw new InvalidOperationException();
         }
 
         #endregion //Methods
@@ -162,10 +204,11 @@ namespace NataInfo.Nibus.Nms
 
         public void Dispose()
         {
-            if (_cts != null)
+            if (!IsDisposed)
             {
                 _cts.Cancel();
                 _cts.Dispose();
+                IsDisposed = true;
             }
         }
 

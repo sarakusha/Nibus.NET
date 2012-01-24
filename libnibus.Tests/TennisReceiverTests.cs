@@ -55,17 +55,14 @@ namespace NataInfo.Nibus.Tests
         public void TenisStat()
         {
             var tennis = new TennisProtocol(_nmsCodec.Protocol);
-            bool s = false;
             var h = new AutoResetEvent(false);
             TennisStatChangedEventArgs te;
             tennis.TennisStatChanged += (o, e) =>
                                             {
-                                                s = true;
                                                 h.Set();
                                                 te = e;
                                             };
-            h.WaitOne(TimeSpan.FromMinutes(1));
-            Assert.That(s);
+            Assert.That(h.WaitOne(TimeSpan.FromMinutes(1)));
         }
     }
 }
