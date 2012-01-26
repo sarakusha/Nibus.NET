@@ -26,6 +26,8 @@ namespace NataInfo.Nibus.Nms
         /// </summary>
         internal const int NmsMaxDataLength = 63;
 
+        internal const int MaxReadVariables = NmsMaxDataLength/NmsHeaderLength;
+
         protected NmsMessage()
         {
         }
@@ -62,7 +64,7 @@ namespace NataInfo.Nibus.Nms
         /// <summary>
         /// Возвращает датаграмму низлежащего уровня.
         /// </summary>
-        public NibusDatagram Datagram { get; private set; }
+        public NibusDatagram Datagram { get; protected set; }
 
         /// <summary>
         /// Возвращает тип сервиса NMS.
@@ -438,7 +440,7 @@ namespace NataInfo.Nibus.Nms
             Contract.Ensures(ServiceType == service);
             var nmsLength = Math.Min(nmsData.Length, NmsMaxDataLength);
             var data = new byte[NmsHeaderLength + nmsLength];
-            Array.Copy(nmsData, data, nmsLength);
+            Array.Copy(nmsData, 0, data, NmsHeaderLength, nmsLength);
 
             data[0] = (byte) (((byte) service << 3) | ((id & 1023) >> 8));
             data[1] = (byte) (id & 0xFF);

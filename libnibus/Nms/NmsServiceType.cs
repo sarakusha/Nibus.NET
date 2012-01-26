@@ -11,8 +11,7 @@ namespace NataInfo.Nibus.Nms
         /// </summary>
         Invalid = -1,
         /// <summary>
-        /// Используется в пустых сообщениях. <see cref="NmsEmptyMessage"/>
-        /// Только длля внутреннего использования.
+        /// Используется в пакетных сообщениях <see cref="NmsReadMany"/>
         /// </summary>
         None = 0,
         /// <summary>

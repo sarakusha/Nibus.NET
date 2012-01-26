@@ -97,6 +97,7 @@ namespace NataInfo.Nibus.Tests
             Assert.That(response.ServiceType == NmsServiceType.Read);
         }
 
+        // Отключить логи!
         [Test]
         public void SpeedTest([Values(21)] int attempts)
         {
@@ -109,9 +110,8 @@ namespace NataInfo.Nibus.Tests
             pings.Sort();
             var count = pings.Count;
             var index = count/2;
-            var mediana = count%2 == 0 ? (pings[index] + pings[index - 1])/2 : pings[index];
-            // Почему-то в консольном приложении ping ~15, а в тесте ~31
-            Assert.That(mediana, Is.LessThanOrEqualTo(32));
+            var mediana = count%2 == 0 ? ((int)(pings[index] + pings[index - 1] + 0.5))/2 : pings[index];
+            Assert.That(mediana, Is.LessThanOrEqualTo(16));
         }
 
         [Test]
@@ -119,6 +119,18 @@ namespace NataInfo.Nibus.Tests
         public void NmsProtocol_LastMessageDublicate_ThrowTimeout()
         {
             Assert.Throws<TimeoutException>(LastMessageDublicate_ThrowTimeout);
+        }
+
+        [Test]
+        public void NmsProtocol_ReadMany()
+        {
+            var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
+            var test = new List<ReadProgressInfo>(2);
+            var progress = new Progress<ReadProgressInfo>(test.Add);
+            nmsProtocol.ReadManyValuesAsync(progress, Destanation, 2, 3, 0x7f, 0x100, 0x101, 0x102, 0x103,
+                0x104, 0x105, 0x106, 0x107, 0x108, 0x109, 0x10a, 0x10c, 0x10b, 0x10d).Wait();
+            Assert.That(test.All(info => !info.IsFaulted));
+
         }
 
         private void LastMessageDublicate_ThrowTimeout()

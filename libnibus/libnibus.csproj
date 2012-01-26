@@ -110,6 +110,7 @@
     <Compile Include="Nms\NmsMessage.cs" />
     <Compile Include="Nms\NmsCodec.cs" />
     <Compile Include="Nms\NmsRead.cs" />
+    <Compile Include="Nms\NmsReadMany.cs" />
     <Compile Include="Nms\NmsRequestDomainDownload.cs" />
     <Compile Include="Nms\NmsReset.cs" />
     <Compile Include="Nms\NmsResume.cs" />
@@ -118,6 +119,7 @@
     <Compile Include="Nms\NmsStartProgramInvocation.cs" />
     <Compile Include="Nms\NmsStop.cs" />
     <Compile Include="Nms\NmsValueType.cs" />
+    <Compile Include="Nms\ReadProgressInfo.cs" />
     <Compile Include="Sport\GameEventArgs.cs" />
     <Compile Include="Sport\GameReports.cs" />
     <Compile Include="Sport\InfoMessage.cs" />

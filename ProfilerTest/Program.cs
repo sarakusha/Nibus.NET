@@ -28,6 +28,17 @@ namespace ProfilerTest
                 et.RemoveAt(0);
                 et.Sort();
                 Console.WriteLine("Min: {0}, Max: {1}, average: {2}, mediana: {3}, first: {4}", et.First(), et.Last(), et.Average(), et[50], first);
+                //et = new List<long>(102);
+                //for (int i = 0; i < 102; i++)
+                //{
+                //    var ping = nmsProtocol.PingAsync(destanation).Result;
+                //    //Console.WriteLine("Ping: {0}", ping);
+                //    et.Add(ping);
+                //}
+                //first = et[0];
+                //et.RemoveAt(0);
+                //et.Sort();
+                //Console.WriteLine("Async version Min: {0}, Max: {1}, average: {2}, mediana: {3}, first: {4}", et.First(), et.Last(), et.Average(), et[50], first);
             }
         }
     }

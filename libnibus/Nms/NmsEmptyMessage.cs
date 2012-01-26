@@ -5,11 +5,14 @@
 // 
 //-------------------------------------------------------------------
 
+using System;
+
 namespace NataInfo.Nibus.Nms
 {
     /// <summary>
     /// "Пустое" NMS-сообщение ?для сброса последнего сохраненного сообщения?.
     /// </summary>
+    [Obsolete]
     internal sealed class NmsEmptyMessage : NmsMessage
     {
         /// <summary>

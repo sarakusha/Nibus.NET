@@ -82,6 +82,28 @@ namespace NataInfo.Nibus.Nms
                 WriteValue(valueType, value));
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NmsWrite"/> class.
+        /// </summary>
+        /// <param name="destanation">Адрес получателя сообщения.</param>
+        /// <param name="id">Идентификатор переменной.</param>
+        /// <param name="valueType">Тип значения.</param>
+        /// <param name="value">Записываемое значение.</param>
+        /// <param name="waitResponse"><c>true</c> - если требуется подтверждение записи.</param>
+        /// <param name="priority">Приоритет.</param>
+        public NmsWrite(
+            Address destanation,
+            int id,
+            NmsValueType valueType,
+            object value,
+            bool waitResponse = true,
+            PriorityType priority = PriorityType.Normal)
+            : this(Address.Empty, destanation, id, valueType, value, waitResponse, priority)
+        {
+            Contract.Requires(destanation != null);
+            Contract.Requires(value != null);
+        }
+
         #endregion //Constructors
 
         #region Properties
