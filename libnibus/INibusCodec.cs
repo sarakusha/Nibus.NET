@@ -41,7 +41,7 @@ namespace NataInfo.Nibus
     /// <typeparam name="TDecoded">Тип преобразованных сообщений.</typeparam>
     public abstract class NibusCodec<TEncoded, TDecoded> : INibusCodec<TEncoded, TDecoded>
     {
-        private Unlinker _unlinker;
+        private Unlinker _unlinker = new Unlinker();
 
         #region INibusCodec<TEncoded,TDecoded> Members
 
@@ -51,6 +51,10 @@ namespace NataInfo.Nibus
             GC.SuppressFinalize(this);
         }
 
+        public bool IsDisposed
+        {
+            get { return _unlinker != null; }
+        }
         /// <summary>
         /// Возвращает кодировщик в нижележащий уровень.
         /// </summary>
@@ -70,6 +74,7 @@ namespace NataInfo.Nibus
         /// </returns>
         public virtual IDisposable ConnectTo<T>(INibusCodec<T, TEncoded> bottomCodec)
         {
+            Contract.Requires(!IsDisposed);
             Contract.Requires(bottomCodec != null);
             Contract.Requires(bottomCodec.Decoder != null);
             Contract.Requires(bottomCodec.Encoder != null);
@@ -87,6 +92,7 @@ namespace NataInfo.Nibus
         /// </returns>
         public virtual IDisposable ConnectTo(INibusEndpoint<TEncoded> transport)
         {
+            Contract.Requires(!IsDisposed);
             Contract.Requires(transport != null);
             Contract.Requires(transport.IncomingMessages != null);
             Contract.Requires(transport.OutgoingMessages != null);
@@ -98,12 +104,6 @@ namespace NataInfo.Nibus
 
         protected IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec)
         {
-            if (_unlinker != null)
-            {
-                _unlinker.Dispose();
-                _unlinker = null;
-            }
-
             // Удаляем старые сообщения
             var receivable = bottomCodec.Decoder as IReceivableSourceBlock<TEncoded>;
             if (receivable != null)
@@ -112,48 +112,31 @@ namespace NataInfo.Nibus
                 receivable.TryReceiveAll(out oldMessages);
             }
 
-            var decoderLink = bottomCodec.Decoder.LinkTo(Decoder);
-            var encoderLink = Encoder.LinkTo(bottomCodec.Encoder);
-            _unlinker = new Unlinker(decoderLink, encoderLink);
-
-            return _unlinker;
+            var unlinker = new Unlinker();
+            unlinker.AddLink(bottomCodec.Decoder.LinkTo(Decoder));
+            unlinker.AddLink(Encoder.LinkTo(bottomCodec.Encoder));
+            
+            _unlinker.AddLink(unlinker);
+            return unlinker;
         }
 
         protected IDisposable LinkTo(INibusEndpoint<TEncoded> transport)
         {
-            if (_unlinker != null)
-            {
-                _unlinker.Dispose();
-                _unlinker = null;
-            }
-
             // Удаляем старые сообщения
             IList<TEncoded> oldMessages;
             transport.IncomingMessages.TryReceiveAll(out oldMessages);
 
-            var decoderLink = transport.IncomingMessages.LinkTo(Decoder);
-            var encoderLink = Encoder.LinkTo(transport.OutgoingMessages);
-            _unlinker = new Unlinker(decoderLink, encoderLink);
-
-            return _unlinker;
+            var unlinker = new Unlinker();
+            unlinker.AddLink(transport.IncomingMessages.LinkTo(Decoder));
+            unlinker.AddLink(Encoder.LinkTo(transport.OutgoingMessages));
+            
+            _unlinker.AddLink(unlinker);
+            return unlinker;
         }
 
         protected IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec, Predicate<TEncoded> filter,
                                         bool discardsMessages = false)
         {
-            Contract.Requires(bottomCodec != null);
-            Contract.Requires(bottomCodec.Decoder != null);
-            Contract.Requires(bottomCodec.Encoder != null);
-            Contract.Requires(Decoder != null);
-            Contract.Requires(Encoder != null);
-            Contract.Requires(filter != null);
-
-            if (_unlinker != null)
-            {
-                _unlinker.Dispose();
-                _unlinker = null;
-            }
-
             // Удаляем старые сообщения
             var receivable = bottomCodec.Decoder as IReceivableSourceBlock<TEncoded>;
             if (receivable != null)
@@ -172,11 +155,12 @@ namespace NataInfo.Nibus
                 }
             }
 
-            var decoderLink = bottomCodec.Decoder.LinkTo(Decoder, filter, discardsMessages);
-            var encoderLink = Encoder.LinkTo(bottomCodec.Encoder);
-            _unlinker = new Unlinker(decoderLink, encoderLink);
+            var unlinker = new Unlinker();
+            unlinker.AddLink(bottomCodec.Decoder.LinkTo(Decoder, filter, discardsMessages));
+            unlinker.AddLink(Encoder.LinkTo(bottomCodec.Encoder));
+            _unlinker.AddLink(unlinker);
 
-            return _unlinker;
+            return unlinker;
         }
 
         #endregion
@@ -185,9 +169,8 @@ namespace NataInfo.Nibus
         {
             if (disposing)
             {
-                if (_unlinker != null)
+                using (_unlinker)
                 {
-                    _unlinker.Dispose();
                     _unlinker = null;
                 }
             }

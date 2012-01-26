@@ -43,6 +43,7 @@ namespace NataInfo.Nibus.Nms
         /// <param name="outgoing">Канал для исходящих NMS-сообщений.</param>
         internal NmsProtocol(IReceivableSourceBlock<NmsMessage> incoming, ITargetBlock<NmsMessage> outgoing)
         {
+            IsDisposed = false;
             _cts = new CancellationTokenSource();
 
             Timeout = TimeSpan.FromSeconds(1);
@@ -94,11 +95,17 @@ namespace NataInfo.Nibus.Nms
         /// </summary>
         public ITargetBlock<NmsMessage> OutgoingMessages { get; private set; }
         
-        /// <summary>
-        /// Сбрасывает входящий канал от последнего сохраненного сообщения (особенность <see cref="BroadcastBlock{T}"/>).
-        /// </summary>
-        public Action ResetIncoming;
+        ///// <summary>
+        ///// Сбрасывает входящий канал от последнего сохраненного сообщения (особенность <see cref="BroadcastBlock{T}"/>).
+        ///// </summary>
+        //public Action ResetIncoming;
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is disposed.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if this instance is disposed; otherwise, <c>false</c>.
+        /// </value>
         public bool IsDisposed { get; private set; }
 
         #endregion //Properties
@@ -118,7 +125,44 @@ namespace NataInfo.Nibus.Nms
             Contract.Requires(!IsDisposed);
             Contract.Requires(attempts > 0);
             var query = new NmsRead(destanation, id);
-            return (await WaitForNmsResponseAsync(query, attempts)).Value;
+            var response = await WaitForNmsResponseAsync(query, attempts);
+            return response.Value;
+        }
+
+        /// <summary>
+        /// Проверка доступности устройства.
+        /// </summary>
+        /// <param name="destanation">Адрес устройства.</param>
+        /// <returns>
+        /// Возвращает время в миллисекундах, затрачиваемое на отправку запроса
+        /// и получение соответствующего сообщения ответа.
+        /// </returns>
+        /// <value>
+        /// <c>-1</c> - устройство не ответило в течение заданного интервала времени <see cref="Timeout"/>
+        /// либо выполнение было прервано пользователем или статус ответа содержал ошибку.
+        /// </value>
+        public long Ping(Address destanation)
+        {
+            Contract.Requires(!IsDisposed);
+            var queryVersion = new NmsRead(destanation, 2);
+            var sw = new Stopwatch();
+            try
+            {
+                sw.Start();
+                WaitForNmsResponseAsync(queryVersion, 1).Wait();
+                sw.Stop();
+            }
+            catch (AggregateException e)
+            {
+                var innerException = e.Flatten().InnerException;
+                if (innerException is TimeoutException || innerException is TaskCanceledException || innerException is NibusResponseException)
+                {
+                    return -1;
+                }
+
+                throw;
+            }
+            return sw.ElapsedMilliseconds;
         }
 
         /// <summary>
@@ -127,7 +171,7 @@ namespace NataInfo.Nibus.Nms
         /// В случае отсутствия ответа повторяет попытки <paramref name="attempts"/> раз.
         /// Асинхронная операция.
         /// </summary>
-        /// <typeparam name="TMessage">Тип сообщения, потомка NmsMessage.</typeparam>
+        /// <typeparam name="TMessage">Тип сообщения, потомок NmsMessage.</typeparam>
         /// <param name="query">Сообщение-запрос.</param>
         /// <param name="attempts">Количество попыток.</param>
         /// <returns>
@@ -137,17 +181,19 @@ namespace NataInfo.Nibus.Nms
         /// <exception cref="TimeoutException">Ошибка по таймауту.</exception>
         /// <exception cref="TaskCanceledException">Операция прервана пользователем.</exception>
         /// <exception cref="NibusResponseException">Ошибка NiBUS.</exception>
-        public async Task<TMessage> WaitForNmsResponseAsync<TMessage>(TMessage query, int attempts) where TMessage : NmsMessage
+        internal async Task<TMessage> WaitForNmsResponseAsync<TMessage>(TMessage query, int attempts) where TMessage : NmsMessage
         {
             Contract.Requires(!IsDisposed);
             Contract.Requires(attempts > 0);
-            ResetIncoming();
+            
+            NmsMessage lastMessage;
+            IncomingMessages.TryReceive(null, out lastMessage);
 
-            for (var i = 0; i < attempts; i++)
+            var wob = new WriteOnceBlock<NmsMessage>(m => m);
+            using (IncomingMessages.LinkTo(
+                wob, m => !ReferenceEquals(lastMessage, m) && m.IsResponse && m.ServiceType == query.ServiceType && m.Id == query.Id))
             {
-                var wob = new WriteOnceBlock<NmsMessage>(m => m);
-                using (IncomingMessages.LinkTo(
-                    wob, m => m.IsResponse && m.ServiceType == query.ServiceType && m.Id == query.Id))
+                for (var i = 0; i < attempts; i++)
                 {
                     OutgoingMessages.Post(query);
                     try
@@ -162,7 +208,7 @@ namespace NataInfo.Nibus.Nms
                     }
                     catch (TimeoutException)
                     {
-                        if (i < attempts) continue;
+                        if (i < attempts - 1) continue;
                         throw;
                     }
                 }
@@ -214,5 +260,10 @@ namespace NataInfo.Nibus.Nms
 
         #endregion
 
+        #region Implementation of ICodecInfo
+
+        public string Description { get; set; }
+
+        #endregion
     }
 }

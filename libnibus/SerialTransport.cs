@@ -26,7 +26,8 @@ namespace NataInfo.Nibus
         /// </summary>
         /// <param name="portName">Имя последовательного COM-порта.</param>
         /// <param name="baudRate">Скорость порта (115200/28800).</param>
-        public SerialTransport(string portName, int baudRate)
+        /// <param name="immediatelyOpen">Если <c>true</c> то сразу открыть COM-порт.</param>
+        public SerialTransport(string portName, int baudRate, bool immediatelyOpen = false)
         {
             Contract.Ensures(OutgoingMessages != null);
             Contract.Ensures(IncomingMessages != null);
@@ -38,12 +39,16 @@ namespace NataInfo.Nibus
 
             _serial = new SerialPort(portName, baudRate) { DtrEnable = true };
             _serial.DataReceived += SerialDataReceived;
+            if (immediatelyOpen)
+            {
+                Open();
+            }
         }
 
         /// <summary>
-        /// Запуск транспорта.
+        /// Открыть COM-порт.
         /// </summary>
-        public void Run()
+        public void Open()
         {
             _serial.Open();
             RunAsyncInternal();
@@ -138,5 +143,11 @@ namespace NataInfo.Nibus
                 Logger.ErrorException("Error while reading", ex);
             }
         }
+
+        #region Implementation of ICodecInfo
+
+        public string Description { get; set; }
+
+        #endregion
     }
 }

@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -46,7 +47,6 @@ namespace NataInfo.Nibus
             target.Completion.ContinueWith(delegate { source.Complete(); });
             _target = target;
             _source = source;
-            ResetSource = item => source.Post(item);
         }
 
         #endregion //Constructors
@@ -122,10 +122,5 @@ namespace NataInfo.Nibus
         {
             get { return _source; }
         }
-
-        /// <summary>
-        /// Возвращает действие для сброса выходного источника заданным значением.
-        /// </summary>
-        public Action<TOutput> ResetSource { get; private set; }
     }
 }

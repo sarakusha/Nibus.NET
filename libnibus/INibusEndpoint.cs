@@ -11,7 +11,7 @@ namespace NataInfo.Nibus
     /// "Конечная точка" в стеке протоколов NiBUS это либо транспорт (нижний уровень),
     /// либо front-end для какого-либо протокола (высший уровень).
     /// </remarks>
-    public interface INibusEndpoint<TData> : IDisposable
+    public interface INibusEndpoint<TData> : ICodecInfo, IDisposable
     {
         /// <summary>
         /// Возвращает канал-источник входящих сообщений.

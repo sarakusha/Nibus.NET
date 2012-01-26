@@ -56,17 +56,7 @@ namespace NataInfo.Nibus.Nms
         /// </summary>
         public NmsProtocol Protocol
         {
-            get
-            {
-                if (_protocol == null)
-                {
-                    _protocol = new NmsProtocol(_decoder.Source, Encoder)
-                                    {
-                                        ResetIncoming = () => _decoder.ResetSource(NmsEmptyMessage.Instance)
-                                    };
-                }
-                return _protocol;
-            }
+            get { return _protocol ?? (_protocol = new NmsProtocol(_decoder.Source, Encoder)); }
         }
 
         /// <summary>

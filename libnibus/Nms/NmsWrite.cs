@@ -46,12 +46,12 @@ namespace NataInfo.Nibus.Nms
             Contract.Requires(datagram != null);
             Contract.Requires(datagram.ProtocolType == ProtocolType.Nms);
             Contract.Requires(datagram.Data.Count >= NmsHeaderLength);
+            Contract.Ensures(ServiceType == NmsServiceType.Write);
             if (datagram.Data.Count < NmsHeaderLength + 1
                 || !IsResponse && datagram.Data.Count < NmsHeaderLength + 1 + GetSizeOf(ValueType))
             {
                 throw new InvalidNibusDatagram("Invalid NMS message length");
             }
-            Contract.Ensures(ServiceType == NmsServiceType.Write);
             Contract.Assume(ServiceType == NmsServiceType.Write);
         }
 

@@ -9,6 +9,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -23,39 +26,33 @@ namespace NataInfo.Nibus.Tests
     [TestFixture]
     public class NmsProtocolTests
     {
-        private SerialTransport _serial;
-        private NibusDataCodec _nibusDataCodec;
-        private NmsCodec _nmsCodec;
-        private List<IDisposable> _releaser;
+        private static readonly Address Destanation = Address.CreateMac(0x20, 0x44);
+        private NibusStack _stack;
 
         [TestFixtureSetUp]
         public void BuildStack()
         {
-            _serial = new SerialTransport("COM7", 115200);
-            _nibusDataCodec = new NibusDataCodec();
-            _nmsCodec = new NmsCodec();
-            _releaser = new List<IDisposable> { _nmsCodec, _nibusDataCodec, _serial };
-
-            _nmsCodec.ConnectTo(_nibusDataCodec);
-            _nibusDataCodec.ConnectTo(_serial);
-            _serial.Run();
+            _stack = new NibusStack(
+                new SerialTransport("COM7", 115200, true),
+                new NibusDataCodec(),
+                new NmsCodec());
         }
 
         [TestFixtureTearDown]
         public void ReleaseStack()
         {
-            foreach (var disposable in _releaser)
+            using (_stack)
             {
-                disposable.Dispose();
+                _stack = null;
             }
         }
 
         private void ReadValueAsync_ThrowTimeout()
         {
-            var nmsController = _nmsCodec.Protocol;
+            var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
             try
             {
-                var version = nmsController.ReadValueAsync(Address.CreateMac(0x1), 2).Result;
+                nmsProtocol.ReadValueAsync(Address.CreateMac(1,2,3,4,5,6), 2, 5).Wait();
             }
             catch (AggregateException e)
             {
@@ -64,52 +61,87 @@ namespace NataInfo.Nibus.Tests
         }
 
         [Test]
-        public void NmsController_ReadValueAsync_ThrowTimeout()
+        public void NmsProtocol_ReadValueAsync_ThrowTimeout()
         {
+            var sw = new Stopwatch();
+            sw.Start();
             Assert.Throws<TimeoutException>(ReadValueAsync_ThrowTimeout);
+            sw.Stop();
+            Assert.That(sw.ElapsedMilliseconds, Is.InRange(5000, 5000+900));
         }
 
         [Test]
-        public void NmsController_ReadValueAsync_Version()
+        public void NmsProtocol_Ping_MinusOne()
         {
-            var nmsController = _nmsCodec.Protocol;
-            var version = nmsController.ReadValueAsync(Address.CreateMac(0x20, 0x44), 2).Result;
+            var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
+            Assert.That(nmsProtocol.Ping(Address.CreateMac(1,2,3,4,5,6)), Is.EqualTo(-1));
+        }
+
+        [Test]
+        public void NmsProtocol_ReadValueAsync_Version()
+        {
+            var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
+            var version = nmsProtocol.ReadValueAsync(Destanation, 2).Result;
             Assert.That(version, Is.EqualTo(0x00070200));
         }
 
         [Test]
         public void RawRead()
         {
-            var readVersion = new NmsRead(Address.CreateMac(0x20, 0x44), 2);
-            _nmsCodec.Encoder.Post(readVersion);
-            var response = _nmsCodec.Decoder.Receive(TimeSpan.FromSeconds(1));
+            var readVersion = new NmsRead(Destanation, 2);
+            var nmsCodec = _stack.GetCodec<NmsCodec>();
+            nmsCodec.Encoder.Post(readVersion);
+            var response = nmsCodec.Decoder.Receive(TimeSpan.FromSeconds(1));
             Assert.That(response.Id == 2);
             Assert.That(response.IsResponse);
             Assert.That(response.ServiceType == NmsServiceType.Read);
         }
 
         [Test]
-        public void ExcTest()
+        public void SpeedTest([Values(21)] int attempts)
         {
-            IList<int> list;
-            var tb = new TransformBlock<int, int>(i => 1000 / (i-5));
-            var bb = new BufferBlock<int>();
-            tb.LinkTo(bb);
-            try
+            var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
+            var pings = new List<long>(attempts);
+            for (int i = 0; i < attempts; i++)
             {
-                for (int i = 10; i > 0; i--)
-                {
-                    tb.Post(i);
-                }
-                if (bb.OutputAvailableAsync().Result)
-                {
-                    bb.TryReceiveAll(out list);
-                    var c = list.Count;
-                }
+                pings.Add(nmsProtocol.Ping(Destanation));
             }
-            catch (Exception e)
-            {
+            pings.Sort();
+            var count = pings.Count;
+            var index = count/2;
+            var mediana = count%2 == 0 ? (pings[index] + pings[index - 1])/2 : pings[index];
+            // Почему-то в консольном приложении ping ~15, а в тесте ~31
+            Assert.That(mediana, Is.LessThanOrEqualTo(32));
+        }
 
+        [Test]
+        [Repeat(3)]
+        public void NmsProtocol_LastMessageDublicate_ThrowTimeout()
+        {
+            Assert.Throws<TimeoutException>(LastMessageDublicate_ThrowTimeout);
+        }
+
+        private void LastMessageDublicate_ThrowTimeout()
+        {
+            var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
+            NmsMessage lastMessage;
+            nmsProtocol.IncomingMessages.TryReceive(null, out lastMessage);
+            var query = new NmsRead(Destanation, 2);
+            nmsProtocol.OutgoingMessages.Post(query);
+            var wob = new WriteOnceBlock<NmsMessage>(m => m);
+            NmsMessage response, response2;
+            using (nmsProtocol.IncomingMessages.LinkTo(
+                wob, m => !ReferenceEquals(m, lastMessage) && m.IsResponse && m.ServiceType == query.ServiceType && m.Id == query.Id))
+            {
+                response = wob.Receive(nmsProtocol.Timeout);
+            }
+            nmsProtocol.IncomingMessages.TryReceive(null, out lastMessage);
+            Assert.That(lastMessage, Is.EqualTo(response));
+            var wob2 = new WriteOnceBlock<NmsMessage>(m => m);
+            using (nmsProtocol.IncomingMessages.LinkTo(
+                wob2, m => !ReferenceEquals(m, lastMessage) && m.IsResponse && m.ServiceType == query.ServiceType && m.Id == query.Id))
+            {
+                response2 = wob2.Receive(nmsProtocol.Timeout);
             }
         }
     }

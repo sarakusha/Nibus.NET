@@ -8,6 +8,8 @@
 #region Using directives
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 #endregion
 
@@ -21,8 +23,7 @@ namespace NataInfo.Nibus
     {
         #region Member Variables
 
-        private IDisposable _firstCodecLink;
-        private IDisposable _secondCodecLink;
+        private readonly List<IDisposable> _links;
 
         #endregion
 
@@ -31,44 +32,22 @@ namespace NataInfo.Nibus
         /// <summary>
         /// The default Constructor.
         /// </summary>
-        /// <param name="firstCodecLink">Связь от первого кодека.</param>
-        /// <param name="secondCodecLink">Связь от второго кодека.</param>
-        public Unlinker(IDisposable firstCodecLink, IDisposable secondCodecLink)
+        public Unlinker()
         {
-            _firstCodecLink = firstCodecLink;
-            _secondCodecLink = secondCodecLink;
+
+            _links = new List<IDisposable>();
         }
 
         #endregion //Constructors
 
-        #region Properties
-
-        /// <summary>
-        /// Gets a value indicating whether this <see cref="Unlinker"/> is disposed.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if disposed; otherwise, <c>false</c>.
-        /// </value>
-        public bool Disposed
+        public void AddLink(IDisposable link)
         {
-            get { return _firstCodecLink == null && _secondCodecLink == null; }
+            _links.Add(link);
         }
-
-        #endregion //Properties
 
         public void Dispose()
         {
-            if (_firstCodecLink != null)
-            {
-                _firstCodecLink.Dispose();
-                _firstCodecLink = null;
-            }
-
-            if (_secondCodecLink != null)
-            {
-                _secondCodecLink.Dispose();
-                _secondCodecLink = null;
-            }
+            _links.Where(link => link != null).ToList().ForEach(link => link.Dispose());
         }
     }
 }

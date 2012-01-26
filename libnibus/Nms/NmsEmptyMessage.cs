@@ -8,9 +8,8 @@
 namespace NataInfo.Nibus.Nms
 {
     /// <summary>
-    /// "Пустое" NMS-сообщение для сброса последнего сохраненного сообщения.
+    /// "Пустое" NMS-сообщение ?для сброса последнего сохраненного сообщения?.
     /// </summary>
-    /// <seealso cref="NmsProtocol.ResetIncoming"/>
     internal sealed class NmsEmptyMessage : NmsMessage
     {
         /// <summary>

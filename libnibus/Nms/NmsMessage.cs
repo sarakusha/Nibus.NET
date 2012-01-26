@@ -443,8 +443,8 @@ namespace NataInfo.Nibus.Nms
             data[0] = (byte) (((byte) service << 3) | ((id & 1023) >> 8));
             data[1] = (byte) (id & 0xFF);
             data[2] = (byte) ((isResponsible ? 0 : 0x80) | (r1 ? 0x40 : 0) | nmsLength & 0x3F);
-            Contract.Assume(!IsResponse);
             Datagram = new NibusDatagram(null, source, destanation, priority, ProtocolType.Nms, data);
+            Contract.Assume(!IsResponse);
         }
 
         internal static byte PackByte(int b)

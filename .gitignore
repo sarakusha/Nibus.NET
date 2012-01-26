@@ -30,3 +30,4 @@ _ReSharper*/
 UpgradeLog.XML
 StyleCop.Cache
 packages/
+*.Contracts.dll

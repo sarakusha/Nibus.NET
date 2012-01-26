@@ -39,7 +39,7 @@ namespace NataInfo.Nibus.Tests
 
             _nmsCodec.ConnectTo(_nibusDataCodec);
             _nibusDataCodec.ConnectTo(_serial);
-            _serial.Run();
+            _serial.Open();
         }
 
         [TestFixtureTearDown]
