@@ -87,39 +87,55 @@
   <ItemGroup>
     <Compile Include="Address.cs" />
     <Compile Include="BroadcastTransformBlock.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="InvalidNibusDatagram.cs" />
     <Compile Include="NibusResponseException.cs" />
     <Compile Include="NibusStack.cs" />
-    <Compile Include="Nms\NmsAlterEventConditionMonitoring.cs" />
+    <Compile Include="Nms\Programs\McdviPid.cs" />
+    <Compile Include="Nms\Services\NmsAlterEventConditionMonitoring.cs" />
     <Compile Include="INibusCodec.cs" />
     <Compile Include="INibusEndpoint.cs" />
     <Compile Include="INibusProtocol.cs" />
     <Compile Include="NibusDataCodec.cs" />
     <Compile Include="NibusDatagram.cs" />
-    <Compile Include="Nms\NmsAckEventNotification.cs" />
-    <Compile Include="Nms\NmsInvalidMessage.cs" />
+    <Compile Include="Nms\Services\NmsAckEventNotification.cs" />
+    <Compile Include="Nms\Services\NmsInvalidMessage.cs" />
     <Compile Include="Nms\NmsProtocol.cs" />
-    <Compile Include="Nms\NmsDownloadSegment.cs" />
-    <Compile Include="Nms\NmsEmptyMessage.cs" />
-    <Compile Include="Nms\NmsEventNotification.cs" />
-    <Compile Include="Nms\NmsExecuteProgramInvocation.cs" />
-    <Compile Include="Nms\NmsInformationReport.cs" />
+    <Compile Include="Nms\Services\NmsDownloadSegment.cs" />
+    <Compile Include="Nms\Services\NmsEmptyMessage.cs" />
+    <Compile Include="Nms\Services\NmsEventNotification.cs" />
+    <Compile Include="Nms\Services\NmsExecuteProgramInvocation.cs" />
+    <Compile Include="Nms\Services\NmsInformationReport.cs" />
     <Compile Include="Nms\NmsInformationReportEventArgs.cs" />
-    <Compile Include="Nms\NmsInitiateDownloadSequence.cs" />
-    <Compile Include="Nms\NmsInitiateUploadSequence.cs" />
-    <Compile Include="Nms\NmsMessage.cs" />
+    <Compile Include="Nms\Services\NmsInitiateDownloadSequence.cs" />
+    <Compile Include="Nms\Services\NmsInitiateUploadSequence.cs" />
+    <Compile Include="Nms\Services\NmsMessage.cs" />
     <Compile Include="Nms\NmsCodec.cs" />
-    <Compile Include="Nms\NmsRead.cs" />
-    <Compile Include="Nms\NmsReadMany.cs" />
-    <Compile Include="Nms\NmsRequestDomainDownload.cs" />
-    <Compile Include="Nms\NmsReset.cs" />
-    <Compile Include="Nms\NmsResume.cs" />
-    <Compile Include="Nms\NmsServiceType.cs" />
-    <Compile Include="Nms\NmsShutdown.cs" />
-    <Compile Include="Nms\NmsStartProgramInvocation.cs" />
-    <Compile Include="Nms\NmsStop.cs" />
+    <Compile Include="Nms\Services\NmsRead.cs" />
+    <Compile Include="Nms\Services\NmsReadMany.cs" />
+    <Compile Include="Nms\Services\NmsRequestDomainDownload.cs" />
+    <Compile Include="Nms\Services\NmsReset.cs" />
+    <Compile Include="Nms\Services\NmsResume.cs" />
+    <Compile Include="Nms\Services\NmsServiceType.cs" />
+    <Compile Include="Nms\Services\NmsShutdown.cs" />
+    <Compile Include="Nms\Services\NmsStartProgramInvocation.cs" />
+    <Compile Include="Nms\Services\NmsStop.cs" />
     <Compile Include="Nms\NmsValueType.cs" />
-    <Compile Include="Nms\ReadProgressInfo.cs" />
+    <Compile Include="Nms\Services\ReadProgressInfo.cs" />
+    <Compile Include="Nms\Variables\Aconsole.cs" />
+    <Compile Include="Nms\Variables\ConsoleUn.cs" />
+    <Compile Include="Nms\Variables\DviOptic.cs" />
+    <Compile Include="Nms\Variables\M1702.cs" />
+    <Compile Include="Nms\Variables\Mcdvi.cs" />
+    <Compile Include="Nms\Variables\Siolynx.cs" />
+    <Compile Include="Nms\Variables\SmdCtl.cs" />
+    <Compile Include="Nms\Variables\SmdLoader.cs" />
+    <Compile Include="Nms\Variables\StdKernel.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Sport\GameEventArgs.cs" />
     <Compile Include="Sport\GameReports.cs" />
     <Compile Include="Sport\InfoMessage.cs" />
@@ -129,13 +145,13 @@
     <Compile Include="Sport\TennisProtocol.cs" />
     <Compile Include="Sport\TennisStat.cs" />
     <Compile Include="Sport\TimerInfo.cs" />
-    <Compile Include="Nms\NmsUploadSegment.cs" />
-    <Compile Include="Nms\NmsVerifyDomainChecksum.cs" />
-    <Compile Include="Nms\NmsWrite.cs" />
+    <Compile Include="Nms\Services\NmsUploadSegment.cs" />
+    <Compile Include="Nms\Services\NmsVerifyDomainChecksum.cs" />
+    <Compile Include="Nms\Services\NmsWrite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Nms\NmsRequestDomainUpload.cs" />
+    <Compile Include="Nms\Services\NmsRequestDomainUpload.cs" />
     <Compile Include="SerialTransport.cs" />
-    <Compile Include="Nms\NmsTerminateDownloadSequence.cs" />
+    <Compile Include="Nms\Services\NmsTerminateDownloadSequence.cs" />
     <Compile Include="Sport\GameProtocol.cs" />
     <Compile Include="Unlinker.cs" />
   </ItemGroup>
@@ -147,6 +163,12 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

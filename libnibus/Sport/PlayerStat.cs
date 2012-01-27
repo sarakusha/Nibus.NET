@@ -11,6 +11,7 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using NataInfo.Nibus.Nms;
+using NataInfo.Nibus.Nms.Services;
 
 #endregion
 

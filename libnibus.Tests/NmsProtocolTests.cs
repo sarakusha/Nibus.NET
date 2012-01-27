@@ -15,8 +15,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using System.Xml;
 using NUnit.Framework;
 using NataInfo.Nibus.Nms;
+using NataInfo.Nibus.Nms.Services;
+using NataInfo.Nibus.Nms.Variables;
 
 #endregion
 
@@ -28,6 +31,7 @@ namespace NataInfo.Nibus.Tests
     {
         private static readonly Address Destanation = Address.CreateMac(0x20, 0x44);
         private NibusStack _stack;
+        private static readonly Address Vms50Address = Address.CreateMac(0x6c, 0xea);
 
         [TestFixtureSetUp]
         public void BuildStack()
@@ -67,14 +71,28 @@ namespace NataInfo.Nibus.Tests
             sw.Start();
             Assert.Throws<TimeoutException>(ReadValueAsync_ThrowTimeout);
             sw.Stop();
-            Assert.That(sw.ElapsedMilliseconds, Is.InRange(5000, 5000+900));
+            Assert.That(sw.ElapsedMilliseconds, Is.InRange(5000, 5300));
         }
 
         [Test]
         public void NmsProtocol_Ping_MinusOne()
         {
             var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
+            var sw = new Stopwatch();
+            sw.Start();
             Assert.That(nmsProtocol.Ping(Address.CreateMac(1,2,3,4,5,6)), Is.EqualTo(-1));
+            sw.Stop();
+            Assert.That(sw.ElapsedMilliseconds, Is.InRange(nmsProtocol.Timeout.TotalMilliseconds, nmsProtocol.Timeout.TotalMilliseconds + 150));
+        }
+
+        [Test]
+        public void NmsProtocol_Ping()
+        {
+            var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
+            //Для раскачки. Первый запрос длительный.
+            nmsProtocol.ReadValueAsync(Destanation, 3).Wait();
+            var ping = nmsProtocol.Ping(Destanation);
+            Assert.That(ping, Is.InRange(10, 25));
         }
 
         [Test]
@@ -97,7 +115,6 @@ namespace NataInfo.Nibus.Tests
             Assert.That(response.ServiceType == NmsServiceType.Read);
         }
 
-        // Отключить логи!
         [Test]
         public void SpeedTest([Values(21)] int attempts)
         {
@@ -116,6 +133,7 @@ namespace NataInfo.Nibus.Tests
 
         [Test]
         [Repeat(3)]
+        [Ignore]
         public void NmsProtocol_LastMessageDublicate_ThrowTimeout()
         {
             Assert.Throws<TimeoutException>(LastMessageDublicate_ThrowTimeout);
@@ -125,14 +143,55 @@ namespace NataInfo.Nibus.Tests
         public void NmsProtocol_ReadMany()
         {
             var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
-            var test = new List<ReadProgressInfo>(2);
+            var ids = GetMibIds(@"Z:\mibs\siolynx.mib.xsd");
+            Assert.That(ids.Length, Is.GreaterThanOrEqualTo(17));
+            var test = new List<ReadProgressInfo>(ids.Length);
             var progress = new Progress<ReadProgressInfo>(test.Add);
-            nmsProtocol.ReadManyValuesAsync(progress, Destanation, 2, 3, 0x7f, 0x100, 0x101, 0x102, 0x103,
-                0x104, 0x105, 0x106, 0x107, 0x108, 0x109, 0x10a, 0x10c, 0x10b, 0x10d).Wait();
-            Assert.That(test.All(info => !info.IsFaulted));
-
+            nmsProtocol.ReadManyValuesAsync(progress, Destanation, ids).Wait();
+            Assert.That(test.Select(pi => pi.IsFaulted), Is.All.EqualTo(false));
+            Assert.That(test.Count, Is.EqualTo(ids.Length));
         }
 
+        [Test]
+        [Category("VMS50")]
+        public void NmsProtocol_vms50_ReadMany()
+        {
+            var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
+            var ids = GetMibIds(@"Z:\mibs\vms50.mib.xsd");
+            Assert.That(ids.Length, Is.GreaterThanOrEqualTo(66));
+            Assert.That(ids.Distinct().Count(), Is.EqualTo(ids.Length));
+            var test = new List<ReadProgressInfo>(ids.Length);
+            var progress = new Progress<ReadProgressInfo>(test.Add);
+            nmsProtocol.ReadManyValuesAsync(progress, Vms50Address, ids).Wait();
+            Assert.That(test.Select(pi => pi.IsFaulted), Is.All.EqualTo(false));
+            Assert.That(test.Count, Is.EqualTo(ids.Length));
+            Assert.That(test.Select(pi => pi.Id).Distinct().Count(), Is.EqualTo(ids.Length));
+        }
+
+        [Test]
+        [Category("VMS50")]
+        public void NmsProtocol_vms50_Reset()
+        {
+            var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
+            nmsProtocol.ResetDeviceComfirmed(Vms50Address).Wait();
+        }
+
+        [Test]
+        [Category("VMS50")]
+        public void NmsProtocol_vms50_ExecuteProgram_ResetStats()
+        {
+            var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
+            var rs485_rx_datagrams1 =
+                Convert.ToUInt32(
+                    nmsProtocol.ReadValueAsync(Vms50Address, (int)StdKernel.RS485RxDatagrams).Result);
+            nmsProtocol.ExecuteProgramConfirmedAsync(Vms50Address, 4).Wait();
+            Thread.Sleep(500);
+            var rs485_rx_datagrams2 =
+                Convert.ToUInt32(
+                    nmsProtocol.ReadValueAsync(Vms50Address, (int)StdKernel.RS485RxDatagrams).Result);
+            Assert.That(rs485_rx_datagrams2, Is.LessThan(rs485_rx_datagrams1));
+        }
+ 
         private void LastMessageDublicate_ThrowTimeout()
         {
             var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
@@ -155,6 +214,19 @@ namespace NataInfo.Nibus.Tests
             {
                 response2 = wob2.Receive(nmsProtocol.Timeout);
             }
+        }
+
+        static int[] GetMibIds(string filename)
+        {
+            var xmlDoc = new XmlDocument();
+            xmlDoc.Load(filename);
+            var mgr = new XmlNamespaceManager(xmlDoc.NameTable);
+            mgr.AddNamespace("xs", "http://www.w3.org/2001/XMLSchema");
+            var x = xmlDoc.SelectNodes("/xs:schema/xs:complexType/xs:attribute/xs:annotation/xs:appinfo/nms_id[../access='r']", mgr);
+            if (x == null) return null;
+            var result = new List<int>(x.Count);
+            result.AddRange(from XmlElement e in x select Convert.ToInt32(e.InnerText, e.InnerText.StartsWith("0x") ? 16 : 10));
+            return result.ToArray();
         }
     }
 }

@@ -13,6 +13,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using NataInfo.Nibus.Nms;
+using NataInfo.Nibus.Nms.Services;
 
 #endregion
 

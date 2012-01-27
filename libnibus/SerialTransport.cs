@@ -111,16 +111,16 @@ namespace NataInfo.Nibus
                 if (data.Length > 0)
                 {
                     await WriteAsync(data).ConfigureAwait(false);
+                    if (Logger.IsTraceEnabled)
+                    {
+                        Logger.Trace(String.Join(":", data.Select(b => b.ToString("X2")).ToArray()));
+                    }
                 }
             }
         }
 
         private Task WriteAsync(byte[] data)
         {
-            if (Logger.IsTraceEnabled)
-            {
-                Logger.Trace(String.Join(":", data.Select(b => b.ToString("X2")).ToArray()));
-            }
             var stream = _serial.BaseStream;
             return Task.Factory.FromAsync(stream.BeginWrite, stream.EndWrite, data, 0, data.Length, null);
         }
@@ -131,12 +131,11 @@ namespace NataInfo.Nibus
             {
                 var buffer = new byte[_serial.BytesToRead];
                 _serial.Read(buffer, 0, buffer.Length);
+                _incomingMessages.Post(buffer);
                 if (Logger.IsTraceEnabled)
                 {
                     Logger.Trace(String.Join(":", buffer.Select(b => b.ToString("X2")).ToArray()));
                 }
-
-                _incomingMessages.Post(buffer);
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
 using System;
+using NataInfo.Nibus.Nms.Services;
 
 namespace NataInfo.Nibus.Nms
 {

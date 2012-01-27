@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks.Dataflow;
+using NataInfo.Nibus.Nms.Services;
 
 namespace NataInfo.Nibus.Nms
 {
