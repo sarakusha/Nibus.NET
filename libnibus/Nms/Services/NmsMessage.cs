@@ -116,7 +116,7 @@ namespace NataInfo.Nibus.Nms.Services
             get
             {
                 Contract.Requires(IsResponse);
-                return Datagram.Data[NmsHeaderLength + 0];
+                return (sbyte)Datagram.Data[NmsHeaderLength + 0];
             }
         }
 

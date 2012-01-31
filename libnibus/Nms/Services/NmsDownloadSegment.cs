@@ -41,7 +41,7 @@ namespace NataInfo.Nibus.Nms.Services
             Contract.Assume(ServiceType == NmsServiceType.DownloadSegment);
         }
 
-        public NmsDownloadSegment(Address source, Address destanation, int id, uint offset, byte[] segment)
+        public NmsDownloadSegment(Address source, Address destanation, int id, uint offset, byte[] segment, bool waitResponse = true)
         {
             Contract.Requires(source != null);
             Contract.Requires(destanation != null);
@@ -59,7 +59,7 @@ namespace NataInfo.Nibus.Nms.Services
                 destanation,
                 PriorityType.Normal,
                 NmsServiceType.DownloadSegment,
-                true,
+                waitResponse,
                 id,
                 false,
                 nmsData);

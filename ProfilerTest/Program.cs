@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Xml;
 using NataInfo.Nibus;
@@ -12,7 +13,48 @@ namespace ProfilerTest
     {
         static void Main(string[] args)
         {
-            var ids = GetMibIds(@"Z:\mibs\vms50.mib.xsd");
+            //var ids = GetMibIds(@"Z:\mibs\vms50.mib.xsd");
+            Upload();
+        }
+
+        static void Upload()
+        {
+            using (var stack = new NibusStack(
+                new SerialTransport("COM7", 115200, true),
+                new NibusDataCodec(),
+                new NmsCodec()))
+            {
+                var nmsProtocol = stack.GetCodec<NmsCodec>().Protocol;
+                try
+                {
+                    var sw = new Stopwatch();
+                    var total = 0;
+                    var progress = new Progress<int>(cb =>
+                                                         {
+                                                             if (total == 0)
+                                                             {
+                                                                 total = cb;
+                                                                 Console.WriteLine("Total: {0}", total);
+                                                             }
+                                                             else
+                                                             {
+                                                                 Console.Write("{0}\t{1}\r", cb, cb*100/total);
+                                                             }
+                                                         });
+                    sw.Start();
+                    var result = nmsProtocol.UploadDomainAsync(progress, Address.CreateMac(0x6c, 0xea), "NVRAM").Result;
+                    sw.Stop();
+                    Console.WriteLine("Duration: {0}", sw.Elapsed);
+                    using (var file = File.Create(@"c:\temp\nvram.hex"))
+                    {
+                        file.Write(result, 0, result.Length);
+                    }
+                }
+                catch (AggregateException e)
+                {
+                    Console.WriteLine(e.Flatten().InnerException);
+                }
+            }
         }
         
         static void Ping()

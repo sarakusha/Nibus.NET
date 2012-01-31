@@ -37,6 +37,8 @@ namespace NataInfo.Nibus.Nms.Services
             Contract.Requires(domain != null);
             Contract.Requires(domain.Length <= 8);
             Contract.Ensures(ServiceType == NmsServiceType.RequestDomainDownload);
+            var data = new byte[8];
+            Encoding.Default.GetBytes(domain).CopyTo(data, 0);
             Initialize(
                 source,
                 destanation,
@@ -45,7 +47,7 @@ namespace NataInfo.Nibus.Nms.Services
                 true,
                 0,
                 false,
-                Encoding.Default.GetBytes(domain));
+                data);
         }
 
         #endregion //Constructors
@@ -69,6 +71,15 @@ namespace NataInfo.Nibus.Nms.Services
             {
                 Contract.Requires(IsResponse);
                 return BitConverter.ToUInt32(Datagram.Data.ToArray(), NmsHeaderLength + 1);
+            }
+        }
+
+        public bool IsFastDownload
+        {
+            get
+            {
+                Contract.Requires(IsResponse);
+                return Datagram.Data.Count > NmsHeaderLength + 5 && (Datagram.Data[NmsHeaderLength + 5] & 1) != 0;
             }
         }
 

@@ -5,6 +5,8 @@
 // 
 //-------------------------------------------------------------------
 
+// ReSharper disable UnusedMember.Global
+
 namespace NataInfo.Nibus.Nms.Programs
 {
     public enum McdviPid

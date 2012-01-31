@@ -63,9 +63,9 @@ namespace NataInfo.Nibus.Nms.Services
         }
 
         /// <summary>
-        /// Возвращает количество байт в сегменте.
+        /// Возвращает требуемое количество байт в сегменте.
         /// </summary>
-        public int Size
+        public byte Size
         {
             get
             {
@@ -79,7 +79,7 @@ namespace NataInfo.Nibus.Nms.Services
             get
             {
                 Contract.Requires(IsResponse);
-                return Datagram.Data.Skip(NmsHeaderLength).Take(Length - 5).ToArray();
+                return Datagram.Data.Skip(NmsHeaderLength + 5).Take(Length - 5).ToArray();
             }
         }
 

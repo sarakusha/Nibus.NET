@@ -46,7 +46,8 @@ namespace NataInfo.Nibus.Nms.Services
         /// <param name="destanation">Адрес получателя сообщения.</param>
         /// <param name="id">Идентификатор события.</param>
         /// <param name="isEventEnabled">Если <c>true</c> событие разрешено.</param>
-        public NmsAlterEventConditionMonitoring(Address source, Address destanation, int id, bool isEventEnabled)
+        /// <param name="waitResponse"><c>true</c> - если требуется подтверждение записи.</param>
+        public NmsAlterEventConditionMonitoring(Address source, Address destanation, int id, bool isEventEnabled, bool waitResponse = true)
         {
             Contract.Requires(source != null);
             Contract.Requires(destanation != null);
@@ -57,7 +58,7 @@ namespace NataInfo.Nibus.Nms.Services
                 destanation,
                 PriorityType.Normal,
                 NmsServiceType.AlterEventConditionMonitoring,
-                true,
+                waitResponse,
                 id,
                 isEventEnabled,
                 new byte[0]);

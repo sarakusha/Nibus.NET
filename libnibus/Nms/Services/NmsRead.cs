@@ -7,6 +7,7 @@
 
 #region Using directives
 
+using System;
 using System.Diagnostics.Contracts;
 using System.Linq;
 

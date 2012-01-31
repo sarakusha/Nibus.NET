@@ -47,6 +47,8 @@ namespace NataInfo.Nibus.Nms.Services
             Contract.Requires(domain != null);
             Contract.Requires(domain.Length <= 8);
             Contract.Ensures(ServiceType == NmsServiceType.RequestDomainUpload);
+            var data = new byte[8];
+            Encoding.Default.GetBytes(domain).CopyTo(data, 0);
             Initialize(
                 source,
                 destanation,
@@ -55,7 +57,7 @@ namespace NataInfo.Nibus.Nms.Services
                 true,
                 0,
                 false,
-                Encoding.Default.GetBytes(domain));
+                data);
         }
 
         #endregion //Constructors
