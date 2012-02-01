@@ -13,7 +13,6 @@ using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using System.Xml;
 using NUnit.Framework;
@@ -36,6 +35,13 @@ namespace NataInfo.Nibus.Tests
         [TestFixtureSetUp]
         public void BuildStack()
         {
+            Contract.ContractFailed += (sender, e) =>
+            {
+                e.SetHandled();
+                e.SetUnwind(); //cause code to abort after event
+                Assert.Fail(e.FailureKind.ToString() + ":" + e.Message);
+            };
+
             _stack = new NibusStack(
                 new SerialTransport("COM7", 115200, true),
                 new NibusDataCodec(),
@@ -54,9 +60,10 @@ namespace NataInfo.Nibus.Tests
         private void ReadValueAsync_ThrowTimeout()
         {
             var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
+            var options = new NibusOptions { Attempts = 5, Timeout = TimeSpan.FromSeconds(1) };
             try
             {
-                nmsProtocol.ReadValueAsync(Address.CreateMac(1,2,3,4,5,6), 2, 5).Wait();
+                nmsProtocol.ReadValueAsync(Address.CreateMac(1, 2, 3, 4, 5, 6), 2, options).Wait();
             }
             catch (AggregateException e)
             {
@@ -79,10 +86,11 @@ namespace NataInfo.Nibus.Tests
         {
             var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
             var sw = new Stopwatch();
+            var options = new NibusOptions {Timeout = TimeSpan.FromSeconds(1)};
             sw.Start();
-            Assert.That(nmsProtocol.Ping(Address.CreateMac(1,2,3,4,5,6)), Is.EqualTo(-1));
+            Assert.That(nmsProtocol.Ping(Address.CreateMac(1,2,3,4,5,6), options), Is.EqualTo(-1));
             sw.Stop();
-            Assert.That(sw.ElapsedMilliseconds, Is.InRange(nmsProtocol.Timeout.TotalMilliseconds, nmsProtocol.Timeout.TotalMilliseconds + 150));
+            Assert.That(sw.ElapsedMilliseconds, Is.InRange(options.Timeout.TotalMilliseconds, options.Timeout.TotalMilliseconds + 150));
         }
 
         [Test]
@@ -103,7 +111,7 @@ namespace NataInfo.Nibus.Tests
             Assert.That(version, Is.EqualTo(0x00070200));
         }
 
-        [Test]
+        [Test, Ignore]
         public void RawRead()
         {
             var readVersion = new NmsRead(Destanation, 2);
@@ -146,8 +154,8 @@ namespace NataInfo.Nibus.Tests
             var ids = GetMibIds(@"Z:\mibs\siolynx.mib.xsd");
             Assert.That(ids.Length, Is.GreaterThanOrEqualTo(17));
             var test = new List<ReadProgressInfo>(ids.Length);
-            var progress = new Progress<ReadProgressInfo>(test.Add);
-            nmsProtocol.ReadManyValuesAsync(progress, Destanation, ids).Wait();
+            var options = new NibusOptions { Progress = new Progress<object>(pi => test.Add((ReadProgressInfo)pi)) };
+            nmsProtocol.ReadManyValuesAsync(options, Destanation, ids).Wait();
             Assert.That(test.Select(pi => pi.IsFaulted), Is.All.EqualTo(false));
             Assert.That(test.Count, Is.EqualTo(ids.Length));
         }
@@ -161,8 +169,8 @@ namespace NataInfo.Nibus.Tests
             Assert.That(ids.Length, Is.GreaterThanOrEqualTo(66));
             Assert.That(ids.Distinct().Count(), Is.EqualTo(ids.Length));
             var test = new List<ReadProgressInfo>(ids.Length);
-            var progress = new Progress<ReadProgressInfo>(test.Add);
-            nmsProtocol.ReadManyValuesAsync(progress, Vms50Address, ids).Wait();
+            var options = new NibusOptions { Progress = new Progress<object>(pi => test.Add((ReadProgressInfo)pi)) };
+            nmsProtocol.ReadManyValuesAsync(options, Vms50Address, ids).Wait();
             Assert.That(test.Select(pi => pi.IsFaulted), Is.All.EqualTo(false));
             Assert.That(test.Count, Is.EqualTo(ids.Length));
             Assert.That(test.Select(pi => pi.Id).Distinct().Count(), Is.EqualTo(ids.Length));
@@ -173,7 +181,7 @@ namespace NataInfo.Nibus.Tests
         public void NmsProtocol_vms50_Reset()
         {
             var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
-            nmsProtocol.ResetDeviceComfirmed(Vms50Address).Wait();
+            nmsProtocol.ResetDeviceComfirmedAsync(Vms50Address).Wait();
         }
 
         [Test]
@@ -195,6 +203,7 @@ namespace NataInfo.Nibus.Tests
         private void LastMessageDublicate_ThrowTimeout()
         {
             var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
+            var options = new NibusOptions();
             NmsMessage lastMessage;
             nmsProtocol.IncomingMessages.TryReceive(null, out lastMessage);
             var query = new NmsRead(Destanation, 2);
@@ -204,7 +213,7 @@ namespace NataInfo.Nibus.Tests
             using (nmsProtocol.IncomingMessages.LinkTo(
                 wob, m => !ReferenceEquals(m, lastMessage) && m.IsResponse && m.ServiceType == query.ServiceType && m.Id == query.Id))
             {
-                response = wob.Receive(nmsProtocol.Timeout);
+                response = wob.Receive(options.Timeout);
             }
             nmsProtocol.IncomingMessages.TryReceive(null, out lastMessage);
             Assert.That(lastMessage, Is.EqualTo(response));
@@ -212,7 +221,7 @@ namespace NataInfo.Nibus.Tests
             using (nmsProtocol.IncomingMessages.LinkTo(
                 wob2, m => !ReferenceEquals(m, lastMessage) && m.IsResponse && m.ServiceType == query.ServiceType && m.Id == query.Id))
             {
-                response2 = wob2.Receive(nmsProtocol.Timeout);
+                response2 = wob2.Receive(options.Timeout);
             }
         }
 

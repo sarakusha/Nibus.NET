@@ -29,10 +29,10 @@ namespace NataInfo.Nibus.Nms.Services
             Contract.Assume(ServiceType == NmsServiceType.Stop);
         }
 
-        public NmsStop(Address source, Address destanation, int id)
+        public NmsStop(Address source, Address destanation, int id, bool waitResonse = true)
         {
             Contract.Ensures(ServiceType == NmsServiceType.Stop);
-            Initialize(source, destanation, PriorityType.Normal, NmsServiceType.Stop, true, id, false, new byte[0]);
+            Initialize(source, destanation, PriorityType.Normal, NmsServiceType.Stop, waitResonse, id, false, new byte[0]);
         }
 
         #endregion //Constructors

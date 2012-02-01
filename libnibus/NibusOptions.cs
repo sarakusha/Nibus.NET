@@ -17,6 +17,9 @@ using System.Threading;
 
 namespace NataInfo.Nibus
 {
+    /// <summary>
+    /// Параметры NiBUS-операций.
+    /// </summary>
     public class NibusOptions
     {
         #region Constructors
@@ -24,24 +27,50 @@ namespace NataInfo.Nibus
         /// <summary>
         /// The default Constructor.
         /// </summary>
-        public NibusOptions()
+        public NibusOptions() : this(null)
         {
-            Attempts = 1;
-            Timeout = TimeSpan.FromSeconds(2);
-            Token = CancellationToken.None;
-            Progress = null;
+        }
+
+        public NibusOptions(NibusOptions other)
+        {
+            if (other != null)
+            {
+                Attempts = other.Attempts;
+                Timeout = other.Timeout;
+                Token = other.Token;
+                Progress = other.Progress;
+            }
+            else
+            {
+                Attempts = 1;
+                Timeout = TimeSpan.FromSeconds(2);
+                Token = CancellationToken.None;
+                Progress = null;
+            }
         }
 
         #endregion //Constructors
 
         #region Properties
 
+        /// <summary>
+        /// Количество попыток для повторных запросов в случае неудачи.
+        /// </summary>
         public int Attempts { get; set; }
 
+        /// <summary>
+        /// Задает величину таймаута ожидания ответа на запросы.
+        /// </summary>
         public TimeSpan Timeout { get; set; }
 
-        public IProgress<int> Progress { get; set; }
+        /// <summary>
+        /// Интерфейс для информрования о прогрессе длительной опреации.
+        /// </summary>
+        public IProgress<object> Progress { get; set; }
 
+        /// <summary>
+        /// Токен отмены операции.
+        /// </summary>
         public CancellationToken Token { get; set; }
 
         #endregion //Properties

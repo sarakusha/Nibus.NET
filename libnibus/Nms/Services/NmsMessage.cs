@@ -55,7 +55,6 @@ namespace NataInfo.Nibus.Nms.Services
 
             Contract.Ensures(Datagram != null);
 
-
             Datagram = datagram;
         }
 

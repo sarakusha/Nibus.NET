@@ -33,7 +33,7 @@ namespace NataInfo.Nibus.Nms.Services
 
         public NmsUploadSegment(Address source, Address destanation, int id, uint offset, byte size)
         {
-            Contract.Requires(size < NmsMaxDataLength - 5);
+            Contract.Requires(size <= NmsMaxDataLength - 5);
             Contract.Ensures(ServiceType == NmsServiceType.UploadSegment);
             var nmsData = new byte[5];
             BitConverter.GetBytes(offset).CopyTo(nmsData, 0);

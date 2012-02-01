@@ -40,7 +40,7 @@ namespace NataInfo.Nibus.Nms.Services
         }
 
         public NmsStartProgramInvocation(
-            Address source, Address destanation, int id, params Tuple<NmsValueType, object>[] args)
+            Address source, Address destanation, int id, bool waitResonse = true, params Tuple<NmsValueType, object>[] args)
         {
             Contract.Ensures(ServiceType == NmsServiceType.StartProgramInvocation);
             var nmsData = new List<byte>(NmsMaxDataLength) { (byte)args.Length };
@@ -59,7 +59,7 @@ namespace NataInfo.Nibus.Nms.Services
                 destanation,
                 PriorityType.Normal,
                 NmsServiceType.StartProgramInvocation,
-                true,
+                waitResonse,
                 id,
                 false,
                 nmsData.ToArray());

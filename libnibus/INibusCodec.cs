@@ -51,10 +51,7 @@ namespace NataInfo.Nibus
             GC.SuppressFinalize(this);
         }
 
-        public bool IsDisposed
-        {
-            get { return _unlinker != null; }
-        }
+        public bool IsDisposed { get; private set; }
         /// <summary>
         /// Возвращает кодировщик в нижележащий уровень.
         /// </summary>
@@ -174,6 +171,7 @@ namespace NataInfo.Nibus
                     _unlinker = null;
                 }
             }
+            IsDisposed = true;
         }
 
         #region Implementation of ICodecInfo

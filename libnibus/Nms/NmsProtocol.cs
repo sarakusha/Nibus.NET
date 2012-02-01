@@ -35,6 +35,8 @@ namespace NataInfo.Nibus.Nms
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly CancellationTokenSource _cts;
+        public static readonly TimeSpan MinUploadDounloadTimeout = TimeSpan.FromSeconds(10);
+        private readonly NibusOptions _defaultOptions;
 
         #endregion
 
@@ -49,9 +51,8 @@ namespace NataInfo.Nibus.Nms
         {
             IsDisposed = false;
             _cts = new CancellationTokenSource();
+            _defaultOptions = new NibusOptions { Token = _cts.Token };
 
-            Timeout = TimeSpan.FromSeconds(2);
-            UploadDownloadTimeout = TimeSpan.FromSeconds(10);
             IncomingMessages = incoming;
             OutgoingMessages = outgoing;
 
@@ -93,16 +94,6 @@ namespace NataInfo.Nibus.Nms
         public bool IsDisposed { get; private set; }
 
         /// <summary>
-        /// Задает величину таймаута ожидания ответа на запросы.
-        /// </summary>
-        public TimeSpan Timeout { get; set; }
-
-        /// <summary>
-        /// Задает величину таймаута ожидания ответа на запросы.
-        /// </summary>
-        public TimeSpan UploadDownloadTimeout { get; set; }
-
-        /// <summary>
         /// Возвращает источник входящих NMS-сообщений.
         /// </summary>
         /// <remarks>Относится к типу <see cref="BroadcastBlock{T}"/> в Dataflow TPL.</remarks>
@@ -125,45 +116,47 @@ namespace NataInfo.Nibus.Nms
         /// Проверка доступности устройства.
         /// </summary>
         /// <param name="target">Адрес устройства.</param>
+        /// <param name="options">Параметры NiBUS-операции.</param>
         /// <returns>
         /// Возвращает время в миллисекундах, затрачиваемое на отправку запроса
         /// и получение соответствующего сообщения ответа.
         /// </returns>
         /// <value>
-        /// <c>-1</c> - устройство не ответило в течение заданного интервала времени <see cref="Timeout"/>
+        /// <c>-1</c> - устройство не ответило в течение заданного интервала времени <see cref="NibusOptions.Timeout"/>
         /// либо выполнение было прервано пользователем или статус ответа содержал ошибку.
         /// </value>
-        public long Ping(Address target)
+        public long Ping(Address target, NibusOptions options = null)
         {
             Contract.Requires(!IsDisposed);
             Contract.Requires(target != null);
             Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
-            return PingAsync(target).Result;
+            return PingAsync(target, options).Result;
         }
 
         /// <summary>
         /// Асинхронная проверка доступности устройства.
         /// </summary>
         /// <param name="target">Адрес устройства.</param>
+        /// <param name="options">Параметры NiBUS-операции.</param>
         /// <returns>
         /// Возвращает время в миллисекундах, затрачиваемое на отправку запроса
         /// и получение соответствующего сообщения ответа.
         /// </returns>
         /// <value>
-        /// <c>-1</c> - устройство не ответило в течение заданного интервала времени <see cref="Timeout"/>
+        ///   <c>-1</c> - устройство не ответило в течение заданного интервала времени <see cref="NibusOptions.Timeout"/>
         /// либо выполнение было прервано пользователем или статус ответа содержал ошибку.
-        /// </value>
-        public async Task<long> PingAsync(Address target)
+        ///   </value>
+        public async Task<long> PingAsync(Address target, NibusOptions options = null)
         {
-            Contract.Requires(!IsDisposed);
-            Contract.Requires(target != null);
-            Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
+            //Contract.Requires(!IsDisposed);
+            //Contract.Requires(target != null);
+            //Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
             var queryVersion = new NmsRead(target, (int)StdNms.SoftwareVersion);
             var sw = new Stopwatch();
             try
             {
                 sw.Start();
-                await WaitForNmsResponseAsync(queryVersion, Timeout).ConfigureAwait(false);
+                await WaitForNmsResponseAsync(queryVersion, options).ConfigureAwait(false);
                 sw.Stop();
             }
             catch (TimeoutException)
@@ -187,41 +180,43 @@ namespace NataInfo.Nibus.Nms
         /// </summary>
         /// <param name="target">Адрес устройства, с которого необходимо получить значение переменной.</param>
         /// <param name="id">Идентификатор переменной.</param>
-        /// <param name="attempts">Количество попыток.</param>
+        /// <param name="options">Параметры NiBUS-операции.</param>
         /// <returns><see cref="Task{TResult}"/> представляющий асинхронную операцию чтения.</returns>
         /// <seealso cref="WaitForNmsResponseAsync{TMessage}"/>
-        public async Task<object> ReadValueAsync(Address target, int id, int attempts = 1)
+        public async Task<object> ReadValueAsync(Address target, int id, NibusOptions options = null)
         {
-            Contract.Requires(!IsDisposed);
-            Contract.Requires(target != null);
-            Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
-            Contract.Requires(attempts > 0);
+            //Contract.Requires(!IsDisposed);
+            //Contract.Requires(target != null);
+            //Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
             var query = new NmsRead(target, id);
-            var response = await WaitForNmsResponseAsync(query, Timeout, attempts);
+            var response = await WaitForNmsResponseAsync(query, options);
             return response.Value;
         }
 
         /// <summary>
         /// Асинхронное блочное чтение множества преременных.
         /// </summary>
-        /// <param name="progress">Предоставляет интерфейс для сообщений о получении значения переменной.</param>
+        /// <param name="options">Параметры NiBUS-операции.</param>
         /// <param name="target">Адрес устойства.</param>
         /// <param name="ids">Список идентификаторов переменных.</param>
-        /// <returns>Аснихронная задача</returns>
+        /// <returns>
+        /// Аснихронная задача
+        /// </returns>
         /// <seealso cref="ReadProgressInfo"/>
-        public async Task ReadManyValuesAsync(IProgress<ReadProgressInfo> progress, Address target, params int[] ids)
+        public async Task ReadManyValuesAsync(NibusOptions options, Address target, params int[] ids)
         {
-            Contract.Requires(progress != null);
-            Contract.Requires(target != null);
-            Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
+            //Contract.Requires(options != null);
+            //Contract.Requires(options.Progress != null);
+            //Contract.Requires(target != null);
+            //Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
             foreach (var splitIds in ids.Split(NibusDatagram.MaxDataLength/3).Select(splitIds => splitIds.ToArray()))
             {
                 NmsMessage lastMessage;
                 IncomingMessages.TryReceive(null, out lastMessage);
                 await OutgoingMessages.SendAsync(new NmsReadMany(target, splitIds));
                 var tasks = from id in splitIds
-                            select GetNmsReadResponseAsync(lastMessage, target, id)
-                                .ContinueWith(task => progress.Report(new ReadProgressInfo(target, id, task)));
+                            select GetNmsReadResponseAsync(lastMessage, target, id, options)
+                                .ContinueWith(task => options.Progress.Report(new ReadProgressInfo(target, id, task)));
                 try
                 {
                     await TaskEx.WhenAll(tasks.ToArray());
@@ -262,62 +257,42 @@ namespace NataInfo.Nibus.Nms
         /// <param name="value">Записываемое значение.</param>
         public async Task WriteValueAsync(Address target, int id, NmsValueType valueType, object value)
         {
-            Contract.Requires(!IsDisposed);
-            Contract.Requires(target != null);
-            Contract.Requires(value != null);
+            //Contract.Requires(!IsDisposed);
+            //Contract.Requires(target != null);
+            //Contract.Requires(value != null);
             var write = new NmsWrite(target, id, valueType, value, false);
             await OutgoingMessages.SendAsync(write);
         }
 
         /// <summary>
-        /// Асинхронно изменить значение переменной с подтверждением успеха
-        /// внесения изменений за <paramref name="attempts"/> попыток.
+        /// Асинхронно изменить значение переменной с подтверждением успеха внесения изменений.
         /// </summary>
         /// <param name="target">Адрес устройства, на котором требуется изменить значение переменной.</param>
         /// <param name="id">Идентификатор переменной.</param>
         /// <param name="valueType">Тип значения.</param>
         /// <param name="value">Записываемое значение.</param>
-        /// <param name="attempts">Количество попыток.</param>
+        /// <param name="options">Параметры NiBUS-операции.</param>
         /// <returns>
         ///  <see cref="Task"/> асинхронная операция.
         /// </returns>
         public async Task WriteValueConfirmedAsync(
-            Address target, int id, NmsValueType valueType, object value, int attempts = 1)
+            Address target,
+            int id,
+            NmsValueType valueType,
+            object value,
+            NibusOptions options = null)
         {
             Contract.Requires(!IsDisposed);
             Contract.Requires(target != null);
             Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
             Contract.Requires(value != null);
-            Contract.Requires(attempts > 0);
             var write = new NmsWrite(target, id, valueType, value);
-            await WaitForNmsResponseAsync(write, Timeout, attempts);
+            await WaitForNmsResponseAsync(write, options);
         }
 
         #endregion
 
-        #region Сервис NmsServiceType.Reset
-
-        public void ResetDevice(Address target)
-        {
-            Contract.Requires(!IsDisposed);
-            Contract.Requires(target != null);
-            Contract.Requires(target.Type != AddressType.Empty);
-            var reset = new NmsReset(Address.Empty, target, 0, false);
-            OutgoingMessages.Post(reset);
-        }
-
-        public async Task ResetDeviceComfirmed(Address target)
-        {
-            Contract.Requires(!IsDisposed);
-            Contract.Requires(target != null);
-            Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
-            var reset = new NmsReset(Address.Empty, target, 0);
-            await WaitForNmsResponseAsync(reset, Timeout);
-        }
-
-        #endregion
-
-        #region NmsServiceType.ExecuteProgramInvocation
+        #region Сервис выполнения подпрограммы
 
         public void ExecuteProgram(Address target, int id, params Tuple<NmsValueType, object>[] args)
         {
@@ -329,13 +304,112 @@ namespace NataInfo.Nibus.Nms
         }
 
         public async Task ExecuteProgramConfirmedAsync(
-            Address target, int id, params Tuple<NmsValueType, object>[] args)
+            Address target,
+            int id,
+            NibusOptions options = null,
+            params Tuple<NmsValueType, object>[] args)
+        {
+            //Contract.Requires(!IsDisposed);
+            //Contract.Requires(target != null);
+            //Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
+            var execute = new NmsExecuteProgramInvocation(Address.Empty, target, id, true, args);
+            await WaitForNmsResponseAsync(execute, options);
+        }
+
+        public void StartProgram(Address target, int id, params Tuple<NmsValueType, object>[] args)
         {
             Contract.Requires(!IsDisposed);
             Contract.Requires(target != null);
-            Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
-            var execute = new NmsExecuteProgramInvocation(Address.Empty, target, id, true, args);
-            await WaitForNmsResponseAsync(execute, Timeout);
+            Contract.Requires(target.Type != AddressType.Empty);
+            var start = new NmsStartProgramInvocation(Address.Empty, target, id, false, args);
+            OutgoingMessages.Post(start);
+        }
+
+        public async Task StartProgramConfirmedAsync(
+            Address target,
+            int id,
+            NibusOptions options = null,
+            params Tuple<NmsValueType, object>[] args)
+        {
+            //Contract.Requires(!IsDisposed);
+            //Contract.Requires(target != null);
+            //Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
+            var start = new NmsStartProgramInvocation(Address.Empty, target, id, true, args);
+            await WaitForNmsResponseAsync(start, options);
+        }
+
+        public void StopProgram(Address target, int id)
+        {
+            Contract.Requires(!IsDisposed);
+            Contract.Requires(target != null);
+            Contract.Requires(target.Type != AddressType.Empty);
+            Contract.Requires(id > 0); 
+            var stop = new NmsStop(Address.Empty, target, id, false);
+            OutgoingMessages.Post(stop);
+        }
+
+        public async Task StopProgramComfirmedAsync(Address target, int id, NibusOptions options = null)
+        {
+            //Contract.Requires(!IsDisposed);
+            //Contract.Requires(target != null);
+            //Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
+            var stop = new NmsStop(Address.Empty, target, id);
+            await WaitForNmsResponseAsync(stop, options);
+        }
+
+        public void ResumeProgram(Address target, int id)
+        {
+            Contract.Requires(!IsDisposed);
+            Contract.Requires(target != null);
+            Contract.Requires(target.Type != AddressType.Empty);
+            Contract.Requires(id > 0); 
+            var resume = new NmsResume(Address.Empty, target, id, false);
+            OutgoingMessages.Post(resume);
+        }
+
+        public async Task ResumeProgramComfirmedAsync(Address target, int id, NibusOptions options = null)
+        {
+            //Contract.Requires(!IsDisposed);
+            //Contract.Requires(target != null);
+            //Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
+            var resume = new NmsResume(Address.Empty, target, id);
+            await WaitForNmsResponseAsync(resume, options);
+        }
+
+        public void ResetDevice(Address target)
+        {
+            Contract.Requires(!IsDisposed);
+            Contract.Requires(target != null);
+            Contract.Requires(target.Type != AddressType.Empty);
+            var reset = new NmsReset(Address.Empty, target, 0, false);
+            OutgoingMessages.Post(reset);
+        }
+
+        public async Task ResetDeviceComfirmedAsync(Address target, NibusOptions options = null)
+        {
+            //Contract.Requires(!IsDisposed);
+            //Contract.Requires(target != null);
+            //Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
+            var reset = new NmsReset(Address.Empty, target, 0);
+            await WaitForNmsResponseAsync(reset, options);
+        }
+
+        public void ShutdownDevice(Address target)
+        {
+            Contract.Requires(!IsDisposed);
+            Contract.Requires(target != null);
+            Contract.Requires(target.Type != AddressType.Empty);
+            var shutdown = new NmsShutdown(Address.Empty, target, 0, false);
+            OutgoingMessages.Post(shutdown);
+        }
+
+        public async Task ShutdownDeviceComfirmedAsync(Address target, NibusOptions options = null)
+        {
+            //Contract.Requires(!IsDisposed);
+            //Contract.Requires(target != null);
+            //Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
+            var shutdown = new NmsShutdown(Address.Empty, target, 0);
+            await WaitForNmsResponseAsync(shutdown, options);
         }
 
         #endregion
@@ -365,13 +439,17 @@ namespace NataInfo.Nibus.Nms
             OutgoingMessages.Post(msg);
         }
 
-        public async Task EnableEventMonitoringConfirmedAsync(Address target, int id, bool isEventEnabled)
+        public async Task EnableEventMonitoringConfirmedAsync(
+            Address target,
+            int id,
+            bool isEventEnabled,
+            NibusOptions options = null)
         {
             Contract.Requires(!IsDisposed);
             Contract.Requires(target != null);
             Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
             var msg = new NmsAlterEventConditionMonitoring(Address.Empty, target, id, isEventEnabled);
-            await WaitForNmsResponseAsync(msg, Timeout);
+            await WaitForNmsResponseAsync(msg, options);
         }
 
         #endregion
@@ -385,17 +463,13 @@ namespace NataInfo.Nibus.Nms
             uint cbSize = 0,
             NibusOptions options = null)
         {
-            Contract.Requires(!IsDisposed);
-            Contract.Requires(target != null);
-            Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
-            Contract.Requires(domain != null);
-            Contract.Requires(0 < domain.Length && domain.Length <= 8);
+            //Contract.Requires(!IsDisposed);
+            //Contract.Requires(target != null);
+            //Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
+            //Contract.Requires(domain != null);
+            //Contract.Requires(0 < domain.Length && domain.Length <= 8);
 
-            if (options == null)
-            {
-                options = new NibusOptions { Attempts = 3 };
-            }
-
+            options = GetDefaultOrClone(options);
             var query = new NmsRequestDomainUpload(Address.Empty, target, domain);
             var response = await WaitForNmsResponseAsync(query, options);
             if (cbSize > response.DomainSize - offset)
@@ -411,21 +485,29 @@ namespace NataInfo.Nibus.Nms
                 cbSize = response.DomainSize - offset;
             }
 
-            if (options.Progress != null)
+            if (options != null && options.Progress != null)
             {
                 options.Progress.Report((int)cbSize);
             }
 
+            var uploadOptions = new NibusOptions(options);
+            uploadOptions.Attempts = Math.Max(uploadOptions.Attempts, 3);
+            if (uploadOptions.Timeout < MinUploadDounloadTimeout)
+            {
+                uploadOptions.Timeout = MinUploadDounloadTimeout;
+            }
+
             var initiation = new NmsInitiateUploadSequence(Address.Empty, target, response.Id);
-            await WaitForNmsResponseAsync(initiation, UploadDownloadTimeout, attempts);
+            await WaitForNmsResponseAsync(initiation, uploadOptions);
 
             var uploaded = new List<byte>((int)cbSize);
             while (uploaded.Count < cbSize)
             {
+                uploadOptions.Token.ThrowIfCancellationRequested();
                 var rest = cbSize - uploaded.Count;
                 var upload = new NmsUploadSegment(
                     Address.Empty, target, response.Id, offset + (uint)uploaded.Count, rest > 58 ? (byte)58 : (byte)rest);
-                var respUpload = await WaitForNmsResponseAsync(upload, UploadDownloadTimeout, attempts);
+                var respUpload = await WaitForNmsResponseAsync(upload, uploadOptions);
                 if (respUpload.Offset != uploaded.Count + offset)
                 {
                     if (Logger.IsDebugEnabled)
@@ -437,25 +519,30 @@ namespace NataInfo.Nibus.Nms
                 }
 
                 uploaded.AddRange(respUpload.Segment);
-                if (progress != null)
+                if (uploadOptions.Progress != null)
                 {
-                    progress.Report(uploaded.Count);
+                    uploadOptions.Progress.Report(uploaded.Count);
                 }
             }
 
             return uploaded.ToArray();
         }
 
-        public async Task DownloadDomainAsync(Address target, string domain, byte[] data, uint offset, int attempts = 3, CancellationToken token = null)
+        public async Task DownloadDomainAsync(
+            Address target,
+            string domain,
+            byte[] data,
+            uint offset,
+            NibusOptions options = null)
         {
-            Contract.Requires(!IsDisposed);
-            Contract.Requires(target != null);
-            Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
-            Contract.Requires(domain != null);
-            Contract.Requires(0 < domain.Length && domain.Length <= 8);
+            //Contract.Requires(!IsDisposed);
+            //Contract.Requires(target != null);
+            //Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
+            //Contract.Requires(domain != null);
+            //Contract.Requires(0 < domain.Length && domain.Length <= 8);
 
             var query = new NmsRequestDomainDownload(Address.Empty, target, domain);
-            var response = await WaitForNmsResponseAsync(query, Timeout, attempts);
+            var response = await WaitForNmsResponseAsync(query, options);
             if (data.Length + offset > response.DomainSize)
             {
                 throw new ArgumentOutOfRangeException(
@@ -464,10 +551,17 @@ namespace NataInfo.Nibus.Nms
                     String.Format("Address space overflow detected. Domain size is {0} bytes.", response.DomainSize));
             }
 
+            var downloadOptions = new NibusOptions(options);
+            downloadOptions.Attempts = Math.Max(downloadOptions.Attempts, 3);
+            if (downloadOptions.Timeout < MinUploadDounloadTimeout)
+            {
+                downloadOptions.Timeout = MinUploadDounloadTimeout;
+            }
             var initiation = new NmsInitiateDownloadSequence(Address.Empty, target, response.Id);
-            await WaitForNmsResponseAsync(initiation, UploadDownloadTimeout, attempts);
+            await WaitForNmsResponseAsync(initiation, downloadOptions);
             foreach (var split in data.Split(16).Select(s => s.ToArray()))
             {
+                downloadOptions.Token.ThrowIfCancellationRequested();
                 var download = new NmsDownloadSegment(
                     Address.Empty, target, response.Id, offset, split, !response.IsFastDownload);
                 if (response.IsFastDownload)
@@ -476,7 +570,7 @@ namespace NataInfo.Nibus.Nms
                 }
                 else
                 {
-                    await WaitForNmsResponseAsync(download, UploadDownloadTimeout, attempts);
+                    await WaitForNmsResponseAsync(download, downloadOptions);
                 }
 
                 offset += (uint)split.Length;
@@ -486,15 +580,12 @@ namespace NataInfo.Nibus.Nms
         #endregion
 
         /// <summary>
-        /// Отправляет NMS-сообщение <paramref name="query"/>
-        /// и ожидает ответа в течении интервала <see cref="Timeout"/>.
-        /// В случае отсутствия ответа повторяет попытки <paramref name="attempts"/> раз.
+        /// Отправляет NMS-сообщение <paramref name="query"/> и ожидает ответа.
         /// Асинхронная операция.
         /// </summary>
         /// <typeparam name="TMessage">Тип сообщения, потомок NmsMessage.</typeparam>
         /// <param name="query">Сообщение-запрос.</param>
-        /// <param name="timeout">Таймаут</param>
-        /// <param name="attempts">Количество попыток.</param>
+        /// <param name="options">Параметры асинхронной операции.</param>
         /// <returns>
         ///  <see cref="Task{TResult}"/> асинхронная операция - ответное сообщение.
         /// </returns>
@@ -502,14 +593,15 @@ namespace NataInfo.Nibus.Nms
         /// <exception cref="TimeoutException">Ошибка по таймауту.</exception>
         /// <exception cref="TaskCanceledException">Операция прервана пользователем.</exception>
         /// <exception cref="NibusResponseException">Ошибка NiBUS.</exception>
-        public async Task<TMessage> WaitForNmsResponseAsync<TMessage>(
-            TMessage query, TimeSpan timeout, int attempts = 1) where TMessage : NmsMessage
+        public async Task<TMessage> WaitForNmsResponseAsync<TMessage>(TMessage query, NibusOptions options = null)
+            where TMessage : NmsMessage
         {
-            Contract.Requires(!IsDisposed);
-            Contract.Requires(attempts > 0);
-            Contract.Requires(
-                query.Datagram.Destanation.Type == AddressType.Hardware
-                || query.Datagram.Destanation.Type == AddressType.Net);
+            //Contract.Requires(!IsDisposed);
+            //Contract.Requires(
+            //    query.Datagram.Destanation.Type == AddressType.Hardware
+            //    || query.Datagram.Destanation.Type == AddressType.Net);
+
+            options = GetDefaultOrClone(options);
 
             // Последнее сообщение в BroadcastBlock всегда остается! Незабываем его фильтровать.
             NmsMessage lastMessage;
@@ -521,12 +613,13 @@ namespace NataInfo.Nibus.Nms
                 m => !ReferenceEquals(lastMessage, m) && m.IsResponse && m.ServiceType == query.ServiceType
                      && (query.Id == 0 || m.Id == query.Id) && m.Datagram.Source == query.Datagram.Destanation))
             {
-                for (var i = 0; i < attempts; i++)
+                for (var i = 0; i < options.Attempts; i++)
                 {
                     await OutgoingMessages.SendAsync(query);
                     try
                     {
-                        var response = (TMessage)await wob.ReceiveAsync(timeout, _cts.Token).ConfigureAwait(false);
+                        var response =
+                            (TMessage)await wob.ReceiveAsync(options.Timeout, options.Token).ConfigureAwait(false);
                         if (response.ErrorCode != 0)
                         {
                             throw new NibusResponseException(response.ErrorCode);
@@ -537,7 +630,7 @@ namespace NataInfo.Nibus.Nms
                     catch (TimeoutException)
                     {
                         Logger.Debug("Timeout {0}", i + 1);
-                        if (i < attempts - 1) continue;
+                        if (i < options.Attempts - 1) continue;
                         throw;
                     }
                 }
@@ -575,7 +668,8 @@ namespace NataInfo.Nibus.Nms
             }
         }
 
-        private async Task<NmsRead> GetNmsReadResponseAsync(NmsMessage lastMessage, Address source, int id)
+        private async Task<NmsRead> GetNmsReadResponseAsync(
+            NmsMessage lastMessage, Address source, int id, NibusOptions options)
         {
             var wob = new WriteOnceBlock<NmsMessage>(m => m);
             using (IncomingMessages.LinkTo(
@@ -583,7 +677,7 @@ namespace NataInfo.Nibus.Nms
                 m => !ReferenceEquals(lastMessage, m) && m.IsResponse && m.ServiceType == NmsServiceType.Read
                      && m.Id == id && m.Datagram.Source == source))
             {
-                var response = (NmsRead)await wob.ReceiveAsync(Timeout, _cts.Token).ConfigureAwait(false);
+                var response = (NmsRead)await wob.ReceiveAsync(options.Timeout, options.Token).ConfigureAwait(false);
                 if (response.ErrorCode != 0)
                 {
                     throw new NibusResponseException(response.ErrorCode);
@@ -591,6 +685,19 @@ namespace NataInfo.Nibus.Nms
 
                 return response;
             }
+        }
+
+        private NibusOptions GetDefaultOrClone(NibusOptions options)
+        {
+            return options == null
+                       ? _defaultOptions
+                       : new NibusOptions
+                             {
+                                 Attempts = options.Attempts,
+                                 Progress = options.Progress,
+                                 Timeout = options.Timeout,
+                                 Token = options.Token
+                             };
         }
 
         #endregion //Implementations

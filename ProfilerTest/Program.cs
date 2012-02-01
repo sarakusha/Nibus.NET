@@ -29,20 +29,24 @@ namespace ProfilerTest
                 {
                     var sw = new Stopwatch();
                     var total = 0;
-                    var progress = new Progress<int>(cb =>
-                                                         {
-                                                             if (total == 0)
-                                                             {
-                                                                 total = cb;
-                                                                 Console.WriteLine("Total: {0}", total);
-                                                             }
-                                                             else
-                                                             {
-                                                                 Console.Write("{0}\t{1}\r", cb, cb*100/total);
-                                                             }
-                                                         });
+                    var options = new NibusOptions
+                                      {
+                                          Progress = new Progress<object>(
+                                              cb =>
+                                                  {
+                                                      if (total == 0)
+                                                      {
+                                                          total = (int)cb;
+                                                          Console.WriteLine("Total: {0}", total);
+                                                      }
+                                                      else
+                                                      {
+                                                          Console.Write("{0}\t{1}\r", cb, (int)cb*100/total);
+                                                      }
+                                                  })
+                                      };
                     sw.Start();
-                    var result = nmsProtocol.UploadDomainAsync(progress, Address.CreateMac(0x6c, 0xea), "NVRAM").Result;
+                    var result = nmsProtocol.UploadDomainAsync(Address.CreateMac(0x6c, 0xea), "NVRAM", 0, 0, options).Result;
                     sw.Stop();
                     Console.WriteLine("Duration: {0}", sw.Elapsed);
                     using (var file = File.Create(@"c:\temp\nvram.hex"))

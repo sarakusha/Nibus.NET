@@ -28,6 +28,7 @@ namespace NataInfo.Nibus.Nms.Services
         public NmsReadMany(Address source, Address destanation, params int[] ids)
         {
             Contract.Requires(0 < ids.Length);
+            //Contract.Requires(ids.Length <= NibusDatagram.MaxDataLength / 3);
             var data = ids.SelectMany(
                 id => new[]
                           {
