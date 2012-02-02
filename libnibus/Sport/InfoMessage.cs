@@ -7,7 +7,6 @@
 
 #region Using directives
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -19,6 +18,9 @@ using NataInfo.Nibus.Nms.Services;
 
 namespace NataInfo.Nibus.Sport
 {
+    /// <summary>
+    /// Информационное сообщение. <see cref="GameReports.ShowMessage"/>.
+    /// </summary>
     public class InfoMessage
     {
         #region Member Variables
@@ -38,19 +40,29 @@ namespace NataInfo.Nibus.Sport
 
         internal InfoMessage(IList<byte> data)
         {
+            Contract.Requires(data != null);
+            Contract.Requires(data.Count > 1);
             Id = data[0];
             var i = 0;
             var splits = from b in data.Skip(1)
                          group b by b == 0 ? i++ : i
-                             into part
-                             select Encoding.Default.GetString(part.TakeWhile(b => b != 0).ToArray());
+                         into part
+                         select Encoding.Default.GetString(part.TakeWhile(b => b != 0).ToArray());
             Lines = splits.ToArray();
         }
+
         #endregion //Constructors
 
         #region Properties
 
+        /// <summary>
+        /// Возвращает тип сообщения.
+        /// </summary>
         public byte Id { get; private set; }
+
+        /// <summary>
+        /// Возвращает строки текстового сообщения.
+        /// </summary>
         public string[] Lines { get; private set; }
 
         #endregion //Properties

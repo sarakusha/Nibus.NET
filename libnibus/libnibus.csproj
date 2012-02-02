@@ -158,6 +158,7 @@
     <Compile Include="SerialTransport.cs" />
     <Compile Include="Nms\Services\NmsTerminateDownloadSequence.cs" />
     <Compile Include="Sport\GameProtocol.cs" />
+    <Compile Include="Sport\VolleyballStat.cs" />
     <Compile Include="Unlinker.cs" />
   </ItemGroup>
   <ItemGroup>

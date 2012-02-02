@@ -26,15 +26,22 @@ namespace NataInfo.Nibus.Sport
         private const int SportOfs = 0;
         private const int SetOfs = 2;
         private const int AttrsOfs = 3;
-        private const int HomeScoreOfs = 4;
-        private const int VisitingScoreOfs = 5;
+        private const int FirstPlayerSetsOfs = 4;
+        private const int SecondPlayerSetsOfs = 5;
         private const int GamesOfs = 6;
-        private const int HomeGameScoreOfs = 26;
-        private const int VisitingGameScoreOfs = 28;
+        private const int FirstPlayerPointsOfs = 26;
+        private const int SecondPlayerPointsOfs = 28;
         private const int Length = 30;
 
         private readonly byte[] _data;
         #endregion
+
+        [Flags]
+        private enum Attributes : byte
+        {
+            BallOwner = 1,
+            TaiBreak = 7
+        }
 
         #region Constructors
 
@@ -44,6 +51,7 @@ namespace NataInfo.Nibus.Sport
         public TennisStat()
         {
             _data = new byte[Length];
+            _data[SportOfs] = 14;
             SetScores = new Tuple<ushort, ushort>[5];
             for (int i = 0; i < 5; i++)
             {
@@ -55,6 +63,7 @@ namespace NataInfo.Nibus.Sport
         {
             Contract.Requires(data != null);
             Contract.Requires(data.Length == Length);
+            Contract.Requires(data[SportOfs] == 14);    
             _data = new byte[Length];
             Array.Copy(data, _data, Length);
 
@@ -71,33 +80,100 @@ namespace NataInfo.Nibus.Sport
 
         #region Properties
 
+        /// <summary>
+        /// Номер текущего сета.
+        /// </summary>
         public int Set
         {
             get { return _data[SetOfs]; }
             set { _data[SetOfs] = (byte)value; }
         }
-        public int HomeScore
+
+        /// <summary>
+        /// Количество выигранных сетов первым игроком.
+        /// </summary>
+        public int FirstPlayerSets
         {
-            get { return _data[HomeScoreOfs]; }
-            set { _data[HomeScoreOfs] = (byte)value; }
-        }
-        public int VisitingScore
-        {
-            get { return _data[VisitingScoreOfs]; }
-            set { _data[VisitingScoreOfs] = (byte)value; }
-        }
-        public int HomeGameScore
-        {
-            get { return _data[HomeGameScoreOfs]; }
-            set { _data[HomeGameScoreOfs] = (byte)value; }
-        }
-        public int VisitingGameScore
-        {
-            get { return _data[VisitingGameScoreOfs]; }
-            set { _data[VisitingGameScoreOfs] = (byte)value; }
+            get { return _data[FirstPlayerSetsOfs]; }
+            set { _data[FirstPlayerSetsOfs] = (byte)value; }
         }
 
-        public Tuple<ushort, ushort>[] SetScores { get; private set; } 
+        /// <summary>
+        /// Количество выигранных сетов вторым игроком.
+        /// </summary>
+        public int SecondPlayerSets
+        {
+            get { return _data[SecondPlayerSetsOfs]; }
+            set { _data[SecondPlayerSetsOfs] = (byte)value; }
+        }
+
+        /// <summary>
+        /// Количество выигранных подач в текущем гейме у первого игрока.
+        /// </summary>
+        public int FirstPlayerPoints
+        {
+            get { return _data[FirstPlayerPointsOfs]; }
+            set { _data[FirstPlayerPointsOfs] = (byte)value; }
+        }
+
+        /// <summary>
+        /// Количество выигранных подач в текущем гейме у второго игрока.
+        /// </summary>
+        public int SecondPlayerPoints
+        {
+            get { return _data[SecondPlayerPointsOfs]; }
+            set { _data[SecondPlayerPointsOfs] = (byte)value; }
+        }
+
+        /// <summary>
+        /// Возвращает набор пар со счетом по выигранным геймам в каждом из сетов.
+        /// </summary>
+        /// <remarks>
+        /// Всего пять пар. Первый элемент пары - количество выигранных геймов первым игроком,
+        /// второй элемент пары - количество выигранных геймов вторым игроком
+        /// </remarks>
+        public Tuple<ushort, ushort>[] SetScores { get; private set; }
+
+        /// <summary>
+        /// Чья очередь подавать.
+        /// </summary>
+        /// <value>
+        /// <c>BallOwner.Home</c> - подает первый игрок, <c>BallOwner.Visitor</c> - второй.
+        /// </value>
+        public BallOwner BallOwner
+        {
+            get { return (_data[AttrsOfs] & (byte)Attributes.BallOwner) == 0 ? BallOwner.Home : BallOwner.Visitor; }
+            set
+            {
+                if (value == BallOwner.Visitor)
+                {
+                    _data[AttrsOfs] |= (byte)Attributes.BallOwner;
+                }
+                else
+                {
+                    _data[AttrsOfs] &= (byte)~Attributes.BallOwner;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Индикатор розыгрыша гейма по системе тай-брейк.
+        /// </summary>
+        public bool IsTieBreak
+        {
+            get { return (_data[AttrsOfs] & (byte)Attributes.TaiBreak) != 0; }
+            set
+            {
+                if (value)
+                {
+                    _data[AttrsOfs] |= (byte)Attributes.TaiBreak;
+                }
+                else
+                {
+                    _data[AttrsOfs] &= (byte)~Attributes.TaiBreak;
+                }
+            }
+        }
 
         #endregion //Properties
 
@@ -126,7 +202,7 @@ namespace NataInfo.Nibus.Sport
         }
     }
 
-    public static class TennisExtensions
+    internal static class TennisExtensions
     {
         public static NmsInformationReport Create(Address source, TennisStat tennisStat)
         {

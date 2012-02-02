@@ -7,6 +7,9 @@ using NataInfo.Nibus.Nms.Services;
 
 namespace NataInfo.Nibus.Sport
 {
+    /// <summary>
+    /// Информация об игроке.
+    /// </summary>
     public sealed class PlayerInfo
     {
         private const int RoleOfs = 0;
@@ -16,14 +19,6 @@ namespace NataInfo.Nibus.Sport
         private const int TextOfs = 5;
         private const int NameMaxLength = 30;
         private const int CountryMaxLength = 20;
-
-        public TeamRole Role { get; private set; }
-        public int Index { get; private set; }
-        public int Number { get; private set; }
-        public PlayerFunction Function { get; private set; }
-        public string Name { get; private set; }
-        public string Country { get; private set; }
-        public string Info { get; private set; }
 
         public PlayerInfo(
             TeamRole role,
@@ -61,6 +56,47 @@ namespace NataInfo.Nibus.Sport
             Info = lines[2];
         }
 
+        /// <summary>
+        /// Возвращает принадлежность к команде.
+        /// </summary>
+        public TeamRole Role { get; private set; }
+
+        /// <summary>
+        /// Возвращает индекс игрока в списке.
+        /// </summary>
+        /// <remarks>Нумерация начинается с <c>0</c>.</remarks>
+        public int Index { get; private set; }
+
+        /// <summary>
+        /// Возвращает номер игрока.
+        /// </summary>
+        public int Number { get; private set; }
+
+        /// <summary>
+        /// Функция игрока.
+        /// </summary>
+        public PlayerFunction Function { get; private set; }
+
+        /// <summary>
+        /// Фамилия игрока.
+        /// </summary>
+        /// <remarks>Не более 30 символов.</remarks>
+        public string Name { get; private set; }
+
+        /// <summary>
+        /// Страна/город.
+        /// </summary>
+        /// <remarks>Не более 20 символов.</remarks>
+        public string Country { get; private set; }
+
+        /// <summary>
+        /// Возвращает дополнительную информацию об игроке.
+        /// </summary>
+        /// <remarks>
+        /// Максимальная длина <see cref="NmsMessage.NmsMaxDataLength"/> минус длина <see cref="Name"/>
+        /// минус длина <see cref="Country"/> минус 9.</remarks>
+        public string Info { get; private set; }
+
         internal byte[] GetData()
         {
             var text = new List<byte>(Name.Length + Country.Length + Info.Length + 3);
@@ -71,15 +107,15 @@ namespace NataInfo.Nibus.Sport
             var rest = NmsMessage.NmsMaxDataLength - text.Count - (TextOfs + 1) - 1;
             text.AddRange(Encoding.Default.GetBytes(Info).Take(rest));
             text.Add(0);
-            
+
             var data = new byte[(TextOfs + 1) + text.Count];
-            
+
             data[RoleOfs] = (byte)Role;
             data[IndexOfs] = (byte)Index;
             data[NumberOfs] = NmsMessage.PackByte(Number);
             data[FunctionOfs] = (byte)Function;
             text.CopyTo(data, TextOfs);
-            
+
             return data;
         }
     }
@@ -91,7 +127,7 @@ namespace NataInfo.Nibus.Sport
             return new NmsInformationReport(
                 source,
                 (int)GameReports.PlayerInfo,
-                NmsValueType.UInt8Array, 
+                NmsValueType.UInt8Array,
                 info.GetData());
         }
 

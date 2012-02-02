@@ -17,6 +17,9 @@ using NataInfo.Nibus.Nms.Services;
 
 namespace NataInfo.Nibus.Sport
 {
+    /// <summary>
+    /// Статистика игрока.
+    /// </summary>
     public class PlayerStat
     {
         #region Member Variables
@@ -73,36 +76,55 @@ namespace NataInfo.Nibus.Sport
 
         #region Properties
 
+        /// <summary>
+        /// Возвращает принадлежность к команде.
+        /// </summary>
         public TeamRole Role
         {
             get { return (TeamRole)_data[RoleOfs]; }
             private set { _data[RoleOfs] = (byte)value; }
         }
 
+        /// <summary>
+        /// Возвращает индекс игрока в списке.
+        /// </summary>
+        /// <remarks>Нумерация начинается с <c>0</c>.</remarks>
         public int Index
         {
             get { return _data[IndexOfs]; }
             private set { _data[IndexOfs] = (byte)value; }
         }
 
+        /// <summary>
+        /// Возвращает номер игрока.
+        /// </summary>
         public int Number
         {
             get { return _data[NumberOfs]; }
             private set { _data[NumberOfs] = (byte)value; }
         }
 
+        /// <summary>
+        /// Возвращает количество очков, заработанных игроком.
+        /// </summary>
         public int Goals
         {
             get { return _data[GoalsOfs]; }
             private set { _data[GoalsOfs] = (byte)value; }
         }
 
+        /// <summary>
+        /// Возвращает количество фолов/штрафов полученных игроком.
+        /// </summary>
         public int Fouls
         {
             get { return _data[FoulsOfs]; }
             private set { _data[FoulsOfs] = (byte)value; }
         }
 
+        /// <summary>
+        /// Индикатор нахождения игрока на площадке.
+        /// </summary>
         public bool IsActive
         {
             get { return (_data[AttrOfs] & (byte)Attributes.Active) != 0; }
@@ -119,6 +141,12 @@ namespace NataInfo.Nibus.Sport
             }
         }
 
+        /// <summary>
+        /// Имеется акутальная статистика по броскам.
+        /// </summary>
+        /// <seealso cref="Stat1"/>
+        /// <seealso cref="Stat2"/>
+        /// <seealso cref="Stat3"/>
         public bool HasStats
         {
             get { return (_data[AttrOfs] & (byte)Attributes.StatPresent) != 0; }
@@ -135,22 +163,43 @@ namespace NataInfo.Nibus.Sport
             }
         }
 
+        /// <summary>
+        /// Возвращает статистику 1.
+        /// </summary>
+        /// <remarks>Количество 1-очковых бросков.</remarks>
         public byte Stat1
         {
-            get { return _data[Stat1Ofs]; }
-            private set { _data[Stat1Ofs] = value; }
+            get
+            {
+                Contract.Requires(HasStats);
+                return _data[Stat1Ofs];
+            }
         }
 
+        /// <summary>
+        /// Возвращает статистику 2.
+        /// </summary>
+        /// <remarks>Количество 2-очковых бросков.</remarks>
         public byte Stat2
         {
-            get { return _data[Stat2Ofs]; }
-            private set { _data[Stat2Ofs] = value; }
+            get
+            {
+                Contract.Requires(HasStats);
+                return _data[Stat2Ofs];
+            }
         }
 
+        /// <summary>
+        /// Возвращает статистику 3.
+        /// </summary>
+        /// <remarks>Количество 3-очковых бросков.</remarks>
         public byte Stat3
         {
-            get { return _data[Stat3Ofs]; }
-            private set { _data[Stat3Ofs] = value; }
+            get
+            {
+                Contract.Requires(HasStats);
+                return _data[Stat3Ofs];
+            }
         }
 
         #endregion //Properties

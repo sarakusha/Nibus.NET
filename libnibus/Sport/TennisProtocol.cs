@@ -39,8 +39,8 @@ namespace NataInfo.Nibus.Sport
         #region Events
 
         public event EventHandler<TennisStatChangedEventArgs> TennisStatChanged;
-        #endregion
 
+        #endregion
 
         #region Properties
 
@@ -68,6 +68,7 @@ namespace NataInfo.Nibus.Sport
                 e.Identified = true;
             }
         }
+
         #endregion //Implementations
     }
 }

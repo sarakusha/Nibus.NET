@@ -18,6 +18,9 @@ using NataInfo.Nibus.Nms.Services;
 
 namespace NataInfo.Nibus.Sport
 {
+    /// <summary>
+    /// Данные таймера.
+    /// </summary>
     public sealed class TimerInfo
     {
         private const int AttrOfs = 1;
