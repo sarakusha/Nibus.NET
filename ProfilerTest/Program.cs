@@ -14,7 +14,21 @@ namespace ProfilerTest
         static void Main(string[] args)
         {
             //var ids = GetMibIds(@"Z:\mibs\vms50.mib.xsd");
-            Upload();
+            //Upload();
+            Split();
+        }
+
+        static void Split()
+        {
+            var list = new int[15] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+            foreach (var split in list.Split(5))
+            {
+                foreach (var i in split)
+                {
+                    Console.Write(i);
+                }
+                Console.WriteLine();
+            }
         }
 
         static void Upload()

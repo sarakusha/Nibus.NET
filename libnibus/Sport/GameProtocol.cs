@@ -12,6 +12,7 @@ using System.Diagnostics.Contracts;
 using System.Threading.Tasks.Dataflow;
 using NataInfo.Nibus.Nms;
 using NataInfo.Nibus.Nms.Services;
+using NataInfo.Nibus.Nms.Variables;
 
 #endregion
 
@@ -151,6 +152,9 @@ namespace NataInfo.Nibus.Sport
         /// </summary>
         public NmsProtocol NmsProtocol { get; private set; }
 
+        /// <summary>
+        /// Возвращает провайдера игры.
+        /// </summary>
         public abstract ProviderInfo Provider { get; }
 
         #endregion //Properties
@@ -351,19 +355,28 @@ namespace NataInfo.Nibus.Sport
         }
 
         /// <summary>
-        /// Оповестить о смене провайдера игры (смене спорта).
+        /// Оповестить о смене провайдера игры (смене спорта) на текущего провайдера <see cref="Provider"/>.
         /// </summary>
         /// <seealso cref="Provider"/>
         public void FireSportChanged()
         {
+            Contract.Requires(Provider != null);
             FireInformationReport(ProviderExtensions.Create(Address.Empty, Provider));
+        }
+
+        /// <summary>
+        /// Запрашивает информацию об игре.
+        /// </summary>
+        public void RequestGameInfo()
+        {
+            NmsProtocol.FireEventNotification((int)Events.RequestGameInfo);
         }
 
         #endregion //Methods
 
         #region Implementations
 
-        protected void SafeInvokeEvent<T>(EventHandler<T> eventHandler, Func<T> getArgs) where T : EventArgs
+        protected void LazyInvokeEvent<T>(EventHandler<T> eventHandler, Func<T> getArgs) where T : EventArgs
         {
             if (eventHandler != null)
             {
@@ -379,70 +392,70 @@ namespace NataInfo.Nibus.Sport
             switch (report.Id)
             {
                 case (int)GameReports.Timer:
-                    SafeInvokeEvent(TimerChanged, () => new TimerChangedEventArgs(source, report.GetTimerInfo()));
+                    LazyInvokeEvent(TimerChanged, () => new TimerChangedEventArgs(source, report.GetTimerInfo()));
                     break;
                 case (int)GameReports.HomeTeamScore:
-                    SafeInvokeEvent(HomeScoreChanged, () => new ScoreChangedEventArgs(source, (ushort)report.Value));
+                    LazyInvokeEvent(HomeScoreChanged, () => new ScoreChangedEventArgs(source, (ushort)report.Value));
                     break;
                 case (int)GameReports.VisitingTeamScore:
-                    SafeInvokeEvent(VisitorScoreChanged, () => new ScoreChangedEventArgs(source, (ushort)report.Value));
+                    LazyInvokeEvent(VisitorScoreChanged, () => new ScoreChangedEventArgs(source, (ushort)report.Value));
                     break;
                 case (int)GameReports.Period:
-                    SafeInvokeEvent(PeriodChanged, () => new PeriodChangedEventArgs(source, (byte)report.Value));
+                    LazyInvokeEvent(PeriodChanged, () => new PeriodChangedEventArgs(source, (byte)report.Value));
                     break;
                 case (int)GameReports.HomeTeamFouls:
-                    SafeInvokeEvent(HomeFoulsChanged, () => new FoulsChangedEventArgs(source, (byte)report.Value));
+                    LazyInvokeEvent(HomeFoulsChanged, () => new FoulsChangedEventArgs(source, (byte)report.Value));
                     break;
                 case (int)GameReports.VisitingTeamFouls:
-                    SafeInvokeEvent(VisitorFoulsChanged, () => new FoulsChangedEventArgs(source, (byte)report.Value));
+                    LazyInvokeEvent(VisitorFoulsChanged, () => new FoulsChangedEventArgs(source, (byte)report.Value));
                     break;
                 case (int)GameReports.HomeTeamTimebreaks:
-                    SafeInvokeEvent(
+                    LazyInvokeEvent(
                         HomeTimebreaksChanged, () => new TimebreaksChangedEventArgs(source, (byte)report.Value));
                     break;
                 case (int)GameReports.VisitingTeamTimebreaks:
-                    SafeInvokeEvent(
+                    LazyInvokeEvent(
                         VisitorTimebreaksChanged, () => new TimebreaksChangedEventArgs(source, (byte)report.Value));
                     break;
                 case (int)GameReports.TeamCount:
-                    SafeInvokeEvent(TeamCountChanged, () => new TeamCountChangedEventArgs(source, report.Value));
+                    LazyInvokeEvent(TeamCountChanged, () => new TeamCountChangedEventArgs(source, report.Value));
                     break;
                 case (int)GameReports.PlayerInfo:
-                    SafeInvokeEvent(
+                    LazyInvokeEvent(
                         PlayerInfoChanged, () => new PlayerInfoChangedEventArgs(source, report.GetPlayerInfo()));
                     break;
                 case (int)GameReports.PlayerStat:
-                    SafeInvokeEvent(
+                    LazyInvokeEvent(
                         PlayerStatChanged, () => new PlayerStatChangedEventArgs(source, report.GetPlayerStat()));
                     break;
                 case (int)GameReports.HomeTeamName:
-                    SafeInvokeEvent(HomeNameChanged, () => new TeamNameChangedEventArgs(source, (string)report.Value));
+                    LazyInvokeEvent(HomeNameChanged, () => new TeamNameChangedEventArgs(source, (string)report.Value));
                     break;
                 case (int)GameReports.VisitingTeamName:
-                    SafeInvokeEvent(
+                    LazyInvokeEvent(
                         VisitorNameChanged, () => new TeamNameChangedEventArgs(source, (string)report.Value));
                     break;
                 case (int)GameReports.HomeTeamCountry:
-                    SafeInvokeEvent(HomeCountryChanged, () => new CountryChangedEventArgs(source, (string)report.Value));
+                    LazyInvokeEvent(HomeCountryChanged, () => new CountryChangedEventArgs(source, (string)report.Value));
                     break;
                 case (int)GameReports.VisitingTeamCountry:
-                    SafeInvokeEvent(
+                    LazyInvokeEvent(
                         VisitorCountryChanged, () => new CountryChangedEventArgs(source, (string)report.Value));
                     break;
                 case (int)GameReports.TournamentName:
-                    SafeInvokeEvent(
+                    LazyInvokeEvent(
                         TournamentChanged, () => new TournamentChangedEventArgs(source, (string)report.Value));
                     break;
                 case (int)GameReports.BallOwner:
-                    SafeInvokeEvent(
+                    LazyInvokeEvent(
                         BallOwnerChanged, () => new BallOwnerChangedEventArgs(source, (BallOwner)(byte)report.Value));
                     break;
                 case (int)GameReports.ShowMessage:
-                    SafeInvokeEvent(
+                    LazyInvokeEvent(
                         ShowInfoMessage, () => new ShowInfoMessageEventArgs(source, report.GetInfoMessage()));
                     break;
                 case (int)GameReports.ChangeSport:
-                    SafeInvokeEvent(SportChanged, () => new SportChangedEventArgs(source, report.GetProviderInfo()));
+                    LazyInvokeEvent(SportChanged, () => new SportChangedEventArgs(source, report.GetProviderInfo()));
                     break;
                 default:
                     e.Identified = false;

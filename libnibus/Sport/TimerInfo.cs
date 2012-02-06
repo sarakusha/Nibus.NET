@@ -23,12 +23,12 @@ namespace NataInfo.Nibus.Sport
     /// </summary>
     public sealed class TimerInfo
     {
-        private const int AttrOfs = 1;
-        internal const int IdOfs = 2;
-        private const int MinOfs = 3;
-        private const int SecOfs = 4;
-        private const int HundredthOfs = 5;
-        private const int Length = 6;
+        private const int AttrOfs = 0;
+        internal const int IdOfs = 1;
+        private const int MinOfs = 2;
+        private const int SecOfs = 3;
+        private const int HundredthOfs = 4;
+        private const int Length = 5;
 
         private readonly byte[] _data;
         private Attributes _attrs;
@@ -56,13 +56,23 @@ namespace NataInfo.Nibus.Sport
         {
             Contract.Requires(data != null);
             _data = data.Take(Length).ToArray();
+            _attrs = (Attributes)_data[AttrOfs];
         }
 
+        /// <summary>
+        /// Возвращает идентификатор таймера.
+        /// </summary>
         public int TimerId
         {
             get { return _data[IdOfs]; }
         }
 
+        /// <summary>
+        /// Индикатор активности таймера.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c>таймер активизирован; иначе - <c>false</c>.
+        /// </value>
         public bool IsActive
         {
             get { return (_attrs & Attributes.Active) != 0; }
@@ -79,6 +89,10 @@ namespace NataInfo.Nibus.Sport
             }
         }
 
+        /// <summary>
+        /// Включить точки между часами и минутами.
+        /// </summary>
+        /// <remarks>используется в основном для показа реального времени</remarks>
         public bool HasDots
         {
             get { return (_attrs & Attributes.Dots) != 0; }
@@ -95,6 +109,9 @@ namespace NataInfo.Nibus.Sport
             }
         }
 
+        /// <summary>
+        /// Tаймер отсчитывает время перерыва.
+        /// </summary>
         public bool IsRest
         {
             get { return (_attrs & Attributes.Rest) != 0; }
@@ -111,6 +128,9 @@ namespace NataInfo.Nibus.Sport
             }
         }
 
+        /// <summary>
+        /// Нужно показывать доли секунды.
+        /// </summary>
         public bool HasFraction
         {
             get { return (_attrs & Attributes.Fraction) != 0; }
@@ -127,6 +147,10 @@ namespace NataInfo.Nibus.Sport
             }
         }
 
+        /// <summary>
+        /// Показывать только десятые доли секунды (разрешение таймера 1/10 сек).
+        /// </summary>
+        /// <remarks>Должен быть установлен также <see cref="HasFraction"/></remarks>
         public bool IsTenthOnly
         {
             get { return (_attrs & Attributes.TenthOnly) != 0; }
@@ -143,6 +167,9 @@ namespace NataInfo.Nibus.Sport
             }
         }
 
+        /// <summary>
+        /// Скрыть таймер.
+        /// </summary>
         public bool IsHidden
         {
             get { return (_attrs & Attributes.Hidden) != 0; }
@@ -159,6 +186,9 @@ namespace NataInfo.Nibus.Sport
             }
         }
 
+        /// <summary>
+        /// Не отображать данный таймер на знакоместах основного времени.
+        /// </summary>
         public bool IsSecondary
         {
             get { return (_attrs & Attributes.Secondary) != 0; }
@@ -175,28 +205,113 @@ namespace NataInfo.Nibus.Sport
             }
         }
 
+        /// <summary>
+        /// Минуты.
+        /// </summary>
         public int Minutes
         {
             get { return NmsMessage.UnpackByte(_data[MinOfs]); }
             set { _data[MinOfs] = NmsMessage.PackByte(value); }
         }
 
+        /// <summary>
+        /// Секунды.
+        /// </summary>
         public int Seconds
         {
             get { return NmsMessage.UnpackByte(_data[SecOfs]); }
             set { _data[SecOfs] = NmsMessage.PackByte(value); }
         }
 
-        public int Hundredth
+        /// <summary>
+        /// Доли секунд.
+        /// </summary>
+        /// <value>Сотые доли, если <see cref="IsTenthOnly"/> = <c>False</c>, иначе десятые доли.</value>
+        public int Fractions
         {
-            get { return NmsMessage.UnpackByte(_data[HundredthOfs]); }
-            set { _data[HundredthOfs] = NmsMessage.PackByte(value); }
+            get
+            {
+                return NmsMessage.UnpackByte(_data[HundredthOfs]);
+            }
+            set { _data[HundredthOfs] = NmsMessage.PackByte(IsTenthOnly ? value%10 : value); }
         }
 
-        public byte[] GetData()
+        public string ToString(TimerAttributes attributes)
+        {
+            if (attributes == null)
+            {
+                return ToString();
+            }
+
+            if (attributes.IsSecondaryTimer && Minutes == 0 && Seconds == 0 && Fractions == 0)
+            {
+                return String.Empty;
+            }
+
+            if (attributes.IsLongTimeFormat)
+            {
+                if (!IsFinishedOrStarted(attributes) && 
+                    (attributes.HasFractionAlways
+                    || attributes.HasFractionOnLastMinute && IsLastMinute(attributes)
+                    || attributes.HasFractionWhenPaused && !IsActive))
+                {
+                    var format = IsTenthOnly ? "{0:D2}:{1:D2}.{2}" : "{0:D2}:{1:D2}.{2:D2}";
+                    return String.Format(format, Minutes, Seconds, Fractions);
+                }
+
+                return String.Format("{0:D2}:{1:D2}", Minutes, Seconds);
+            }
+
+            if (!attributes.Increase && attributes.HasFractionOnLastMinute && IsLastMinute(attributes))
+            {
+                return String.Format(IsTenthOnly ? "{0:D2}.{1}" : "{0:D2}.{1:D2}", Seconds, Fractions);
+            }
+
+            return ToString();
+        }
+
+        public override string ToString()
+        {
+            if (HasFraction)
+            {
+                var format = IsTenthOnly ? "{0:D2}:{1:D2}.{2}" : "{0:D2}:{1:D2}.{2:D2}";
+                return String.Format(format, Minutes, Seconds, Fractions);
+            }
+            
+            return String.Format("{0:D2}:{1:D2}", Minutes, Seconds);
+        }
+
+        internal byte[] GetData()
         {
             _data[AttrOfs] = (byte)_attrs;
             return (byte[])_data.Clone();
+        }
+
+        private bool IsLastMinute(TimerAttributes attributes)
+        {
+            if (attributes.Increase && attributes.Duration == 0)
+            {
+                return false;
+            }
+
+            return attributes.Increase && (attributes.Duration - (Minutes * 60 + Seconds)) < 60
+                   || !attributes.Increase && Minutes == 0 && Seconds < 60;
+        }
+
+        private bool IsFinishedOrStarted(TimerAttributes attributes)
+        {
+            if (Minutes == 0 && Seconds == 0 && Fractions == 0)
+            {
+                return true;
+            }
+
+            if (attributes.Increase && attributes.Duration == 0)
+            {
+                return false;
+            }
+
+            return attributes.Increase && (attributes.Duration - (Minutes * 60 + Seconds)) == 0 && Fractions == 0
+                   || !attributes.Increase && (Minutes*60 + Seconds) == attributes.Duration && Fractions == 0;
         }
     }
 
@@ -215,7 +330,7 @@ namespace NataInfo.Nibus.Sport
         public static TimerInfo GetTimerInfo(this NmsInformationReport informationReport)
         {
             Contract.Requires(informationReport.Id == (byte)GameReports.Timer);
-            return new TimerInfo((byte)informationReport.Value);
+            return new TimerInfo((byte[])informationReport.Value);
         }
 
         public static int GetTimerId(this NmsInformationReport informationReport)

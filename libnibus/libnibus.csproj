@@ -45,7 +45,7 @@
     <CodeContractsBaseLineFile />
     <CodeContractsCacheAnalysisResults>False</CodeContractsCacheAnalysisResults>
     <CodeContractsRuntimeCheckingLevel>Pre and Post</CodeContractsRuntimeCheckingLevel>
-    <CodeContractsReferenceAssembly>%28none%29</CodeContractsReferenceAssembly>
+    <CodeContractsReferenceAssembly>Build</CodeContractsReferenceAssembly>
     <CodeContractsRuntimeSkipQuantifiers>False</CodeContractsRuntimeSkipQuantifiers>
     <CodeContractsEnumObligations>False</CodeContractsEnumObligations>
     <CodeContractsInferRequires>False</CodeContractsInferRequires>
@@ -57,6 +57,8 @@
     <CodeContractsSuggestObjectInvariants>False</CodeContractsSuggestObjectInvariants>
     <CodeContractsDisjunctiveRequires>False</CodeContractsDisjunctiveRequires>
     <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -65,6 +67,40 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeContractsEnableRuntimeChecking>False</CodeContractsEnableRuntimeChecking>
+    <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
+    <CodeContractsRuntimeThrowOnFailure>True</CodeContractsRuntimeThrowOnFailure>
+    <CodeContractsRuntimeCallSiteRequires>False</CodeContractsRuntimeCallSiteRequires>
+    <CodeContractsRuntimeSkipQuantifiers>False</CodeContractsRuntimeSkipQuantifiers>
+    <CodeContractsRunCodeAnalysis>False</CodeContractsRunCodeAnalysis>
+    <CodeContractsNonNullObligations>False</CodeContractsNonNullObligations>
+    <CodeContractsBoundsObligations>False</CodeContractsBoundsObligations>
+    <CodeContractsArithmeticObligations>False</CodeContractsArithmeticObligations>
+    <CodeContractsEnumObligations>False</CodeContractsEnumObligations>
+    <CodeContractsRedundantAssumptions>False</CodeContractsRedundantAssumptions>
+    <CodeContractsInferRequires>False</CodeContractsInferRequires>
+    <CodeContractsInferEnsures>False</CodeContractsInferEnsures>
+    <CodeContractsInferObjectInvariants>False</CodeContractsInferObjectInvariants>
+    <CodeContractsSuggestAssumptions>False</CodeContractsSuggestAssumptions>
+    <CodeContractsSuggestRequires>True</CodeContractsSuggestRequires>
+    <CodeContractsSuggestEnsures>False</CodeContractsSuggestEnsures>
+    <CodeContractsSuggestObjectInvariants>False</CodeContractsSuggestObjectInvariants>
+    <CodeContractsDisjunctiveRequires>False</CodeContractsDisjunctiveRequires>
+    <CodeContractsRunInBackground>True</CodeContractsRunInBackground>
+    <CodeContractsShowSquigglies>False</CodeContractsShowSquigglies>
+    <CodeContractsUseBaseLine>False</CodeContractsUseBaseLine>
+    <CodeContractsEmitXMLDocs>True</CodeContractsEmitXMLDocs>
+    <CodeContractsCustomRewriterAssembly />
+    <CodeContractsCustomRewriterClass />
+    <CodeContractsLibPaths />
+    <CodeContractsExtraRewriteOptions />
+    <CodeContractsExtraAnalysisOptions />
+    <CodeContractsBaseLineFile />
+    <CodeContractsCacheAnalysisResults>False</CodeContractsCacheAnalysisResults>
+    <CodeContractsRuntimeCheckingLevel>Full</CodeContractsRuntimeCheckingLevel>
+    <CodeContractsReferenceAssembly>Build</CodeContractsReferenceAssembly>
+    <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
+    <DocumentationFile>bin\Release\libnibus.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AsyncCtpLibrary">
@@ -128,6 +164,7 @@
     <Compile Include="Nms\Variables\Aconsole.cs" />
     <Compile Include="Nms\Variables\ConsoleUn.cs" />
     <Compile Include="Nms\Variables\DviOptic.cs" />
+    <Compile Include="Nms\Variables\Events.cs" />
     <Compile Include="Nms\Variables\M1702.cs" />
     <Compile Include="Nms\Variables\Mcdvi.cs" />
     <Compile Include="Nms\Variables\Pconsole.cs" />
@@ -136,6 +173,7 @@
     <Compile Include="Nms\Variables\SmdLoader.cs" />
     <Compile Include="Nms\Variables\StdKernel.cs" />
     <Compile Include="Nms\Variables\StdNms.cs" />
+    <Compile Include="Nms\Variables\Uconsole.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -143,12 +181,17 @@
     </Compile>
     <Compile Include="Sport\GameEventArgs.cs" />
     <Compile Include="Sport\GameReports.cs" />
+    <Compile Include="Sport\IceHockeyProtocol.cs" />
     <Compile Include="Sport\InfoMessage.cs" />
+    <Compile Include="Sport\PenaltyInfo.cs" />
+    <Compile Include="Sport\PenaltyStat.cs" />
     <Compile Include="Sport\PlayerInfo.cs" />
     <Compile Include="Sport\PlayerStat.cs" />
     <Compile Include="Sport\ProviderInfo.cs" />
+    <Compile Include="Sport\Providers.cs" />
     <Compile Include="Sport\TennisProtocol.cs" />
     <Compile Include="Sport\TennisStat.cs" />
+    <Compile Include="Sport\TimerAttributes.cs" />
     <Compile Include="Sport\TimerInfo.cs" />
     <Compile Include="Nms\Services\NmsUploadSegment.cs" />
     <Compile Include="Nms\Services\NmsVerifyDomainChecksum.cs" />

@@ -9,14 +9,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using NataInfo.Nibus.Nms;
 
 #endregion
 
 namespace NataInfo.Nibus
 {
+    /// <summary>
+    /// Стек NiBUS.
+    /// </summary>
     public class NibusStack : IDisposable
     {
         #region Member Variables
@@ -25,8 +30,29 @@ namespace NataInfo.Nibus
 
         #endregion
 
+        /// <summary>
+        /// Создает стек на основе последовательного порта, содержащий <see cref="NmsCodec"/>
+        /// </summary>
+        /// <param name="portName">Имя последовательного COM-порта.</param>
+        /// <param name="baudRate">Скорость порта (115200/28800).</param>
+        /// <returns>NiBUS стек.</returns>
+        public static NibusStack CreateSerialNmsStack(string portName, int baudRate = 115200)
+        {
+            return new NibusStack(new SerialTransport(portName, baudRate, true), new NibusDataCodec(), new NmsCodec());
+        }
+
         #region Constructors
 
+        /// <summary>
+        /// Создает экземпляр <see cref="NibusStack"/> и связывает переданные кодеки <paramref name="codecs"/>.
+        /// </summary>
+        /// <param name="codecs">Список кодеков в порядке от нижнего к высшему.</param>
+        /// <example>
+        /// using (stack = new NibusStack(SerialTransport("COM3", 115200), NibusDataCodec(), NmsCodec())
+        /// {
+        ///     var nmsProtocol = _stack.GetCodec&lt;NmsCodec&gt;().Protocol;
+        /// }
+        /// </example>
         public NibusStack(params ICodecInfo[] codecs)
         {
             _codecs = new HashSet<ICodecInfo>();
@@ -44,8 +70,13 @@ namespace NataInfo.Nibus
 
         #region Methods
 
+        /// <summary>
+        /// Создает связь между кодеками. Кодеки могут быть как новыми (тогда они добавляются в стек), так и существующими. 
+        /// </summary>
+        /// <param name="codecs">Кодеки.</param>
         public void AddChain(params ICodecInfo[] codecs)
         {
+            Contract.Requires(codecs.Length >= 2);
             if (codecs.Length < 2)
             {
                 throw new ArgumentException("Must be at least two codecs");
@@ -67,11 +98,21 @@ namespace NataInfo.Nibus
             codecs.ToList().ForEach(codec => _codecs.Add(codec));
         }
 
+        /// <summary>
+        /// Возвращает все кодеки указанного типа.
+        /// </summary>
+        /// <typeparam name="T">Тип кодека.</typeparam>
+        /// <returns>Кодеки заданного типа присутствующие в стеке.</returns>
         public IEnumerable<T> GetCodecs<T>()
         {
             return _codecs.OfType<T>();
         }
 
+        /// <summary>
+        /// Возвращает единственный кодек указанного типа. Вызывает исключение, если кодеков несколько или отсутствует.
+        /// </summary>
+        /// <typeparam name="T">Тип кодека.</typeparam>
+        /// <returns>Кодек указанного типа.</returns>
         public T GetCodec<T>()
         {
             return _codecs.OfType<T>().Single();

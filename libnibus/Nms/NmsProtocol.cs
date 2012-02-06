@@ -209,14 +209,21 @@ namespace NataInfo.Nibus.Nms
             //Contract.Requires(options.Progress != null);
             //Contract.Requires(target != null);
             //Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
-            foreach (var splitIds in ids.Split(NibusDatagram.MaxDataLength/3).Select(splitIds => splitIds.ToArray()))
+            foreach (var splitIds in ids.Split(NmsMessage.NmsMaxDataLength/3).Select(splitIds => splitIds.ToArray()))
             {
                 NmsMessage lastMessage;
                 IncomingMessages.TryReceive(null, out lastMessage);
                 await OutgoingMessages.SendAsync(new NmsReadMany(target, splitIds));
                 var tasks = from id in splitIds
                             select GetNmsReadResponseAsync(lastMessage, target, id, options)
-                                .ContinueWith(task => options.Progress.Report(new ReadProgressInfo(target, id, task)));
+                                .ContinueWith(
+                                    task =>
+                                        {
+                                            var rp = new ReadProgressInfo(target, id, task);
+                                            if (Logger.IsTraceEnabled)
+                                                Logger.Trace("Received id={0}, Exc = {1}", rp.Id, rp.Exception);
+                                            options.Progress.Report(rp);
+                                        });
                 try
                 {
                     await TaskEx.WhenAll(tasks.ToArray());
@@ -611,7 +618,7 @@ namespace NataInfo.Nibus.Nms
             using (IncomingMessages.LinkTo(
                 wob,
                 m => !ReferenceEquals(lastMessage, m) && m.IsResponse && m.ServiceType == query.ServiceType
-                     && (query.Id == 0 || m.Id == query.Id) && m.Datagram.Source == query.Datagram.Destanation))
+                     && (query.Id == 0 || m.Id == query.Id) && (query.Datagram.Destanation == Address.Empty || m.Datagram.Source == query.Datagram.Destanation)))
             {
                 for (var i = 0; i < options.Attempts; i++)
                 {
@@ -640,8 +647,6 @@ namespace NataInfo.Nibus.Nms
             throw new InvalidOperationException();
         }
 
-        // ReSharper restore MemberCanBePrivate.Global
-
         #endregion //Methods
 
         #region Implementations
@@ -657,7 +662,7 @@ namespace NataInfo.Nibus.Nms
                     handler(this, e);
                     if (!e.Identified)
                     {
-                        Logger.Debug("Unhandled NMS Information Report: id={0}", report.Id);
+                        Logger.Warn("Unhandled NMS Information Report: id={0}", report.Id);
                     }
                 }
                 catch (Exception exception)
@@ -669,13 +674,13 @@ namespace NataInfo.Nibus.Nms
         }
 
         private async Task<NmsRead> GetNmsReadResponseAsync(
-            NmsMessage lastMessage, Address source, int id, NibusOptions options)
+            NmsMessage lastMessage, Address target, int id, NibusOptions options)
         {
             var wob = new WriteOnceBlock<NmsMessage>(m => m);
             using (IncomingMessages.LinkTo(
                 wob,
                 m => !ReferenceEquals(lastMessage, m) && m.IsResponse && m.ServiceType == NmsServiceType.Read
-                     && m.Id == id && m.Datagram.Source == source))
+                     && m.Id == id && (target == Address.Empty || m.Datagram.Source == target)))
             {
                 var response = (NmsRead)await wob.ReceiveAsync(options.Timeout, options.Token).ConfigureAwait(false);
                 if (response.ErrorCode != 0)

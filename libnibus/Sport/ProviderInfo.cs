@@ -18,110 +18,6 @@ using NataInfo.Nibus.Nms.Services;
 
 namespace NataInfo.Nibus.Sport
 {
-    public class TimerAttributes
-    {
-        private const int IdOfs = 0;
-        private const int AttrsOfs = 1;
-        private const int DurationOfs = 2;
-        internal const int Length = 6;
-
-        private readonly byte[] _data;
-        private Attributes _attrs;
-
-        [Flags]
-        private enum Attributes : byte
-        {
-            FractionOnLastMinute = 1,
-            FractionAlways = 2,
-            Increase = 128
-        }
-
-        public TimerAttributes(byte id, UInt32 duration, bool increase, bool hasFractionOnLastMinute, bool hasFractionAlways)
-        {
-            _data = new byte[Length];
-            Id = id;
-            Duration = duration;
-            Increase = increase;
-            HasFractionOnLastMinute = hasFractionOnLastMinute;
-            HasFractionAlways = hasFractionAlways;
-        }
-
-        public TimerAttributes(byte[] data, int startIndex)
-        {
-            Contract.Requires(data != null);
-            Contract.Requires(data.Length == Length);
-            _data = new byte[Length];
-            Array.Copy(data, startIndex, _data, 0, Length);
-            _attrs = (Attributes)_data[AttrsOfs];
-        }
-
-        public byte Id
-        {
-            get { return _data[IdOfs]; }
-            private set { _data[IdOfs] = value; }
-        }
-
-        public uint Duration
-        {
-            get { return BitConverter.ToUInt32(_data, DurationOfs); }
-            private set { BitConverter.GetBytes(value).CopyTo(_data, DurationOfs); }
-        }
-
-        public bool Increase
-        {
-            get { return (_attrs & Attributes.Increase) != 0; }
-            private set
-            {
-                if (value)
-                {
-                    _attrs |= Attributes.Increase;
-                }
-                else
-                {
-                    _attrs &= ~Attributes.Increase;
-                }
-            }
-        }
-
-        public bool HasFractionOnLastMinute
-        {
-            get { return (_attrs & Attributes.FractionOnLastMinute) != 0; }
-            private set
-            {
-                if (value)
-                {
-                    _attrs |= Attributes.FractionOnLastMinute;
-                }
-                else
-                {
-                    _attrs &= ~Attributes.FractionOnLastMinute;
-                }
-            }
-        }
-
-        public bool HasFractionAlways
-        {
-            get { return (_attrs & Attributes.FractionAlways) != 0; }
-            private set
-            {
-                if (value)
-                {
-                    _attrs |= Attributes.FractionAlways;
-                }
-                else
-                {
-                    _attrs &= ~Attributes.FractionAlways;
-                }
-            }
-        }
-
-        internal byte[] GetData()
-        {
-            _data[AttrsOfs] = (byte)_attrs;
-            return (byte[])_data.Clone();
-        }
-    }
-
     public class ProviderInfo
     {
         #region Member Variables
@@ -142,7 +38,11 @@ namespace NataInfo.Nibus.Sport
         public ProviderInfo(ushort id, params TimerAttributes[] timers)
         {
             Id = id;
-            _timers = timers;
+            _timers = (TimerAttributes[])timers.Clone();
+        }
+
+        public ProviderInfo(ProviderInfo other) : this(other.Id, other.Timers)
+        {
         }
 
         internal ProviderInfo(byte[] data)
@@ -165,8 +65,15 @@ namespace NataInfo.Nibus.Sport
 
         #region Properties
 
+        /// <summary>
+        /// Возвращает идентификатор провайдера.
+        /// </summary>
+        /// <seealso cref="Providers"/>
         public ushort Id { get; private set; }
 
+        /// <summary>
+        /// Возвращает таймеры для провайдера.
+        /// </summary>
         public TimerAttributes[] Timers { get { return _timers; } }
 
         #endregion //Properties

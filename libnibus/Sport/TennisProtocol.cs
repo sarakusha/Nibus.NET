@@ -8,20 +8,18 @@
 #region Using directives
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NataInfo.Nibus.Nms;
 
 #endregion
 
 namespace NataInfo.Nibus.Sport
 {
-    public class TennisProtocol : GameProtocol
+    public sealed class TennisProtocol : GameProtocol
     {
         #region Member Variables
 
         public const int TennisStats = 32;
+        private static ProviderInfo _provider;
 
         #endregion
 
@@ -44,6 +42,19 @@ namespace NataInfo.Nibus.Sport
 
         #region Properties
 
+        public override ProviderInfo Provider
+        {
+            get
+            {
+                return _provider ??
+                       (_provider =
+                        new ProviderInfo(
+                            (ushort)Providers.Tennis,
+                            new TimerAttributes(
+                                1, TimerAttributes.Infinity, true, false, false, false, true, false, false, false, "Время игры")));
+            }
+        }
+
         #endregion //Properties
 
         #region Methods
@@ -64,7 +75,7 @@ namespace NataInfo.Nibus.Sport
             {
                 var report = e.InformationReport;
                 var source = report.Datagram.Source;
-                SafeInvokeEvent(TennisStatChanged, () => new TennisStatChangedEventArgs(source, report.GetTennisStat()));
+                LazyInvokeEvent(TennisStatChanged, () => new TennisStatChangedEventArgs(source, report.GetTennisStat()));
                 e.Identified = true;
             }
         }

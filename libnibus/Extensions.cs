@@ -16,13 +16,13 @@ using System.Text;
 
 namespace NataInfo.Nibus
 {
-    static class LinqExtensions
+    public static class LinqExtensions
     {
-        public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> list, int parts)
+        public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> list, int maxLength)
         {
             int i = 0;
             var splits = from item in list
-                         group item by i++ % parts into part
+                         group item by i++ / maxLength into part
                          select part.AsEnumerable();
             return splits;
         }

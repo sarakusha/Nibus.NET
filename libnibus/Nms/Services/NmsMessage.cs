@@ -178,17 +178,13 @@ namespace NataInfo.Nibus.Nms.Services
             }
         }
 
-        public static int GetSizeOf(NmsValueType vt)
-        {
-            return GetSizeOf(vt, string.Empty);
-        }
         /// <summary>
         /// Возвращает размер данных указанного типа и возможно значения для массива или строки.
         /// </summary>
         /// <param name="vt">Тип данных.</param>
         /// <param name="value">Значение данных в случае массива или строки.</param>
         /// <returns>Занимаемый размер.</returns>
-        public static int GetSizeOf(NmsValueType vt, object value)
+        public static int GetSizeOf(NmsValueType vt, object value = null)
         {
             switch (vt)
             {
@@ -210,7 +206,7 @@ namespace NataInfo.Nibus.Nms.Services
                 case NmsValueType.DateTime:
                     return 10;
                 case NmsValueType.String:
-                    return Math.Min(NmsMaxDataLength - 1, ((string) value).Length + 1);
+                    return Math.Min(NmsMaxDataLength - 1, (value != null ? ((string) value).Length : 0) + 1);
             }
 
             if (((byte) vt & (byte) NmsValueType.Array) == 0)
@@ -220,7 +216,7 @@ namespace NataInfo.Nibus.Nms.Services
 
             var arrayType = (NmsValueType) ((byte) vt & ((byte) NmsValueType.Array - 1));
             var itemSize = GetSizeOf(arrayType);
-            return ((ICollection) value).Count*itemSize;
+            return value != null ? ((ICollection) value).Count*itemSize : itemSize;
         }
 
         /// <summary>

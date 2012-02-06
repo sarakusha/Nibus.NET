@@ -8,10 +8,7 @@
 #region Using directives
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
 using NataInfo.Nibus.Nms;
 using NataInfo.Nibus.Nms.Services;
 
@@ -51,7 +48,7 @@ namespace NataInfo.Nibus.Sport
         public TennisStat()
         {
             _data = new byte[Length];
-            _data[SportOfs] = 14;
+            BitConverter.GetBytes((ushort)Providers.Tennis).CopyTo(_data, SportOfs);
             SetScores = new Tuple<ushort, ushort>[5];
             for (int i = 0; i < 5; i++)
             {
@@ -63,7 +60,6 @@ namespace NataInfo.Nibus.Sport
         {
             Contract.Requires(data != null);
             Contract.Requires(data.Length == Length);
-            Contract.Requires(data[SportOfs] == 14);    
             _data = new byte[Length];
             Array.Copy(data, _data, Length);
 

@@ -52,6 +52,29 @@ namespace NataInfo.Nibus.Nms.Services
             }
         }
 
+        public ReadProgressInfo(Address source, int id, Exception e, NmsRead nmsRead)
+        {
+            Id = id;
+            Source = source;
+            if (e != null)
+            {
+                Exception = e;
+                if (e is TaskCanceledException)
+                {
+                    IsCanceled = true;
+                }
+                else
+                {
+                    IsFaulted = true;
+                }
+            }
+            else
+            {
+                Value = nmsRead.Value;
+                ValueType = nmsRead.ValueType;
+            }
+        }
+
         #endregion //Constructors
     }
 }
