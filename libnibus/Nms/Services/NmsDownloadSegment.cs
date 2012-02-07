@@ -15,13 +15,17 @@ using System.Linq;
 
 namespace NataInfo.Nibus.Nms.Services
 {
+    /// <summary>
+    /// Класс-обертка для сообщений сервиса <see cref="NmsServiceType.DownloadSegment"/>.
+    /// </summary>
     public sealed class NmsDownloadSegment : NmsMessage
     {
         #region Constructors
 
         /// <summary>
-        /// The default Constructor.
+        /// Конструктор создания сообщения из датаграммы NiBUS.
         /// </summary>
+        /// <param name="datagram">Датаграмма.</param>
         internal NmsDownloadSegment(NibusDatagram datagram)
             : base(datagram)
         {
@@ -41,6 +45,15 @@ namespace NataInfo.Nibus.Nms.Services
             Contract.Assume(ServiceType == NmsServiceType.DownloadSegment);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NmsDownloadSegment"/> class.
+        /// </summary>
+        /// <param name="source">Адрес источника.</param>
+        /// <param name="destanation">Адрес приемника.</param>
+        /// <param name="id">Идентификатор домена.</param>
+        /// <param name="offset">Смещение в домене.</param>
+        /// <param name="segment">Массив данных.</param>
+        /// <param name="waitResponse"><c>true</c> - ожидать подтверждения, иначе - <c>false</c>.</param>
         public NmsDownloadSegment(Address source, Address destanation, int id, uint offset, byte[] segment, bool waitResponse = true)
         {
             Contract.Requires(source != null);
@@ -81,6 +94,9 @@ namespace NataInfo.Nibus.Nms.Services
             }
         }
 
+        /// <summary>
+        /// Возвращает массив данных.
+        /// </summary>
         public byte[] Segment
         {
             get

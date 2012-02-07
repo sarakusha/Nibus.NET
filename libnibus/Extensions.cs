@@ -7,21 +7,29 @@
 
 #region Using directives
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 #endregion
 
 namespace NataInfo.Nibus
 {
+    /// <summary>
+    /// Методы расширения LINQ.
+    /// </summary>
     public static class LinqExtensions
     {
-        public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> list, int maxLength)
+        /// <summary>
+        /// Разделяет последовательность на подпоследовательности длиной <paramref name="maxLength"/>.
+        /// </summary>
+        /// <typeparam name="T">Тип элементов последовательности <paramref name="source"/>.</typeparam>
+        /// <param name="source">Последовательность значений, для которых вызывается функция преобразования.</param>
+        /// <param name="maxLength">Количество элементов в подпоследовательности.</param>
+        /// <returns>Объект <see cref="IEnumerable{T}"/>, элементы которого содержат полученные подпоследовательности.</returns>
+        public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> source, int maxLength)
         {
-            int i = 0;
-            var splits = from item in list
+            var i = 0;
+            var splits = from item in source
                          group item by i++ / maxLength into part
                          select part.AsEnumerable();
             return splits;

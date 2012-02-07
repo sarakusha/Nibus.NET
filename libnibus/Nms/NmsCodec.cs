@@ -45,8 +45,9 @@ namespace NataInfo.Nibus.Nms
             get { return ProtocolType.Nms; }
         }
 
-        #endregion
-
+        /// <summary>
+        /// Возвращает front-end класс для работы с протоколом.
+        /// </summary>
         INibusEndpoint<NmsMessage> INibusProtocol<NibusDatagram, NmsMessage>.Protocol
         {
             get { return Protocol; }
@@ -59,6 +60,8 @@ namespace NataInfo.Nibus.Nms
         {
             get { return _protocol ?? (_protocol = new NmsProtocol(_decoder.Source, Encoder)); }
         }
+
+        #endregion
 
         /// <summary>
         /// Подключает к кодеку нижележащего уровня.

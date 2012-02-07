@@ -145,6 +145,9 @@ namespace NataInfo.Nibus
 
         #region Implementation of ICodecInfo
 
+        /// <summary>
+        /// Возвращает описание кодека.
+        /// </summary>
         public string Description { get; set; }
 
         #endregion

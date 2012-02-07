@@ -5,27 +5,6 @@ using System.Diagnostics.Contracts;
 
 namespace NataInfo.Nibus
 {
-    /// <summary>
-    /// Тип протокола вышестоящего уровня.
-    /// </summary>
-    public enum ProtocolType
-    {
-        None = 0,
-        Nms = 1,
-        Sarp = 2
-    }
-
-    /// <summary>
-    /// Приоритет сообщения. Применяется при коллизиях.
-    /// </summary>
-    public enum PriorityType
-    {
-        Realtime = 0,
-        AboveNormal = 1,
-        Normal = 2,
-        BelowNormal = 3
-    }
-
     // ReSharper disable ReturnTypeCanBeEnumerable.Global
     /// <summary>
     /// Интерфейс датаграммы протокола NiBUS.
@@ -80,8 +59,13 @@ namespace NataInfo.Nibus
         /// <param name="priority">Приоритет.</param>
         /// <param name="protocol">Тип протокола.</param>
         /// <param name="data">Данные.</param>
-        public NibusDatagram(ICodecInfo provider, Address source, Address destanation, PriorityType priority,
-                             ProtocolType protocol, IList<byte> data)
+        public NibusDatagram(
+            ICodecInfo provider,
+            Address source,
+            Address destanation,
+            PriorityType priority,
+            ProtocolType protocol,
+            IList<byte> data)
         {
             Contract.Requires(destanation != null);
             Contract.Requires(source != null);

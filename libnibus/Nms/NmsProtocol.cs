@@ -301,6 +301,13 @@ namespace NataInfo.Nibus.Nms
 
         #region Сервис выполнения подпрограммы
 
+        /// <summary>
+        /// Выполнить подпрограмму на устройстве без подтверждения успеха.
+        /// </summary>
+        /// <param name="target">Адрес устройства.</param>
+        /// <param name="id">Идентификатор подпрограммы.</param>
+        /// <param name="args">Аргументы, передаваемые в подпрограмму в виде массива пар,
+        /// где первый элемент пары содержит тип параметра, второй - значение.</param>
         public void ExecuteProgram(Address target, int id, params Tuple<NmsValueType, object>[] args)
         {
             Contract.Requires(!IsDisposed);
@@ -310,6 +317,15 @@ namespace NataInfo.Nibus.Nms
             OutgoingMessages.Post(execute);
         }
 
+        /// <summary>
+        /// Асинхронно выполнить подпрограмму на устройстве с подтверждением успеха операции.
+        /// </summary>
+        /// <param name="target">Адрес устройства.</param>
+        /// <param name="id">Идентификатор подпрограммы.</param>
+        /// <param name="options">Параметры NiBUS-операции.</param>
+        /// <param name="args">Аргументы, передаваемые в подпрограмму в виде массива пар,
+        /// где первый элемент пары содержит тип параметра, второй - значение.</param>
+        /// <returns><see cref="Task"/> - асинхронная операция.</returns>
         public async Task ExecuteProgramConfirmedAsync(
             Address target,
             int id,
@@ -323,6 +339,13 @@ namespace NataInfo.Nibus.Nms
             await WaitForNmsResponseAsync(execute, options);
         }
 
+        /// <summary>
+        /// Начать выполнение подпрограммы на устройстве без подтверждения успеха.
+        /// </summary>
+        /// <param name="target">Адрес устройства.</param>
+        /// <param name="id">Идентификатор подпрограммы.</param>
+        /// <param name="args">Аргументы, передаваемые в подпрограмму в виде массива пар,
+        /// где первый элемент пары содержит тип параметра, второй - значение.</param>
         public void StartProgram(Address target, int id, params Tuple<NmsValueType, object>[] args)
         {
             Contract.Requires(!IsDisposed);
@@ -332,6 +355,15 @@ namespace NataInfo.Nibus.Nms
             OutgoingMessages.Post(start);
         }
 
+        /// <summary>
+        /// Асинхронно начать выполнять подпрограмму на устройстве с подтверждением успеха операции.
+        /// </summary>
+        /// <param name="target">Адрес устройства.</param>
+        /// <param name="id">Идентификатор подпрограммы.</param>
+        /// <param name="options">Параметры NiBUS-операции.</param>
+        /// <param name="args">Аргументы, передаваемые в подпрограмму в виде массива пар,
+        /// где первый элемент пары содержит тип параметра, второй - значение.</param>
+        /// <returns><see cref="Task"/> - асинхронная операция.</returns>
         public async Task StartProgramConfirmedAsync(
             Address target,
             int id,
@@ -345,6 +377,11 @@ namespace NataInfo.Nibus.Nms
             await WaitForNmsResponseAsync(start, options);
         }
 
+        /// <summary>
+        /// Прекратить выполнение подпрограммы на устройстве без подтверждения успеха.
+        /// </summary>
+        /// <param name="target">Адрес устройства.</param>
+        /// <param name="id">Идентификатор подпрограммы.</param>
         public void StopProgram(Address target, int id)
         {
             Contract.Requires(!IsDisposed);
@@ -355,6 +392,13 @@ namespace NataInfo.Nibus.Nms
             OutgoingMessages.Post(stop);
         }
 
+        /// <summary>
+        /// Асинхронно прекратить выполнять подпрограмму на устройстве с подтверждением успеха операции.
+        /// </summary>
+        /// <param name="target">Адрес устройства.</param>
+        /// <param name="id">Идентификатор подпрограммы.</param>
+        /// <param name="options">Параметры NiBUS-операции.</param>
+        /// <returns><see cref="Task"/> - асинхронная операция.</returns>
         public async Task StopProgramComfirmedAsync(Address target, int id, NibusOptions options = null)
         {
             //Contract.Requires(!IsDisposed);
@@ -364,6 +408,11 @@ namespace NataInfo.Nibus.Nms
             await WaitForNmsResponseAsync(stop, options);
         }
 
+        /// <summary>
+        /// Продолжить выполнение подпрограммы на устройстве без подтверждения успеха.
+        /// </summary>
+        /// <param name="target">Адрес устройства.</param>
+        /// <param name="id">Идентификатор подпрограммы.</param>
         public void ResumeProgram(Address target, int id)
         {
             Contract.Requires(!IsDisposed);
@@ -374,6 +423,13 @@ namespace NataInfo.Nibus.Nms
             OutgoingMessages.Post(resume);
         }
 
+        /// <summary>
+        /// Асинхронно продолжить выполнять подпрограмму на устройстве с подтверждением успеха операции.
+        /// </summary>
+        /// <param name="target">Адрес устройства.</param>
+        /// <param name="id">Идентификатор подпрограммы.</param>
+        /// <param name="options">Параметры NiBUS-операции.</param>
+        /// <returns><see cref="Task"/> - асинхронная операция.</returns>
         public async Task ResumeProgramComfirmedAsync(Address target, int id, NibusOptions options = null)
         {
             //Contract.Requires(!IsDisposed);
@@ -383,6 +439,10 @@ namespace NataInfo.Nibus.Nms
             await WaitForNmsResponseAsync(resume, options);
         }
 
+        /// <summary>
+        /// Перегрузить устройство без подтверждения успеха.
+        /// </summary>
+        /// <param name="target">Адрес устройства.</param>
         public void ResetDevice(Address target)
         {
             Contract.Requires(!IsDisposed);
@@ -392,6 +452,12 @@ namespace NataInfo.Nibus.Nms
             OutgoingMessages.Post(reset);
         }
 
+        /// <summary>
+        /// Асинхронно перегрузить устройство с подтверждением успеха.
+        /// </summary>
+        /// <param name="target">Адрес устройства.</param>
+        /// <param name="options">Параметры NiBUS-операции.</param>
+        /// <returns><see cref="Task"/> - асинхронная операция.</returns>
         public async Task ResetDeviceComfirmedAsync(Address target, NibusOptions options = null)
         {
             //Contract.Requires(!IsDisposed);
@@ -401,6 +467,10 @@ namespace NataInfo.Nibus.Nms
             await WaitForNmsResponseAsync(reset, options);
         }
 
+        /// <summary>
+        /// Остановить устройство без подтверждения успеха.
+        /// </summary>
+        /// <param name="target">Адрес устройства.</param>
         public void ShutdownDevice(Address target)
         {
             Contract.Requires(!IsDisposed);
@@ -410,6 +480,12 @@ namespace NataInfo.Nibus.Nms
             OutgoingMessages.Post(shutdown);
         }
 
+        /// <summary>
+        /// Асинхронно остановить устройство с подтверждением успеха.
+        /// </summary>
+        /// <param name="target">Адрес устройства.</param>
+        /// <param name="options">Параметры NiBUS-операции.</param>
+        /// <returns><see cref="Task"/> - асинхронная операция.</returns>
         public async Task ShutdownDeviceComfirmedAsync(Address target, NibusOptions options = null)
         {
             //Contract.Requires(!IsDisposed);
@@ -423,6 +499,11 @@ namespace NataInfo.Nibus.Nms
 
         #region Сигнализация событий
 
+        /// <summary>
+        /// Сигнализировать о событии.
+        /// </summary>
+        /// <param name="id">Идентификатор события.</param>
+        /// <seealso cref="Events"/>
         public void FireEventNotification(int id)
         {
             Contract.Requires(!IsDisposed);
@@ -430,6 +511,11 @@ namespace NataInfo.Nibus.Nms
             OutgoingMessages.Post(@event);
         }
 
+        /// <summary>
+        /// ?Сигнализировать о подтверждении события?.
+        /// </summary>
+        /// <param name="id">Идентификатор события.</param>
+        /// <seealso cref="Events"/>
         public void FireAckEventNotification(int id)
         {
             Contract.Requires(!IsDisposed);
@@ -437,6 +523,12 @@ namespace NataInfo.Nibus.Nms
             OutgoingMessages.Post(@event);
         }
 
+        /// <summary>
+        /// Разрешить сигнализацию о событии без подтверждения о приеме.
+        /// </summary>
+        /// <param name="target">Адрес устройства.</param>
+        /// <param name="id">Идентификатор события.</param>
+        /// <param name="isEventEnabled"><c>true</c> - разрешить сигнализацию о событии, иначе - <c>false</c>.</param>
         public void EnableEventMonitoring(Address target, int id, bool isEventEnabled)
         {
             Contract.Requires(!IsDisposed);
@@ -446,6 +538,14 @@ namespace NataInfo.Nibus.Nms
             OutgoingMessages.Post(msg);
         }
 
+        /// <summary>
+        /// Разрешить сигнализацию о событии с подтверждением о приеме.
+        /// </summary>
+        /// <param name="target">Адрес устройства.</param>
+        /// <param name="id">Идентификатор события.</param>
+        /// <param name="isEventEnabled"><c>true</c> - разрешить сигнализацию о событии, иначе - <c>false</c>.</param>
+        /// <param name="options">Параметры NiBUS-операции.</param>
+        /// <returns><see cref="Task"/> - асинхронная операция.</returns>
         public async Task EnableEventMonitoringConfirmedAsync(
             Address target,
             int id,
@@ -463,6 +563,17 @@ namespace NataInfo.Nibus.Nms
 
         #region Upload/Download сервис
 
+        /// <summary>
+        /// Асинхронная выгрузка массива данных с устройства.
+        /// </summary>
+        /// <param name="target">Адрес устройства.</param>
+        /// <param name="domain">Домен.</param>
+        /// <param name="offset">Смещение в домене.</param>
+        /// <param name="cbSize">Количество байт.</param>
+        /// <param name="options">Параметры NiBUS-операции.</param>
+        /// <returns>
+        ///   <see cref="Task"/> - асинхронная операция с данными домена.
+        /// </returns>
         public async Task<byte[]> UploadDomainAsync(
             Address target,
             string domain,
@@ -535,6 +646,17 @@ namespace NataInfo.Nibus.Nms
             return uploaded.ToArray();
         }
 
+        /// <summary>
+        /// Асинхронная загрузка массива данных в устройство.
+        /// </summary>
+        /// <param name="target">Адрес устройства.</param>
+        /// <param name="domain">Домен.</param>
+        /// <param name="data">Данные.</param>
+        /// <param name="offset">Смещение в домене.</param>
+        /// <param name="options">Параметры NiBUS-операции.</param>
+        /// <returns>
+        ///   <see cref="Task"/> - асинхронная операция.
+        /// </returns>
         public async Task DownloadDomainAsync(
             Address target,
             string domain,
@@ -723,6 +845,9 @@ namespace NataInfo.Nibus.Nms
 
         #region Implementation of ICodecInfo
 
+        /// <summary>
+        /// Возвращает описание кодека.
+        /// </summary>
         public string Description { get; set; }
 
         #endregion

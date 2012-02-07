@@ -125,11 +125,14 @@
     <Compile Include="BroadcastTransformBlock.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="InvalidNibusDatagram.cs" />
+    <Compile Include="NamespaceDoc.cs" />
     <Compile Include="NibusOptions.cs" />
     <Compile Include="NibusResponseException.cs" />
     <Compile Include="NibusStack.cs" />
+    <Compile Include="Nms\NamespaceDoc.cs" />
     <Compile Include="Nms\Programs\AconsolePid.cs" />
     <Compile Include="Nms\Programs\McdviPid.cs" />
+    <Compile Include="Nms\Programs\NamespaceDoc.cs" />
     <Compile Include="Nms\Programs\StdPid.cs" />
     <Compile Include="Nms\Services\NmsAlterEventConditionMonitoring.cs" />
     <Compile Include="INibusCodec.cs" />
@@ -174,11 +177,13 @@
     <Compile Include="Nms\Variables\StdKernel.cs" />
     <Compile Include="Nms\Variables\StdNms.cs" />
     <Compile Include="Nms\Variables\Uconsole.cs" />
+    <Compile Include="PriorityType.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="ProtocolType.cs" />
     <Compile Include="Sport\GameEventArgs.cs" />
     <Compile Include="Sport\GameReports.cs" />
     <Compile Include="Sport\IceHockeyProtocol.cs" />

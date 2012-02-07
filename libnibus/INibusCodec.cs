@@ -51,6 +51,12 @@ namespace NataInfo.Nibus
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is disposed.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if this instance is disposed; otherwise, <c>false</c>.
+        /// </value>
         public bool IsDisposed { get; private set; }
         /// <summary>
         /// Возвращает кодировщик в нижележащий уровень.
@@ -99,6 +105,14 @@ namespace NataInfo.Nibus
             return LinkTo(transport);
         }
 
+        /// <summary>
+        /// Подключает к кодеку нижележащего уровня.
+        /// </summary>
+        /// <param name="bottomCodec">Низлежащий кодек в стеке протоколов.</param>
+        /// <returns>
+        /// Объект, вызвав у которого <see cref="IDisposable.Dispose"/>, можно прервать связь.
+        /// </returns>
+        /// <remarks>Стандартная реализация <see cref="ConnectTo{T}"/></remarks>
         protected IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec)
         {
             // Удаляем старые сообщения
@@ -117,6 +131,14 @@ namespace NataInfo.Nibus
             return unlinker;
         }
 
+        /// <summary>
+        /// Подключает к транспорту.
+        /// </summary>
+        /// <param name="transport">Транспорт.</param>
+        /// <returns>
+        /// Объект, вызвав у которого <see cref="IDisposable.Dispose"/>, можно прервать связь.
+        /// </returns>
+        /// <remarks>Стандартная реализация <see cref="ConnectTo{T}"/></remarks>
         protected IDisposable LinkTo(INibusEndpoint<TEncoded> transport)
         {
             // Удаляем старые сообщения
@@ -131,6 +153,15 @@ namespace NataInfo.Nibus
             return unlinker;
         }
 
+        /// <summary>
+        /// Подключает к кодеку нижележащего уровня.
+        /// </summary>
+        /// <param name="bottomCodec">Низлежащий кодек в стеке протоколов.</param>
+        /// <param name="filter">Предикат для фильтрации сообщений.</param>
+        /// <param name="discardsMessages">if set to <c>true</c> удалять сообщения не прошедшие фильтр.</param>
+        /// <returns>
+        /// Объект, вызвав у которого <see cref="IDisposable.Dispose"/>, можно прервать связь.
+        /// </returns>
         protected IDisposable LinkTo<T>(INibusCodec<T, TEncoded> bottomCodec, Predicate<TEncoded> filter,
                                         bool discardsMessages = false)
         {
