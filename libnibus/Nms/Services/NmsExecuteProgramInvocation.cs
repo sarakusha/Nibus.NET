@@ -17,6 +17,9 @@ using System.Linq;
 
 namespace NataInfo.Nibus.Nms.Services
 {
+    /// <summary>
+    /// Класс-обертка для сообщений о выполнении подпрограммы.
+    /// </summary>
     public sealed class NmsExecuteProgramInvocation : NmsMessage
     {
         #region Member Variables

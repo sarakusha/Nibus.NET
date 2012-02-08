@@ -17,6 +17,9 @@ using System.Linq;
 
 namespace NataInfo.Nibus.Nms.Services
 {
+    /// <summary>
+    /// Класс-обертка для сообщений о начале выполнения подпрограммы.
+    /// </summary>
     public sealed class NmsStartProgramInvocation : NmsMessage
     {
         #region Member Variables
@@ -39,8 +42,16 @@ namespace NataInfo.Nibus.Nms.Services
             Contract.Assume(ServiceType == NmsServiceType.StartProgramInvocation);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NmsStartProgramInvocation"/> class.
+        /// </summary>
+        /// <param name="source">Адрес источника.</param>
+        /// <param name="destanation">Адрес приемника.</param>
+        /// <param name="id">Идентификатор подпрограммы.</param>
+        /// <param name="waitResponse"><c>true</c> - если требуется ожидание подтверждения.</param>
+        /// <param name="args">Пары с аргументами (тип, значение) подпрограммы.</param>
         public NmsStartProgramInvocation(
-            Address source, Address destanation, int id, bool waitResonse = true, params Tuple<NmsValueType, object>[] args)
+            Address source, Address destanation, int id, bool waitResponse = true, params Tuple<NmsValueType, object>[] args)
         {
             Contract.Ensures(ServiceType == NmsServiceType.StartProgramInvocation);
             var nmsData = new List<byte>(NmsMaxDataLength) { (byte)args.Length };
@@ -59,7 +70,7 @@ namespace NataInfo.Nibus.Nms.Services
                 destanation,
                 PriorityType.Normal,
                 NmsServiceType.StartProgramInvocation,
-                waitResonse,
+                waitResponse,
                 id,
                 false,
                 nmsData.ToArray());
@@ -69,6 +80,9 @@ namespace NataInfo.Nibus.Nms.Services
 
         #region Properties
 
+        /// <summary>
+        /// Возвращает аргументы переданные в подпрограмму в виде пар (тип, значение).
+        /// </summary>
         public ReadOnlyCollection<Tuple<NmsValueType, object>> Args
         {
             get

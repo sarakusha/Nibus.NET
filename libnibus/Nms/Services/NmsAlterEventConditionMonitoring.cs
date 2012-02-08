@@ -68,6 +68,9 @@ namespace NataInfo.Nibus.Nms.Services
 
         #region Properties
 
+        /// <summary>
+        /// Разрешить генерацию событий.
+        /// </summary>
         public bool IsEventEnabled
         {
             get

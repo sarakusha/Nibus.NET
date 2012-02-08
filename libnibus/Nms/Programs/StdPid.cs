@@ -7,12 +7,15 @@
 
 namespace NataInfo.Nibus.Nms.Programs
 {
+    /// <summary>
+    /// Стандартные идентификаторы подпрограмм.
+    /// </summary>
     public enum StdPid
     {
         /// <summary>
-        ///подпрограмма выдачи сигнала
-        // @parm VT_UI2 | длительность, ms
-        // @parm VT_UI1 | источник
+        /// подпрограмма выдачи сигнала
+        /// parm VT_UI2 | длительность, ms
+        /// parm VT_UI1 | источник
         /// </summary>
         Sound = 2,
 

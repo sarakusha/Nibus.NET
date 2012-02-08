@@ -172,6 +172,15 @@ namespace NataInfo.Nibus
 
         #region Implementation of ITargetBlock
 
+        /// <summary>
+        /// Offers the message.
+        /// </summary>
+        /// <param name="messageHeader">The message header.</param>
+        /// <param name="messageValue">The message value.</param>
+        /// <param name="source">The source.</param>
+        /// <param name="consumeToAccept">if set to <c>true</c> [consume to accept].</param>
+        /// <returns><see cref="DataflowMessageStatus"/></returns>
+        /// <seealso cref="ITargetBlock{TInput}"/>
         public DataflowMessageStatus OfferMessage(
             DataflowMessageHeader messageHeader, TInput messageValue, ISourceBlock<TInput> source, bool consumeToAccept)
         {

@@ -9,10 +9,15 @@
 namespace NataInfo.Nibus.Nms.Variables
 {
     /// <summary>
-    /// model 0x0003xxxx | универсальный четырех-кнопочный пульт
+    /// Универсальный четырех-кнопочный пульт.
     /// </summary>
+    /// <remarks><c>console_un.mib.xsd</c> - mib-файл</remarks>
     public enum ConsoleUn
     {
+        /// <summary>
+        /// Тип устройства. Не является переменной.
+        /// </summary>
+        DeviceTypeId = 3,
         /// <summary>
         /// VT_BOOL | внутренний светодиод 1
         /// </summary>

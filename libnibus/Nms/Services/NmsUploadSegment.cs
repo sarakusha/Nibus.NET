@@ -15,6 +15,9 @@ using System.Linq;
 
 namespace NataInfo.Nibus.Nms.Services
 {
+    /// <summary>
+    /// Класс-обертка сообщений о выгрузке массива данных с устройства.
+    /// </summary>
     public sealed class NmsUploadSegment : NmsMessage
     {
         #region Constructors
@@ -31,6 +34,14 @@ namespace NataInfo.Nibus.Nms.Services
             Contract.Assume(ServiceType == NmsServiceType.UploadSegment);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NmsUploadSegment"/> class.
+        /// </summary>
+        /// <param name="source">Адрес источника.</param>
+        /// <param name="destanation">Адрес приемника.</param>
+        /// <param name="id">Идентификатор домена.</param>
+        /// <param name="offset">Смещение в домене.</param>
+        /// <param name="size">Размер запрашиваемых данных.</param>
         public NmsUploadSegment(Address source, Address destanation, int id, uint offset, byte size)
         {
             Contract.Requires(size <= NmsMaxDataLength - 5);
@@ -74,6 +85,9 @@ namespace NataInfo.Nibus.Nms.Services
             }
         }
 
+        /// <summary>
+        /// Возвращает массив данных.
+        /// </summary>
         public byte[] Segment
         {
             get

@@ -10,139 +10,145 @@
 namespace NataInfo.Nibus.Nms.Variables
 {
     /// <summary>
-    /// model 0x001bxxxx | плата управления модулем индикации MC-DVI
+    ///Плата управления модулем индикации MC-DVI
     /// </summary>
+    /// <remarks><c>mcdvi.mib.xsd</c> - mib-файл</remarks>
     public enum Mcdvi
     {
         /// <summary>
+        /// Тип устройства. Не является переменной.
+        /// </summary>
+        DeviceTypeId = 0x1b,
+
+        /// <summary>
         /// VT_UI4,R | Ошибок контрольной суммы в rs485-h интерфейсе
         /// </summary>
-        RS485HChecksumErrors = 0x100,
+        HChecksumErrors = 0x100,
 
         /// <summary>
         /// VT_UI4,R | Коллизий при передаче дейтаграмм в rs485-h интерфейсе
         /// </summary>
-        RS485HCollisions = 0x101,
+        HCollisions = 0x101,
 
         /// <summary>
         /// VT_UI4,R | Принято дейтаграмм по rs485-h интерфейсу
         /// </summary>
-        RS485HRxDatagrams = 0x102,
+        HRxDatagrams = 0x102,
 
         /// <summary>
         /// VT_UI4,R | Отослано дейтаграмм по rs485-h интерфейсу
         /// </summary>
-        RS485HTxDatagrams = 0x103,
+        HTxDatagrams = 0x103,
 
         /// <summary>
         /// VT_UI4,R | Ошибок синхронизации на rs485-h интерфейсе
         /// </summary>
-        RS485HFramingErrors = 0x104,
+        HFramingErrors = 0x104,
 
         /// <summary>
         /// VT_UI4,R | Не отправленных дейтаграмм по rs485-h интерфейсу
         /// </summary>
-        RS485HTxFailedDatagrams = 0x105,
+        HTxFailedDatagrams = 0x105,
 
         /// <summary>
         /// VT_UI4,R | Фальшивых start-битов на rs485-h интерфейсе
         /// </summary>
-        RS485HFalseStartBits = 0x106,
+        HFalseStartBits = 0x106,
 
         /// <summary>
         /// VT_UI2,R | Переполнений fifo на rs485-h интерфейсе
         /// </summary>
-        RS485HFifoOverruns = 0x107,
+        HFifoOverruns = 0x107,
 
         /// <summary>
         /// VT_UI4,R | Ошибок контрольной суммы в rs485-v интерфейсе
         /// </summary>
-        RS485VChecksumErrors = 0x10a,
+        VChecksumErrors = 0x10a,
 
         /// <summary>
         /// VT_UI4,R | Коллизий при передаче дейтаграмм в rs485-v интерфейсе
         /// </summary>
-        RS485VCollisions = 0x10b,
+        VCollisions = 0x10b,
 
         /// <summary>
         /// VT_UI4,R | Принято дейтаграмм по rs485-v интерфейсу
         /// </summary>
-        RS485VRxDatagrams = 0x10c,
+        VRxDatagrams = 0x10c,
 
         /// <summary>
         /// VT_UI4,R | Отослано дейтаграмм по rs485-h интерфейсу
         /// </summary>
-        RS485VTxDatagrams = 0x10d,
+        VTxDatagrams = 0x10d,
 
         /// <summary>
         /// VT_UI4,R | Ошибок синхронизации на rs485-v интерфейсе
         /// </summary>
-        RS485VFramingErrors = 0x10e,
+        VFramingErrors = 0x10e,
 
         /// <summary>
         /// VT_UI4,R | Не отправленных дейтаграмм по rs485-v интерфейсу
         /// </summary>
-        RS485VTxFailedDatagrams = 0x10f,
+        VTxFailedDatagrams = 0x10f,
 
         /// <summary>
         /// VT_UI4,R | Потеряно байт в rs485-v интерфейсе
         /// </summary>
-        RS485VBytesLost = 0x110,
+        VBytesLost = 0x110,
 
         /// <summary>
         /// VT_UI2,R | Переполнений fifo на rs485-v интерфейсе
         /// </summary>
-        RS485VFifoOverruns = 0x111,
+        VFifoOverruns = 0x111,
 
         /// <summary>
         /// VT_UI4,R | Обнаружено маркеров захвата шины rs485-h интерфейсу
         /// </summary>
-        RS485HTakeoverMarkers = 0x112,
+        HTakeoverMarkers = 0x112,
 
         /// <summary>
         /// VT_UI4,R | Обнаружено маркеров освобождения шины rs485-h интерфейсу
         /// </summary>
-        RS485HFreeMarkers = 0x113,
+        HFreeMarkers = 0x113,
 
         /// <summary>
         /// VT_UI4,R | Таймаутов освобождения шины по rs485-h интерфейсу
         /// </summary>
-        RS485HFreeTimeouts = 0x114,
+        HFreeTimeouts = 0x114,
 
         /// <summary>
         /// VT_UI4,R | Принято байт по rs485-h интерфейсу
         /// </summary>
-        RS485HBytesReceived = 0x115,
+        HBytesReceived = 0x115,
 
         /// <summary>
         /// VT_UI4,R | Отослано байт по rs485-h интерфейсу
         /// </summary>
-        RS485HBytesTransmitted = 0x116,
+        HBytesTransmitted = 0x116,
 
         /// <summary>
         /// VT_UI4,R | Обнаружено маркеров захвата шины rs485-v интерфейсу
         /// </summary>
-        RS485VTakeoverMarkers = 0x117,
+        VTakeoverMarkers = 0x117,
 
         /// <summary>
         /// VT_UI4,R | Обнаружено маркеров освобождения шины rs485-v интерфейсу
         /// </summary>
-        RS485VFreeMarkers = 0x118,
+        VFreeMarkers = 0x118,
 
         /// <summary>
-        /// VT_UI4,R | Таймаутов освобождения шины по rs485-v rs485-v интерфейсу
+        /// VT_UI4,R | Таймаутов освобождения шины по rs485-v интерфейсу
         /// </summary>
-        RS485VFreeTimeouts = 0x119,
+        VFreeTimeouts = 0x119,
 
         /// <summary>
         /// VT_UI4,R | Принято байт по rs485-v интерфейсу
         /// </summary>
-        RS485VBytesReceived = 0x11a,
+        VBytesReceived = 0x11a,
 
         /// <summary>
         /// VT_UI4,R | Отослано байт по rs485-v интерфейсу
         /// </summary>
-        RS485VBytesTransmitted = 0x11b,
+        VBytesTransmitted = 0x11b,
 
         /// <summary>
         /// VT_UI1,R | Результат POST pcb-процесса

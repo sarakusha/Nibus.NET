@@ -10,10 +10,16 @@
 namespace NataInfo.Nibus.Nms.Variables
 {
     /// <summary>
-    /// model 0x0005xxxx | пульт управления полигоном
+    /// Пульт управления полигоном.
     /// </summary>
+    /// <remarks><c>pconsole.mib.xsd</c> - mib-файл</remarks>
     public enum Pconsole
     {
+        /// <summary>
+        /// Тип устройства. Не является переменной.
+        /// </summary>
+        DeviceTypeId = 5,
+
         /// <summary>
         /// VT_UI4,R | Ошибок контрольной суммы в rs485 интерфейсе
         /// </summary>

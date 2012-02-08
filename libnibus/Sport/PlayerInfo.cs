@@ -20,6 +20,16 @@ namespace NataInfo.Nibus.Sport
         private const int NameMaxLength = 30;
         private const int CountryMaxLength = 20;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PlayerInfo"/> class.
+        /// </summary>
+        /// <param name="role">Принадлежность команде.</param>
+        /// <param name="index">Индекс в списке (начинается с 0).</param>
+        /// <param name="number">Номер игрока.</param>
+        /// <param name="function">Функция игрока в команде.</param>
+        /// <param name="name">Имя игрока.</param>
+        /// <param name="country">Страна/город.</param>
+        /// <param name="info">Дополнительная информация.</param>
         public PlayerInfo(
             TeamRole role,
             int index,
@@ -120,12 +130,15 @@ namespace NataInfo.Nibus.Sport
         }
     }
 
-    public static class PlayerInfoExtensions
+    /// <summary>
+    /// Расширение для конвертации информации об игроке.
+    /// </summary>
+    internal static class PlayerInfoExtensions
     {
-        public static NmsInformationReport Create(Address source, PlayerInfo info)
+        public static NmsInformationReport CreateInformationReport(this PlayerInfo info, Address source = null)
         {
             return new NmsInformationReport(
-                source,
+                source ?? Address.Empty,
                 (int)GameReports.PlayerInfo,
                 NmsValueType.UInt8Array,
                 info.GetData());

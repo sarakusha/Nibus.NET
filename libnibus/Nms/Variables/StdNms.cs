@@ -7,6 +7,9 @@
 
 namespace NataInfo.Nibus.Nms.Variables
 {
+    /// <summary>
+    /// Стандартные идентификаторы переменных.
+    /// </summary>
     public enum StdNms
     {
         /// <summary>
@@ -23,6 +26,10 @@ namespace NataInfo.Nibus.Nms.Variables
         /// количество миллисекунд с начала старта системы.
         /// </summary>
         Uptime = 3,
+
+        /// <summary>
+        /// Текущая дата
+        /// </summary>
         Datetime = 4,
 
         /// <summary>

@@ -26,6 +26,9 @@ namespace NataInfo.Nibus.Nms.Services
         /// </summary>
         internal const int NmsMaxDataLength = 63;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NmsMessage"/> class.
+        /// </summary>
         protected NmsMessage()
         {
         }

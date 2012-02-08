@@ -9,24 +9,30 @@
 namespace NataInfo.Nibus.Nms.Variables
 {
     /// <summary>
-    /// model 0x0007xxxx | Транскодер последовательных интерфейсов (SioLynx)
+    /// Транскодер последовательных интерфейсов (SioLynx)
     /// </summary>
+    /// <remarks><c>siolynx.mib.xsd</c> - mib-файл</remarks>
     public enum Siolynx
     {
         /// <summary>
-        /// VT_UI4,R | Коллизий при передаче дейтаграмм в rs485-h интерфейсе
+        /// Тип устройства. Не является переменной.
         /// </summary>
-        RS485Collisions = 0x100,
+        DeviceTypeId = 7,
+
+        /// <summary>
+        /// VT_UI4,R | Коллизий при передаче дейтаграмм в rs485 интерфейсе
+        /// </summary>
+        Collisions = 0x100,
 
         /// <summary>
         /// VT_UI4,R | Принято байт по rs485 интерфейсу
         /// </summary>
-        RS485BytesReceived = 0x101,
+        BytesReceived = 0x101,
 
         /// <summary>
         /// VT_UI4,R | Отослано дейтаграмм по rs485-интерфейсу
         /// </summary>
-        RS485TxDatagrams = 0x102,
+        TxDatagrams = 0x102,
 
         /// <summary>
         /// VT_UI4,R | Обнаружено маркеров захвата шины
@@ -46,37 +52,37 @@ namespace NataInfo.Nibus.Nms.Variables
         /// <summary>
         /// VT_UI4,R | Ошибок синхронизации на rs485 интерфейсе
         /// </summary>
-        RS485FramingErrors = 0x106,
+        FramingErrors = 0x106,
 
         /// <summary>
-        /// VT_UI4,R | Ошибок синхронизации на rs232 интерфейсе
+        /// VT_UI4,R | Ошибок синхронизации на Serial интерфейсе
         /// </summary>
-        RS232FramingErrors = 0x107,
+        SerialFramingErrors = 0x107,
 
         /// <summary>
-        /// VT_UI4,R | Ошибок контрольной суммы в rs232 интерфейсе
+        /// VT_UI4,R | Ошибок контрольной суммы в Serial интерфейсе
         /// </summary>
-        RS232ChecksumErrors = 0x108,
+        SerialChecksumErrors = 0x108,
 
         /// <summary>
-        /// VT_UI4,R | Принято дейтаграмм по rs232 интерфейсу
+        /// VT_UI4,R | Принято дейтаграмм по Serial интерфейсу
         /// </summary>
-        RS232RxDatagrams = 0x109,
+        SerialRxDatagrams = 0x109,
 
         /// <summary>
         /// VT_UI4,R | Не отправленных дейтаграмм по rs485-интерфейсу
         /// </summary>
-        RS485TxFailedDatagrams = 0x10a,
+        TxFailedDatagrams = 0x10a,
 
         /// <summary>
         /// VT_UI4,R | Фальшивых start-битов на rs485-интерфейсе
         /// </summary>
-        RS485FalseStartBits = 0x10b,
+        FalseStartBits = 0x10b,
 
         /// <summary>
-        /// VT_UI4,R | Переполнений фифо на rs232-интерфейсе
+        /// VT_UI4,R | Переполнений фифо на Serial-интерфейсе
         /// </summary>
-        RS232FifoOverruns = 0x10c,
+        SerialFifoOverruns = 0x10c,
 
         /// <summary>
         /// VT_UI2,R | Байт в журнале событий

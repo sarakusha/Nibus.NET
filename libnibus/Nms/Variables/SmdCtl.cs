@@ -10,10 +10,15 @@
 namespace NataInfo.Nibus.Nms.Variables
 {
     /// <summary>
-    /// model 0x0015xxxx | плата индикации на SMD
+    /// Плата индикации на SMD
     /// </summary>
+    /// <remarks><c>smdctl.mib.xsd</c> - mib-файл</remarks>
     public enum SmdCtl
     {
+        /// <summary>
+        /// Тип устройства. Не является переменной.
+        /// </summary>
+        DeviceTypeId = 0x15,
         /// <summary>
         /// VT_UI4,R | Ошибок контрольной суммы в nibus-интерфейсе
         /// </summary>

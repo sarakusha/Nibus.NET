@@ -11,7 +11,7 @@ using System.Resources;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Nata-Info")]
 [assembly: AssemblyProduct("Nibus.NET")]
-[assembly: AssemblyCopyright("Copyright ©  2011 Nata-Info")]
+[assembly: AssemblyCopyright("Copyright ©  2012 Nata-Info")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -1,7 +1,7 @@
 ﻿//-------------------------------------------------------------------
 // Copyright (c) 2012 Nata-Info Ltd.
 // Andrei Sarakeev
-// DviOptic.cs
+// DviMaster.cs
 // 
 //-------------------------------------------------------------------
 
@@ -9,10 +9,16 @@
 namespace NataInfo.Nibus.Nms.Variables
 {
     /// <summary>
-    /// model 0x0011xxxx | DVIOPT мост DVI-FIBER
+    /// DVI-мастер.
     /// </summary>
-    public enum DviOptic
+    /// <remarks><c>dvimaster.mib.xsd</c> - mib-файл</remarks>
+    public enum DviMaster
     {
+        /// <summary>
+        /// Тип устройства. Не является переменной.
+        /// </summary>
+        DeviceTypeId = 0x11,
+
         /// <summary>
         /// VT_UI1,R/W | яркость [0..255]
         /// </summary>
@@ -146,12 +152,12 @@ namespace NataInfo.Nibus.Nms.Variables
         /// <summary>
         /// VT_UI4,R | Ошибок контрольной суммы во входном rs485-интерфейсе
         /// </summary>
-        RS485ChecksumErrors = 0x11a,
+        ChecksumErrors = 0x11a,
 
         /// <summary>
         /// VT_UI4,R | Коллизий при передаче дейтаграмм в rs485-интерфейсе
         /// </summary>
-        RS485Collisions = 0x11b,
+        Collisions = 0x11b,
 
         /// <summary>
         /// VT_UI1,R | Версия прошивки PLD

@@ -13,6 +13,9 @@ using System.Diagnostics.Contracts;
 
 namespace NataInfo.Nibus.Nms.Services
 {
+    /// <summary>
+    /// Класс-обертка для сообщиений о выключении устройства.
+    /// </summary>
     public sealed class NmsShutdown : NmsMessage
     {
         #region Constructors
@@ -29,10 +32,16 @@ namespace NataInfo.Nibus.Nms.Services
             Contract.Assume(ServiceType == NmsServiceType.Shutdown);
         }
 
-        public NmsShutdown(Address source, Address destanation, int id, bool waitResonse = true)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NmsShutdown"/> class.
+        /// </summary>
+        /// <param name="source">Адрес источника.</param>
+        /// <param name="destanation">Адрес приемника.</param>
+        /// <param name="waitResponse"><c>true</c> - если требуется ожидание подтверждения.</param>
+        public NmsShutdown(Address source, Address destanation, bool waitResponse = true)
         {
             Contract.Ensures(ServiceType == NmsServiceType.Shutdown);
-            Initialize(source, destanation, PriorityType.Normal, NmsServiceType.Shutdown, waitResonse, id, false, new byte[0]);
+            Initialize(source, destanation, PriorityType.Normal, NmsServiceType.Shutdown, waitResponse, 0, false, new byte[0]);
         }
 
         #endregion //Constructors

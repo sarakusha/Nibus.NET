@@ -48,10 +48,12 @@ namespace NataInfo.Nibus
         /// </summary>
         /// <param name="codecs">Список кодеков в порядке от нижнего к высшему.</param>
         /// <example>
+        /// <code>
         /// using (stack = new NibusStack(SerialTransport("COM3", 115200), NibusDataCodec(), NmsCodec())
         /// {
         ///     var nmsProtocol = _stack.GetCodec&lt;NmsCodec&gt;().Protocol;
         /// }
+        /// </code>
         /// </example>
         public NibusStack(params ICodecInfo[] codecs)
         {
@@ -150,6 +152,9 @@ namespace NataInfo.Nibus
 
         #region Implementation of IDisposable
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             _codecs.Cast<IDisposable>().ToList().ForEach(codec => codec.Dispose());

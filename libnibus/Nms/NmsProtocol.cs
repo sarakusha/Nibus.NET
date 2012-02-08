@@ -35,6 +35,9 @@ namespace NataInfo.Nibus.Nms
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly CancellationTokenSource _cts;
+        /// <summary>
+        /// Минмальное время ожидания отклика от устройства для операций загрузки/выгрузки массивов данных.
+        /// </summary>
         public static readonly TimeSpan MinUploadDounloadTimeout = TimeSpan.FromSeconds(10);
         private readonly NibusOptions _defaultOptions;
 
@@ -194,7 +197,7 @@ namespace NataInfo.Nibus.Nms
         }
 
         /// <summary>
-        /// Асинхронное блочное чтение множества преременных.
+        /// Асинхронное пакетное чтение множества преременных.
         /// </summary>
         /// <param name="options">Параметры NiBUS-операции.</param>
         /// <param name="target">Адрес устойства.</param>
@@ -448,7 +451,7 @@ namespace NataInfo.Nibus.Nms
             Contract.Requires(!IsDisposed);
             Contract.Requires(target != null);
             Contract.Requires(target.Type != AddressType.Empty);
-            var reset = new NmsReset(Address.Empty, target, 0, false);
+            var reset = new NmsReset(Address.Empty, target, false);
             OutgoingMessages.Post(reset);
         }
 
@@ -463,7 +466,7 @@ namespace NataInfo.Nibus.Nms
             //Contract.Requires(!IsDisposed);
             //Contract.Requires(target != null);
             //Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
-            var reset = new NmsReset(Address.Empty, target, 0);
+            var reset = new NmsReset(Address.Empty, target);
             await WaitForNmsResponseAsync(reset, options);
         }
 
@@ -476,7 +479,7 @@ namespace NataInfo.Nibus.Nms
             Contract.Requires(!IsDisposed);
             Contract.Requires(target != null);
             Contract.Requires(target.Type != AddressType.Empty);
-            var shutdown = new NmsShutdown(Address.Empty, target, 0, false);
+            var shutdown = new NmsShutdown(Address.Empty, target, false);
             OutgoingMessages.Post(shutdown);
         }
 
@@ -491,7 +494,7 @@ namespace NataInfo.Nibus.Nms
             //Contract.Requires(!IsDisposed);
             //Contract.Requires(target != null);
             //Contract.Requires(target.Type == AddressType.Hardware || target.Type == AddressType.Net);
-            var shutdown = new NmsShutdown(Address.Empty, target, 0);
+            var shutdown = new NmsShutdown(Address.Empty, target);
             await WaitForNmsResponseAsync(shutdown, options);
         }
 
@@ -831,6 +834,9 @@ namespace NataInfo.Nibus.Nms
 
         #region Implementation of IDisposable
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             if (!IsDisposed)

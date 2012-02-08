@@ -32,6 +32,8 @@ namespace NataInfo.Nibus.Sport
         /// <summary>
         /// The default Constructor.
         /// </summary>
+        /// <param name="id">Идентификатор информационного сообщения.</param>
+        /// <param name="lines">Строки информационного сообщения.</param>
         public InfoMessage(byte id, params string[] lines)
         {
             Id = id;
@@ -56,7 +58,7 @@ namespace NataInfo.Nibus.Sport
         #region Properties
 
         /// <summary>
-        /// Возвращает тип сообщения.
+        /// Возвращает идентификатор сообщения.
         /// </summary>
         public byte Id { get; private set; }
 
@@ -84,17 +86,31 @@ namespace NataInfo.Nibus.Sport
         #endregion //Methods
     }
 
-    public static class InfoMessageExtensions
+    /// <summary>
+    /// Расширение для конвертации информационных сообщений.
+    /// </summary>
+    internal static class InfoMessageExtensions
     {
-        public static NmsInformationReport Create(Address source, InfoMessage infoMessage)
+        /// <summary>
+        /// Создает <see cref="NmsInformationReport"/> из информационного сообщения.
+        /// </summary>
+        /// <param name="infoMessage">Информационное сообщение.</param>
+        /// <param name="source">Адрес источника или <c>null</c>.</param>
+        /// <returns></returns>
+        public static NmsInformationReport CreateInformationReport(this InfoMessage infoMessage, Address source = null)
         {
             return new NmsInformationReport(
-                source,
+                source ?? Address.Empty,
                 (int)GameReports.ShowMessage,
                 NmsValueType.UInt8Array,
                 infoMessage.GetData());
         }
 
+        /// <summary>
+        /// Извлекает информационное сообщение из <see cref="NmsInformationReport"/>.
+        /// </summary>
+        /// <param name="report">Исходное сообщение.</param>
+        /// <returns></returns>
         public static InfoMessage GetInfoMessage(this NmsInformationReport report)
         {
             Contract.Requires(report.Id == (byte)GameReports.ShowMessage);

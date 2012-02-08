@@ -45,6 +45,10 @@ namespace NataInfo.Nibus.Sport
             Secondary = 64
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TimerInfo"/> class.
+        /// </summary>
+        /// <param name="timerId">Идентификатор таймера.</param>
         public TimerInfo(int timerId)
         {
             _data = new byte[Length];
@@ -236,6 +240,10 @@ namespace NataInfo.Nibus.Sport
             set { _data[HundredthOfs] = NmsMessage.PackByte(IsTenthOnly ? value%10 : value); }
         }
 
+        /// <summary>
+        /// Возвращает строковое представления таймера используя переданные атрибуты.
+        /// </summary>
+        /// <param name="attributes">Атрибуты таймера.</param>
         public string ToString(TimerAttributes attributes)
         {
             if (attributes == null)
@@ -270,6 +278,9 @@ namespace NataInfo.Nibus.Sport
             return ToString();
         }
 
+        /// <summary>
+        /// Возвращает строковое представления таймера.
+        /// </summary>
         public override string ToString()
         {
             if (HasFraction)
@@ -315,12 +326,12 @@ namespace NataInfo.Nibus.Sport
         }
     }
 
-    public static class NmsTimerExtentions
+    internal static class NmsTimerExtentions
     {
-        public static NmsInformationReport Create(Address source, TimerInfo timerInfo)
+        public static NmsInformationReport CreateInformationReport(this TimerInfo timerInfo, Address source = null)
         {
             return new NmsInformationReport(
-                source,
+                source ?? Address.Empty,
                 (int)GameReports.Timer,
                 NmsValueType.UInt8Array,
                 timerInfo.GetData(),

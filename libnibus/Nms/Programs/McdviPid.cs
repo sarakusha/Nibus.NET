@@ -9,6 +9,9 @@
 
 namespace NataInfo.Nibus.Nms.Programs
 {
+    /// <summary>
+    /// Идентификаторы подпрограмм для устройств MCDVI.
+    /// </summary>
     public enum McdviPid
     {
         /// <summary>

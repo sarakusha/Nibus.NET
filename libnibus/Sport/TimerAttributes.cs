@@ -16,6 +16,9 @@ namespace NataInfo.Nibus.Sport
         private readonly byte[] _data;
         private Attributes _attrs;
 
+        /// <summary>
+        /// Бесконечный таймер.
+        /// </summary>
         public const uint Infinity = 0;
 
         [Flags]
@@ -72,7 +75,7 @@ namespace NataInfo.Nibus.Sport
             Description = description;
         }
 
-        public TimerAttributes(byte[] data, int startIndex)
+        internal TimerAttributes(byte[] data, int startIndex)
         {
             Contract.Requires(data != null);
             Contract.Requires(data.Length == Length);
@@ -257,6 +260,9 @@ namespace NataInfo.Nibus.Sport
             }
         }
 
+        /// <summary>
+        /// Описание таймера.
+        /// </summary>
         public string Description { get; set; }
 
         internal byte[] GetData()

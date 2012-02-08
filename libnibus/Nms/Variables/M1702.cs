@@ -9,10 +9,15 @@
 namespace NataInfo.Nibus.Nms.Variables
 {
     /// <summary>
-    /// model 0x0004xxxx | НАТА-1702 - тяжелая атлетика
+    /// НАТА-1702 - тяжелая атлетика
     /// </summary>
     public enum M1702
     {
+        /// <summary>
+        /// Тип устройства. Не является переменной.
+        /// </summary>
+        DeviceTypeId = 4,
+
         /// <summary>
         /// VT_LPSTR | вид упражнения
         /// </summary>

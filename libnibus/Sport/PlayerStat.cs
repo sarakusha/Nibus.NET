@@ -51,6 +51,13 @@ namespace NataInfo.Nibus.Sport
         /// <summary>
         /// The default Constructor.
         /// </summary>
+        /// <param name="role">Принадлежность к команде.</param>
+        /// <param name="index">Индекс игрока (начинается с 0).</param>
+        /// <param name="number">Номер игрока.</param>
+        /// <param name="goals">Заработанные очки.</param>
+        /// <param name="fouls">Полученные фолы.</param>
+        /// <param name="isActive"><c>true</c> - игрок на площадке, иначе - <c>false</c>.</param>
+        /// <param name="stats">Дополнительная статистика по игроку (не более 3 значений).</param>
         public PlayerStat(
             TeamRole role, int index, int number, int goals, int fouls, bool isActive, params byte[] stats)
         {
@@ -210,12 +217,12 @@ namespace NataInfo.Nibus.Sport
         }
     }
 
-    public static class PlayerStatExtensions
+    internal static class PlayerStatExtensions
     {
-        public static NmsInformationReport Create(Address source, PlayerStat stat)
+        public static NmsInformationReport CreateInformationReport(this PlayerStat stat, Address source = null)
         {
             return new NmsInformationReport(
-                source,
+                source ?? Address.Empty,
                 (int)GameReports.PlayerStat,
                 NmsValueType.UInt8Array,
                 stat.GetData());

@@ -7,6 +7,9 @@
 
 namespace NataInfo.Nibus.Sport
 {
+    /// <summary>
+    /// Идентификаторы провайдеров игры.
+    /// </summary>
     public enum Providers : ushort
     {
         /// <summary>

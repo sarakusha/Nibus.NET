@@ -13,6 +13,9 @@ using System.Diagnostics.Contracts;
 
 namespace NataInfo.Nibus.Nms.Services
 {
+    /// <summary>
+    /// Класс-обертка для сообщений о прерывании загрузки массива данных в устройства.
+    /// </summary>
     public sealed class NmsTerminateDownloadSequence : NmsMessage
     {
         #region Constructors

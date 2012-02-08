@@ -15,6 +15,9 @@ using System.Linq;
 
 namespace NataInfo.Nibus.Nms.Services
 {
+    /// <summary>
+    /// Класс-обертка о проверке контрольной суммы домена.
+    /// </summary>
     public sealed class NmsVerifyDomainChecksum : NmsMessage
     {
         #region Constructors
@@ -31,6 +34,15 @@ namespace NataInfo.Nibus.Nms.Services
             Contract.Assume(ServiceType == NmsServiceType.VerifyDomainChecksum);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NmsVerifyDomainChecksum"/> class.
+        /// </summary>
+        /// <param name="source">Адрес источника.</param>
+        /// <param name="destanation">Адрес приемника.</param>
+        /// <param name="id">Идентификатор домена.</param>
+        /// <param name="offset">Смещение в домене.</param>
+        /// <param name="size">Размер.</param>
+        /// <param name="checksum">Контрольная сумма.</param>
         public NmsVerifyDomainChecksum(
             Address source, Address destanation, int id, uint offset, uint size, ushort checksum)
         {
@@ -54,6 +66,9 @@ namespace NataInfo.Nibus.Nms.Services
 
         #region Properties
 
+        /// <summary>
+        /// Возвращает смещение в домене.
+        /// </summary>
         public uint Offset
         {
             get
@@ -63,6 +78,9 @@ namespace NataInfo.Nibus.Nms.Services
             }
         }
 
+        /// <summary>
+        /// Размер проверяемых данных.
+        /// </summary>
         public uint Size
         {
             get
@@ -72,6 +90,9 @@ namespace NataInfo.Nibus.Nms.Services
             }
         }
 
+        /// <summary>
+        /// Возвращает контрольную сумму.
+        /// </summary>
         public ushort Checksum
         {
             get

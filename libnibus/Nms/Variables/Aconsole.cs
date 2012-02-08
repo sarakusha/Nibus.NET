@@ -10,10 +10,15 @@
 namespace NataInfo.Nibus.Nms.Variables
 {
     /// <summary>
-    /// model 0x0012xxxx | Консоль табло времени атаки
+    /// Консоль табло времени атаки.
     /// </summary>
+    /// <remarks><c>aconsole.mib.xsd</c> - mib-файл</remarks>
     public enum Aconsole
     {
+        /// <summary>
+        /// Тип устройства. Не является переменной.
+        /// </summary>
+        DeviceTypeId = 0x12,
         /// <summary>
         /// VT_BOOL,R/W | Направление таймера времени атаки
         /// </summary>
@@ -52,47 +57,47 @@ namespace NataInfo.Nibus.Nms.Variables
         /// <summary>
         /// VT_UI4,R | Ошибок контрольной суммы в rs485-интерфейсе
         /// </summary>
-        RS485ChecksumErrors = 0x107,
+        ChecksumErrors = 0x107,
 
         /// <summary>
         /// VT_UI4,R | Коллизий при передаче дейтаграмм в rs485-интерфейс
         /// </summary>
-        RS485Collisions = 0x108,
+        Collisions = 0x108,
 
         /// <summary>
         /// VT_UI4,R | Принято дейтаграмм из rs485-интерфейса
         /// </summary>
-        RS485RxDatagrams = 0x109,
+        RxDatagrams = 0x109,
 
         /// <summary>
         /// VT_UI4,R | Отослано дейтаграмм в rs485-интерфейс
         /// </summary>
-        RS485TxDatagrams = 0x10a,
+        TxDatagrams = 0x10a,
 
         /// <summary>
         /// VT_UI4,R | Ошибок синхронизации на rs485-интерфейсе
         /// </summary>
-        RS485FramingErrors = 0x10b,
+        FramingErrors = 0x10b,
 
         /// <summary>
         /// VT_UI4,R | Не отправленных дейтаграмм по rs485-интерфейсу
         /// </summary>
-        RS485TxFailedDatagrams = 0x10c,
+        TxFailedDatagrams = 0x10c,
 
         /// <summary>
         /// VT_UI4,R | Получено байт по rs485-интерфейсу
         /// </summary>
-        RS485BytesReceived = 0x10d,
+        BytesReceived = 0x10d,
 
         /// <summary>
         /// VT_UI4,R | Отправлено байт по rs485-интерфейсу
         /// </summary>
-        RS485BytesTransmitted = 0x10e,
+        BytesTransmitted = 0x10e,
 
         /// <summary>
         /// VT_UI4,R | Отброшено дейтаграм из rs485-интерфейса
         /// </summary>
-        RS485DatagramsIgnored = 0x10f,
+        DatagramsIgnored = 0x10f,
 
         /// <summary>
         /// VT_UI4,R | Обнаружено маркеров захвата шины

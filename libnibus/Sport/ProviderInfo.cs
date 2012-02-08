@@ -18,6 +18,9 @@ using NataInfo.Nibus.Nms.Services;
 
 namespace NataInfo.Nibus.Sport
 {
+    /// <summary>
+    /// Провайдер игры. Содержит информацию по таймерам используемым в игре.
+    /// </summary>
     public class ProviderInfo
     {
         #region Member Variables
@@ -35,12 +38,18 @@ namespace NataInfo.Nibus.Sport
         /// <summary>
         /// The default Constructor.
         /// </summary>
+        /// <param name="id">Идентификатор провайдера, <see cref="Providers"/>.</param>
+        /// <param name="timers">Атрибуты таймеров.</param>
         public ProviderInfo(ushort id, params TimerAttributes[] timers)
         {
             Id = id;
             _timers = (TimerAttributes[])timers.Clone();
         }
 
+        /// <summary>
+        /// Конструктор копирования.
+        /// </summary>
+        /// <param name="other">Оригинал.</param>
         public ProviderInfo(ProviderInfo other) : this(other.Id, other.Timers)
         {
         }
@@ -95,12 +104,12 @@ namespace NataInfo.Nibus.Sport
         #endregion //Methods
     }
 
-    public static class ProviderExtensions
+    internal static class ProviderExtensions
     {
-        public static NmsInformationReport Create(Address source, ProviderInfo providerInfo)
+        public static NmsInformationReport CreateInformationReport(this ProviderInfo providerInfo, Address source = null)
         {
             return new NmsInformationReport(
-                source,
+                source ?? Address.Empty,
                 (int)GameReports.ChangeSport,
                 NmsValueType.UInt8Array,
                 providerInfo.GetData());

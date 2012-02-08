@@ -17,42 +17,42 @@ namespace NataInfo.Nibus.Nms.Variables
         /// <summary>
         /// VT_UI4,R | Ошибок контрольной суммы в rsRS485-h интерфейсе
         /// </summary>
-        RS485HChecksumErrors = 0x100,
+        HChecksumErrors = 0x100,
 
         /// <summary>
         /// VT_UI4,R | Коллизий при передаче дейтаграмм в rsRS485-h интерфейсе
         /// </summary>
-        RS485HCollisions = 0x101,
+        HCollisions = 0x101,
 
         /// <summary>
         /// VT_UI4,R | Принято дейтаграмм по rsRS485-h интерфейсу
         /// </summary>
-        RS485HRxDatagrams = 0x102,
+        HRxDatagrams = 0x102,
 
         /// <summary>
         /// VT_UI4,R | Отослано дейтаграмм по rsRS485-h интерфейсу
         /// </summary>
-        RS485HTxDatagrams = 0x103,
+        HTxDatagrams = 0x103,
 
         /// <summary>
         /// VT_UI4,R | Ошибок контрольной суммы в rsRS485-v интерфейсе
         /// </summary>
-        RS485VChecksumErrors = 0x104,
+        VChecksumErrors = 0x104,
 
         /// <summary>
         /// VT_UI4,R | Коллизий при передаче дейтаграмм в rsRS485-v интерфейсе
         /// </summary>
-        RS485VCollisions = 0x105,
+        VCollisions = 0x105,
 
         /// <summary>
         /// VT_UI4,R | Принято дейтаграмм по rsRS485-v интерфейсу
         /// </summary>
-        RS485VRxDatagrams = 0x106,
+        VRxDatagrams = 0x106,
 
         /// <summary>
         /// VT_UI4,R | Отослано дейтаграмм по rsRS485-h интерфейсу
         /// </summary>
-        RS485VTxDatagrams = 0x107,
+        VTxDatagrams = 0x107,
 
         /// <summary>
         /// VT_UI4,R | Принято дейтаграмм от ведомого процессора
@@ -72,27 +72,27 @@ namespace NataInfo.Nibus.Nms.Variables
         /// <summary>
         /// VT_UI4,R | Ошибок синхронизации на rsRS485-h интерфейсе
         /// </summary>
-        RS485HFramingErrors = 0x10b,
+        HFramingErrors = 0x10b,
 
         /// <summary>
         /// VT_UI4,R | Ошибок синхронизации на rsRS485-v интерфейсе
         /// </summary>
-        RS485VFramingErrors = 0x10c,
+        VFramingErrors = 0x10c,
 
         /// <summary>
         /// VT_UI4,R | Не отправленных дейтаграмм по rsRS485-h интерфейсу
         /// </summary>
-        RS485HTxFailedDatagrams = 0x10d,
+        HTxFailedDatagrams = 0x10d,
 
         /// <summary>
         /// VT_UI4,R | Не отправленных дейтаграмм по rsRS485-v интерфейсу
         /// </summary>
-        RS485VTxFailedDatagrams = 0x10e,
+        VTxFailedDatagrams = 0x10e,
 
         /// <summary>
         /// VT_UI4,R | Фальшивых start-битов на rsRS485-v интерфейсе
         /// </summary>
-        RS485VFalseStartBits = 0x10f,
+        VFalseStartBits = 0x10f,
 
         /// <summary>
         /// VT_UI4,R | Ошибок контрольной суммы в i2c интерфейсе
@@ -107,12 +107,12 @@ namespace NataInfo.Nibus.Nms.Variables
         /// <summary>
         /// VT_UI2,R | Переполнений фифо на rsRS485h-интерфейсе
         /// </summary>
-        RS485HFifoOverruns = 0x112,
+        HFifoOverruns = 0x112,
 
         /// <summary>
         /// VT_UI2,R | Переполнений фифо на rsRS485v-интерфейсе
         /// </summary>
-        RS485VFifoOverruns = 0x113,
+        VFifoOverruns = 0x113,
 
         /// <summary>
         /// VT_UI2,R | Переполнений фифо на i2c-интерфейсе

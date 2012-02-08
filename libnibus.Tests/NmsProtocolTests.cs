@@ -191,12 +191,12 @@ namespace NataInfo.Nibus.Tests
             var nmsProtocol = _stack.GetCodec<NmsCodec>().Protocol;
             var rs485_rx_datagrams1 =
                 Convert.ToUInt32(
-                    nmsProtocol.ReadValueAsync(Vms50Address, (int)StdKernel.RS485RxDatagrams).Result);
+                    nmsProtocol.ReadValueAsync(Vms50Address, (int)StdKernel.RxDatagrams).Result);
             nmsProtocol.ExecuteProgramConfirmedAsync(Vms50Address, 4).Wait();
             Thread.Sleep(500);
             var rs485_rx_datagrams2 =
                 Convert.ToUInt32(
-                    nmsProtocol.ReadValueAsync(Vms50Address, (int)StdKernel.RS485RxDatagrams).Result);
+                    nmsProtocol.ReadValueAsync(Vms50Address, (int)StdKernel.RxDatagrams).Result);
             Assert.That(rs485_rx_datagrams2, Is.LessThan(rs485_rx_datagrams1));
         }
  

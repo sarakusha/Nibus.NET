@@ -31,6 +31,10 @@ namespace NataInfo.Nibus
         {
         }
 
+        /// <summary>
+        /// Конструктор копирования.
+        /// </summary>
+        /// <param name="other">Оригинал.</param>
         public NibusOptions(NibusOptions other)
         {
             if (other != null)

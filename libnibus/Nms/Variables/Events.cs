@@ -16,6 +16,10 @@ using System.Text;
 
 namespace NataInfo.Nibus.Nms.Variables
 {
+    /// <summary>
+    /// Стандартные события.
+    /// </summary>
+    /// <seealso cref="NmsProtocol.FireEventNotification"/>
     public enum Events
     {
         /// <summary>

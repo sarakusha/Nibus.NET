@@ -16,6 +16,9 @@ using NataInfo.Nibus.Nms.Services;
 
 namespace NataInfo.Nibus.Sport
 {
+    /// <summary>
+    /// Статистика по Большому теннису.
+    /// </summary>
     public class TennisStat
     {
         #region Member Variables
@@ -188,22 +191,12 @@ namespace NataInfo.Nibus.Sport
         #endregion //Methods
     }
 
-    public sealed class TennisStatChangedEventArgs : BaseInformationReportEventArgs
-    {
-        public TennisStat TennisStat { get; private set; }
-
-        public TennisStatChangedEventArgs(Address source, TennisStat tennisStat) : base(source)
-        {
-            TennisStat = tennisStat;
-        }
-    }
-
     internal static class TennisExtensions
     {
-        public static NmsInformationReport Create(Address source, TennisStat tennisStat)
+        public static NmsInformationReport CreateInformationReport(this TennisStat tennisStat, Address source = null)
         {
             return new NmsInformationReport(
-                source,
+                source ?? Address.Empty,
                 TennisProtocol.TennisStats,
                 NmsValueType.UInt8Array,
                 tennisStat.GetData());

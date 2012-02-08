@@ -16,37 +16,37 @@ namespace NataInfo.Nibus.Nms.Variables
         /// <summary>
         /// VT_UI4,R | Ошибок контрольной суммы в rs485 интерфейсе
         /// </summary>
-        RS485ChecksumErrors = 0x100,
+        ChecksumErrors = 0x100,
 
         /// <summary>
         /// VT_UI4,R | Коллизий при передаче дейтаграмм в rs485 интерфейсе
         /// </summary>
-        RS485Collisions = 0x101,
+        Collisions = 0x101,
 
         /// <summary>
         /// VT_UI4,R | Принято дейтаграмм по rs485 интерфейсу
         /// </summary>
-        RS485RxDatagrams = 0x102,
+        RxDatagrams = 0x102,
 
         /// <summary>
         /// VT_UI4,R | Отослано дейтаграмм по rs485 интерфейсу
         /// </summary>
-        RS485TxDatagrams = 0x103,
+        TxDatagrams = 0x103,
 
         /// <summary>
         /// VT_UI4,R | Ошибок синхронизации на rs485 интерфейсе
         /// </summary>
-        RS485FramingErrors = 0x104,
+        FramingErrors = 0x104,
 
         /// <summary>
         /// VT_UI4,R | Не отправленных дейтаграмм по rs485 интерфейсу
         /// </summary>
-        RS485TxFailedDatagrams = 0x105,
+        TxFailedDatagrams = 0x105,
 
         /// <summary>
         /// VT_UI4,R | Игнорировано start-битов на rs485 интерфейсе
         /// </summary>
-        RS485FalseStartBits = 0x106,
+        FalseStartBits = 0x106,
 
         /// <summary>
         /// VT_UI4,R | Обнаружено маркеров захвата шины
@@ -66,17 +66,17 @@ namespace NataInfo.Nibus.Nms.Variables
         /// <summary>
         /// VT_UI4,R | Принято байт по rs485 интерфейсу
         /// </summary>
-        RS485BytesReceived = 0x10a,
+        BytesReceived = 0x10a,
 
         /// <summary>
         /// VT_UI4,R | Передано байт по rs485 интерфейсу
         /// </summary>
-        RS485BytesTransmitted = 0x10b,
+        BytesTransmitted = 0x10b,
 
         /// <summary>
         /// VT_UI4,R | Переполнений fifo на rs485 интерфейсе
         /// </summary>
-        RS485FifoOverruns = 0x10c,
+        FifoOverruns = 0x10c,
 
         /// <summary>
         /// VT_UI1,R | Результат POST kernel'a

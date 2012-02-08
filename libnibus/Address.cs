@@ -69,7 +69,7 @@ namespace NataInfo.Nibus
         /// <param name="buffer">Буфер NiBUS хранящий адрес.</param>
         /// <param name="offset">Смещение в буфере.</param>
         /// <returns>Экземпляр класса <see cref="Address"/> инициализированный данными из буфера.</returns>
-        /// <remarks>Размер буфера должен быть не меньше <see cref="Length"/> + <see cref="offset"/>.</remarks>
+        /// <remarks>Размер буфера должен быть не меньше <see cref="Length"/> + <paramref name="offset"/>.</remarks>
         public static Address ReadFrom(byte[] buffer, int offset)
         {
             Contract.Requires(buffer.Length - offset >= MACLength + 1);
@@ -94,6 +94,11 @@ namespace NataInfo.Nibus
             }
         }
 
+        /// <summary>
+        /// Вспомогательный метод для создания MAC-адреса.
+        /// </summary>
+        /// <param name="mac">Элементы MAC-адреса.</param>
+        /// <returns></returns>
         public static Address CreateMac(params byte[] mac)
         {
             return new Address(mac);
@@ -441,6 +446,12 @@ namespace NataInfo.Nibus
             Array.Clear(buffer, offset + i, Length - i);
         }
 
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// </returns>
         public override int GetHashCode()
         {
             switch (Type)
@@ -462,6 +473,14 @@ namespace NataInfo.Nibus
             }
         }
 
+        /// <summary>
+        /// Implements the operator ==.
+        /// </summary>
+        /// <param name="a1">The a1.</param>
+        /// <param name="a2">The a2.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
         public static bool operator ==(Address a1, Address a2)
         {
             if (ReferenceEquals(a1, a2))
@@ -499,12 +518,27 @@ namespace NataInfo.Nibus
             
             return true;
         }
-        
+
+        /// <summary>
+        /// Implements the operator !=.
+        /// </summary>
+        /// <param name="a1">The a1.</param>
+        /// <param name="a2">The a2.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
         public static bool operator !=(Address a1, Address a2)
         {
             return !(a1 == a2);
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object"/> is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object"/> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object"/> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object obj)
         {
             if (obj == null)
@@ -525,6 +559,9 @@ namespace NataInfo.Nibus
             return this == (Address)obj;
         }
 
+        /// <summary>
+        /// Возвращает строковое представление адреса.
+        /// </summary>
         public override string ToString()
         {
             switch (Type)

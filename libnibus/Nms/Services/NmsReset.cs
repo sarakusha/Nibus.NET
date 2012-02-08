@@ -13,6 +13,9 @@ using System.Diagnostics.Contracts;
 
 namespace NataInfo.Nibus.Nms.Services
 {
+    /// <summary>
+    /// Класс-обертка для сообщений о перезагрузке устройства.
+    /// </summary>
     public sealed class NmsReset : NmsMessage
     {
         #region Constructors
@@ -29,16 +32,18 @@ namespace NataInfo.Nibus.Nms.Services
             Contract.Assume(ServiceType == NmsServiceType.Reset);
         }
 
-        public NmsReset(Address source, Address destanation, int id, bool waitResponse = true)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NmsReset"/> class.
+        /// </summary>
+        /// <param name="source">Адрес источника.</param>
+        /// <param name="destanation">Адрес приемника.</param>
+        /// <param name="waitResponse"><c>true</c> - если требуется ожидание подтверждения.</param>
+        public NmsReset(Address source, Address destanation, bool waitResponse = true)
         {
             Contract.Ensures(ServiceType == NmsServiceType.Reset);
-            Initialize(source, destanation, PriorityType.Normal, NmsServiceType.Reset, waitResponse, id, false, new byte[0]);
+            Initialize(source, destanation, PriorityType.Normal, NmsServiceType.Reset, waitResponse, 0, false, new byte[0]);
         }
 
         #endregion //Constructors
-
-        #region Properties
-
-        #endregion //Properties
     }
 }

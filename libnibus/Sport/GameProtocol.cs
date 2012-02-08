@@ -176,7 +176,7 @@ namespace NataInfo.Nibus.Sport
         /// <param name="timerInfo">Данные таймера.</param>
         public void FireTimerChaged(TimerInfo timerInfo)
         {
-            FireInformationReport(NmsTimerExtentions.Create(Address.Empty, timerInfo));
+            FireInformationReport(timerInfo.CreateInformationReport());
         }
 
         /// <summary>
@@ -273,7 +273,7 @@ namespace NataInfo.Nibus.Sport
         /// <param name="playerInfo">Информация об игроке.</param>
         public void FirePlayerInfo(PlayerInfo playerInfo)
         {
-            FireInformationReport(PlayerInfoExtensions.Create(Address.Empty, playerInfo));
+            FireInformationReport(playerInfo.CreateInformationReport());
         }
 
         /// <summary>
@@ -282,7 +282,7 @@ namespace NataInfo.Nibus.Sport
         /// <param name="playerStat">Статистика игрока.</param>
         public void FirePlayerStat(PlayerStat playerStat)
         {
-            FireInformationReport(PlayerStatExtensions.Create(Address.Empty, playerStat));
+            FireInformationReport(playerStat.CreateInformationReport());
         }
 
         /// <summary>
@@ -351,7 +351,7 @@ namespace NataInfo.Nibus.Sport
         /// <param name="infoMessage">Информационное сообщение.</param>
         public void FireShowInfoMessage(InfoMessage infoMessage)
         {
-            FireInformationReport(InfoMessageExtensions.Create(Address.Empty, infoMessage));
+            FireInformationReport(infoMessage.CreateInformationReport());
         }
 
         /// <summary>
@@ -361,7 +361,7 @@ namespace NataInfo.Nibus.Sport
         public void FireSportChanged()
         {
             Contract.Requires(Provider != null);
-            FireInformationReport(ProviderExtensions.Create(Address.Empty, Provider));
+            FireInformationReport(Provider.CreateInformationReport());
         }
 
         /// <summary>
@@ -376,6 +376,12 @@ namespace NataInfo.Nibus.Sport
 
         #region Implementations
 
+        /// <summary>
+        /// Генерация события с отложенной инициализацией аргумента.
+        /// </summary>
+        /// <typeparam name="T">Тип аргумента.</typeparam>
+        /// <param name="eventHandler">Делегат события.</param>
+        /// <param name="getArgs">Функция создания аргумента для события. Вызывается если есть подписчик на событие.</param>
         protected void LazyInvokeEvent<T>(EventHandler<T> eventHandler, Func<T> getArgs) where T : EventArgs
         {
             if (eventHandler != null)
@@ -384,6 +390,12 @@ namespace NataInfo.Nibus.Sport
             }
         }
 
+        /// <summary>
+        /// Обработчик события от <see cref="NataInfo.Nibus.Nms.NmsProtocol.InformationReportReceived"/>.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">The <see cref="NataInfo.Nibus.Nms.NmsInformationReportEventArgs"/> instance containing the event data.</param>
+        /// <remarks>Если тип события определен устанавливается значение <see cref="NmsInformationReportEventArgs.Identified"/> = <c>true</c></remarks>
         protected virtual void OnInformationReportReceived(object sender, NmsInformationReportEventArgs e)
         {
             var report = e.InformationReport;

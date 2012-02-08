@@ -11,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NataInfo.Nibus.Nms;
-using NataInfo.Nibus.Nms.Services;
 using NataInfo.Nibus.Nms.Variables;
 
 #endregion
@@ -35,6 +34,7 @@ namespace NataInfo.Nibus.Sport
         /// <summary>
         /// The default Constructor.
         /// </summary>
+        /// <param name="nmsProtocol">The NMS protocol.</param>
         public IceHockeyProtocol(NmsProtocol nmsProtocol) : base(nmsProtocol)
         {
         }
@@ -59,7 +59,7 @@ namespace NataInfo.Nibus.Sport
         /// <summary>
         /// Возвращает провайдера игры по умолчанию.
         /// </summary>
-        public ProviderInfo DefaultProvider
+        public static ProviderInfo DefaultProvider
         {
             get
             {
@@ -82,9 +82,10 @@ namespace NataInfo.Nibus.Sport
         }
 
         /// <summary>
-        /// Загружает с пульта длительность таймеров и обновляет провайдера игры.
+        /// Загружает с универсального пульта длительность таймеров и обновляет провайдера игры.
         /// </summary>
         /// <param name="uconsole">Адрес пульта или <c>null</c>.</param>
+        /// <remarks>Асинхронная операция.</remarks>
         public async void LoadProvider(Address uconsole = null)
         {
             if (uconsole == null)
@@ -95,7 +96,6 @@ namespace NataInfo.Nibus.Sport
             var timerInfos = new List<ReadProgressInfo>(12);
             var options = new NibusOptions
                                 {
-                                    Attempts = 1,
                                     Progress = new Progress<object>(o => timerInfos.Add((ReadProgressInfo)o))
                                 };
 
@@ -170,13 +170,18 @@ namespace NataInfo.Nibus.Sport
         /// <param name="penaltyStat">Статистика по удалениям.</param>
         public void FirePenaltyStatChanged(PenaltyStat penaltyStat)
         {
-            FireInformationReport(PenaltyStatExtensions.Create(Address.Empty, penaltyStat));
+            FireInformationReport(penaltyStat.CreateInformationReport());
         }
 
         #endregion //Methods
 
         #region Overrides of GameProtocol
 
+        /// <summary>
+        /// Обработчик события от <see cref="NataInfo.Nibus.Nms.NmsProtocol.InformationReportReceived"/>.
+        /// </summary>
+        /// <param name="sender">Источник события.</param>
+        /// <param name="e">The <see cref="NataInfo.Nibus.Nms.NmsInformationReportEventArgs"/> instance containing the event data.</param>
         protected override void OnInformationReportReceived(object sender, NmsInformationReportEventArgs e)
         {
             base.OnInformationReportReceived(sender, e);

@@ -18,6 +18,9 @@ using NataInfo.Nibus.Nms.Services;
 
 namespace NataInfo.Nibus.Sport
 {
+    /// <summary>
+    /// Текущая статистика по удалениям в матче (хоккей).
+    /// </summary>
     public class PenaltyStat
     {
         #region Member Variables
@@ -25,6 +28,9 @@ namespace NataInfo.Nibus.Sport
         private const int LinesOfs = 0;
         private const int MaxItems = 5;
 
+        /// <summary>
+        /// Идентификатор сообщения о статистике удалений.
+        /// </summary>
         public const int PenaltyStatId = 28;
         
         #endregion
@@ -34,6 +40,7 @@ namespace NataInfo.Nibus.Sport
         /// <summary>
         /// The default Constructor.
         /// </summary>
+        /// <param name="lines">Максимальное количество удаленных в каждой команде.</param>
         public PenaltyStat(int lines = MaxItems)
         {
             HomePenalties = new ReadOnlyCollection<PenaltyInfo>(new PenaltyInfo[lines]);
@@ -55,7 +62,13 @@ namespace NataInfo.Nibus.Sport
 
         #region Properties
 
+        /// <summary>
+        /// Возвращает статистику по удалениям команды хозяев.
+        /// </summary>
         public ReadOnlyCollection<PenaltyInfo> HomePenalties { get; private set; }
+        /// <summary>
+        /// Возвращает статистику по удалениям команды гостей.
+        /// </summary>
         public ReadOnlyCollection<PenaltyInfo> VisitorPenalties { get; private set; }
 
         #endregion //Properties
@@ -75,23 +88,15 @@ namespace NataInfo.Nibus.Sport
         #endregion //Methods
     }
 
-    public sealed class PenaltyStatChangedEventArgs : BaseInformationReportEventArgs
+    /// <summary>
+    /// Расширение для конвертации статистики по удалениям.
+    /// </summary>
+    internal static class PenaltyStatExtensions
     {
-        public PenaltyStat PenaltyStat { get; private set; }
-
-        public PenaltyStatChangedEventArgs(Address source, PenaltyStat penaltyStat)
-            : base(source)
-        {
-            PenaltyStat = penaltyStat;
-        }
-    }
-
-    public static class PenaltyStatExtensions
-    {
-        public static NmsInformationReport Create(Address source, PenaltyStat penaltyStat)
+        public static NmsInformationReport CreateInformationReport(this PenaltyStat penaltyStat, Address source = null)
         {
             return new NmsInformationReport(
-                source,
+                source ?? Address.Empty,
                 PenaltyStat.PenaltyStatId,
                 NmsValueType.UInt8Array,
                 penaltyStat.GetData());

@@ -16,6 +16,9 @@ using System.Text;
 
 namespace NataInfo.Nibus.Nms.Services
 {
+    /// <summary>
+    /// Класс-обертка для сообщений о запросе загрузки массива данных в устройство.
+    /// </summary>
     public sealed class NmsRequestDomainDownload : NmsMessage
     {
         #region Constructors
@@ -32,6 +35,12 @@ namespace NataInfo.Nibus.Nms.Services
             Contract.Assume(ServiceType == NmsServiceType.RequestDomainDownload);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NmsRequestDomainDownload"/> class.
+        /// </summary>
+        /// <param name="source">Адрес источника.</param>
+        /// <param name="destanation">Адрес приемника.</param>
+        /// <param name="domain">Домен.</param>
         public NmsRequestDomainDownload(Address source, Address destanation, string domain)
         {
             Contract.Requires(domain != null);
@@ -54,6 +63,9 @@ namespace NataInfo.Nibus.Nms.Services
 
         #region Properties
 
+        /// <summary>
+        /// Возвращает запрашиваемый домен для загрузки.
+        /// </summary>
         public string Domain
         {
             get
@@ -65,6 +77,9 @@ namespace NataInfo.Nibus.Nms.Services
             }
         }
 
+        /// <summary>
+        /// Возвращает размер запрашиваемого домена.
+        /// </summary>
         public uint DomainSize
         {
             get
@@ -74,6 +89,9 @@ namespace NataInfo.Nibus.Nms.Services
             }
         }
 
+        /// <summary>
+        /// Возвращает признак, что загрузка может происходить без подверждения успешного приема.
+        /// </summary>
         public bool IsFastDownload
         {
             get

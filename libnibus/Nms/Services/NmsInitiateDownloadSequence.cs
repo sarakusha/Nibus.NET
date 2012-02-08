@@ -13,6 +13,9 @@ using System.Diagnostics.Contracts;
 
 namespace NataInfo.Nibus.Nms.Services
 {
+    /// <summary>
+    /// Класс-обертка для сообщений об инициации загрузки массива данных в устройство.
+    /// </summary>
     public sealed class NmsInitiateDownloadSequence : NmsMessage
     {
         #region Constructors
@@ -29,6 +32,12 @@ namespace NataInfo.Nibus.Nms.Services
             Contract.Assume(ServiceType == NmsServiceType.InitiateDownloadSequence);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NmsInitiateDownloadSequence"/> class.
+        /// </summary>
+        /// <param name="source">Адрес источника.</param>
+        /// <param name="destanation">Адрес приемника.</param>
+        /// <param name="id">Идентификатор домена.</param>
         public NmsInitiateDownloadSequence(Address source, Address destanation, int id)
         {
             Contract.Ensures(ServiceType == NmsServiceType.InitiateDownloadSequence);

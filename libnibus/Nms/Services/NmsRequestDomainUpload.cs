@@ -16,6 +16,9 @@ using System.Text;
 
 namespace NataInfo.Nibus.Nms.Services
 {
+    /// <summary>
+    /// Класс-обертка для сообщений о запросе выгрузки данных с устройства.
+    /// </summary>
     public sealed class NmsRequestDomainUpload : NmsMessage
     {
         #region Member Variables
@@ -39,9 +42,9 @@ namespace NataInfo.Nibus.Nms.Services
         /// <summary>
         /// Initializes a new instance of the <see cref="NmsRequestDomainUpload"/> class.
         /// </summary>
-        /// <param name="source">The source.</param>
-        /// <param name="destanation">The destanation.</param>
-        /// <param name="domain">The domain (8 симв).</param>
+        /// <param name="source">Адрес источника.</param>
+        /// <param name="destanation">Адрес применика.</param>
+        /// <param name="domain">Домен (8 симв).</param>
         public NmsRequestDomainUpload(Address source, Address destanation, string domain)
         {
             Contract.Requires(domain != null);
@@ -64,6 +67,9 @@ namespace NataInfo.Nibus.Nms.Services
 
         #region Properties
 
+        /// <summary>
+        /// Возвращает имя запрашиваемого домена.
+        /// </summary>
         public string Domain
         {
             get
@@ -75,6 +81,9 @@ namespace NataInfo.Nibus.Nms.Services
             }
         }
 
+        /// <summary>
+        /// Возвращает размер запрашиваемого домена.
+        /// </summary>
         public uint DomainSize
         {
             get
