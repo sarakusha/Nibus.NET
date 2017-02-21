@@ -390,15 +390,13 @@ namespace NataInfo.Nibus.Nms.Services
                     break;
             }
 
-            if (((byte) valueType & (byte) NmsValueType.Array) == 0)
+            if (((byte) valueType & (byte) NmsValueType.Array) != 0)
             {
-                throw new ArgumentException("Invalid ValueType");
-            }
-
-            var arrayType = (NmsValueType) ((byte) valueType & ((byte) NmsValueType.Array - 1));
-            foreach (var item in (IEnumerable) value)
-            {
-                data.AddRange(WriteValue(arrayType, item));
+                var arrayType = (NmsValueType)((byte)valueType & ((byte)NmsValueType.Array - 1));
+                foreach (var item in (IEnumerable)value)
+                {
+                    data.AddRange(WriteValue(arrayType, item));
+                }
             }
 
             Contract.Assert(data.Count <= NmsMaxDataLength);

@@ -229,11 +229,11 @@ namespace NataInfo.Nibus.Nms
                                         });
                 try
                 {
-                    await TaskEx.WhenAll(tasks.ToArray());
+                    await Task.WhenAll(tasks.ToArray());
                 }
                 catch (Exception e)
                 {
-                    Logger.ErrorException("Read failed", e);
+                    Logger.Error(e, "Read failed");
                 }
             }
         }
@@ -792,7 +792,7 @@ namespace NataInfo.Nibus.Nms
                 }
                 catch (Exception exception)
                 {
-                    Logger.ErrorException("NMS Information Report error", exception);
+                    Logger.Error(exception, "NMS Information Report error");
                     Debug.Fail("NMS Information Report error");
                 }
             }

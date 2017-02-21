@@ -22,6 +22,7 @@ using NataInfo.Nibus.Sport;
 namespace NataInfo.Nibus.Tests
 {
     [TestFixture]
+    [Ignore("Tennis ignore")]
     public class TennisReceiverTests
     {
         private SerialTransport _serial;
@@ -29,7 +30,7 @@ namespace NataInfo.Nibus.Tests
         private NmsCodec _nmsCodec;
         private List<IDisposable> _releaser;
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void BuildStack()
         {
             _serial = new SerialTransport("COM7", 115200);
@@ -42,7 +43,7 @@ namespace NataInfo.Nibus.Tests
             _serial.Open();
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void ReleaseStack()
         {
             foreach (var disposable in _releaser)

@@ -142,7 +142,7 @@ namespace NataInfo.Nibus
             }
             catch (Exception ex)
             {
-                Logger.ErrorException("Error while reading", ex);
+                Logger.Error(ex, "Error while reading");
             }
         }
 

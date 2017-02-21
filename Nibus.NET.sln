@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libnibus", "libnibus\libnibus.csproj", "{AF0F4EF1-BBA8-4FE3-BDBB-6F067C9314C0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{899F98AF-811B-4D5C-B62C-11E7580AE9AC}"
@@ -11,8 +11,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{899F98
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libnibus.Tests", "libnibus.Tests\libnibus.Tests.csproj", "{6CEE3F6B-100A-45E2-B7EF-BDAB55EB1DA0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProfilerTest", "ProfilerTest\ProfilerTest.csproj", "{D6F4F8A7-9CAF-41F1-82D9-41493A45E24F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IceHockeyViewer", "IceHockeyViewer\IceHockeyViewer.csproj", "{940E5F1E-4631-4862-A726-CE87E39E2A0B}"
 EndProject
@@ -48,16 +46,6 @@ Global
 		{6CEE3F6B-100A-45E2-B7EF-BDAB55EB1DA0}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{6CEE3F6B-100A-45E2-B7EF-BDAB55EB1DA0}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{6CEE3F6B-100A-45E2-B7EF-BDAB55EB1DA0}.Release|x86.ActiveCfg = Release|Any CPU
-		{D6F4F8A7-9CAF-41F1-82D9-41493A45E24F}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{D6F4F8A7-9CAF-41F1-82D9-41493A45E24F}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{D6F4F8A7-9CAF-41F1-82D9-41493A45E24F}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{D6F4F8A7-9CAF-41F1-82D9-41493A45E24F}.Debug|x86.ActiveCfg = Debug|x86
-		{D6F4F8A7-9CAF-41F1-82D9-41493A45E24F}.Debug|x86.Build.0 = Debug|x86
-		{D6F4F8A7-9CAF-41F1-82D9-41493A45E24F}.Release|Any CPU.ActiveCfg = Release|x86
-		{D6F4F8A7-9CAF-41F1-82D9-41493A45E24F}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{D6F4F8A7-9CAF-41F1-82D9-41493A45E24F}.Release|Mixed Platforms.Build.0 = Release|x86
-		{D6F4F8A7-9CAF-41F1-82D9-41493A45E24F}.Release|x86.ActiveCfg = Release|x86
-		{D6F4F8A7-9CAF-41F1-82D9-41493A45E24F}.Release|x86.Build.0 = Release|x86
 		{940E5F1E-4631-4862-A726-CE87E39E2A0B}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{940E5F1E-4631-4862-A726-CE87E39E2A0B}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{940E5F1E-4631-4862-A726-CE87E39E2A0B}.Debug|Mixed Platforms.Build.0 = Debug|x86

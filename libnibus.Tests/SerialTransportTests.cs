@@ -12,7 +12,7 @@ namespace NataInfo.Nibus.Tests
     [TestFixture]
     public class SerialTransportTests
     {
-        [Test, Ignore]
+        [Test, Ignore("Ignore a test")]
         public void SerialCodec_RunAsync_ReceiveNotNull()
         {
             using (var serial = new SerialTransport("COM4", 9600))
@@ -23,7 +23,7 @@ namespace NataInfo.Nibus.Tests
             }
         }
 
-        [Test, Ignore]
+        [Test, Ignore("Ignore a test")]
         public void SerialCodec_Send()
         {
             using (var serial = new SerialTransport("COM4", 9600))
